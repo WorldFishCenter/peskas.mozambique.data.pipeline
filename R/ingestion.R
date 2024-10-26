@@ -63,13 +63,14 @@ ingest_surveys <- function(url = NULL,
   logger::log_info("Converting WCS Fish Catch Survey Kobo data to tabular format...")
   raw_survey <-
     purrr::map(data_raw, flatten_row) %>%
-    dplyr::bind_rows()
+    dplyr::bind_rows() %>%
+    dplyr::rename("submission_id" = .data$`_id`)
 
   logger::log_info("Uploading raw data to mongodb")
   mdb_collection_push(
     data = raw_survey,
     connection_string = conf$storage$mongodb$connection_string,
-    collection_name = conf$storage$mongodb$database$pipeline$collection_name$ongoing$raw,
+    collection_name = conf$storage$mongodb$database$pipeline$collection_name$raw,
     db_name = conf$storage$mongodb$database$pipeline$name
   )
 }

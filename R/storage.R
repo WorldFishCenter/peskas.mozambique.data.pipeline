@@ -1,12 +1,14 @@
 #' Retrieve Data from MongoDB
 #'
-#' This function connects to a MongoDB database and retrieves all documents from a specified collection.
+#' This function connects to a MongoDB database and retrieves all documents from a specified collection,
+#' maintaining the original column order if available.
 #'
 #' @param connection_string A character string specifying the MongoDB connection URL. Default is NULL.
 #' @param collection_name A character string specifying the name of the collection to query. Default is NULL.
 #' @param db_name A character string specifying the name of the database. Default is NULL.
 #'
-#' @return A data frame containing all documents from the specified collection.
+#' @return A data frame containing all documents from the specified collection, with columns ordered
+#'         as they were when the data was originally pushed to MongoDB.
 #'
 #' @keywords storage
 #'
@@ -22,21 +24,44 @@
 #'
 #' @export
 mdb_collection_pull <- function(connection_string = NULL, collection_name = NULL, db_name = NULL) {
-  data <- mongolite::mongo(collection = collection_name, db = db_name, url = connection_string)
-  data$find()
+  # Connect to the MongoDB collection
+  collection <- mongolite::mongo(collection = collection_name, db = db_name, url = connection_string)
+
+  # Retrieve the metadata document
+  metadata <- collection$find(query = '{"type": "metadata"}')
+
+  # Retrieve all data documents
+  data <- collection$find(query = '{"type": {"$ne": "metadata"}}')
+
+  if (nrow(metadata) > 0 && "columns" %in% names(metadata)) {
+    stored_columns <- metadata$columns[[1]]
+
+    # Ensure all stored columns exist in the data
+    for (col in stored_columns) {
+      if (!(col %in% names(data))) {
+        data[[col]] <- NA
+      }
+    }
+
+    # Reorder columns to match stored order, and include any extra columns at the end
+    data <- data[, c(stored_columns, setdiff(names(data), stored_columns))]
+  }
+
+  return(data)
 }
 
 #' Upload Data to MongoDB and Overwrite Existing Content
 #'
 #' This function connects to a MongoDB database, removes all existing documents
-#' from a specified collection, and then inserts new data.
+#' from a specified collection, and then inserts new data. It also stores the
+#' original column order to maintain data structure consistency.
 #'
 #' @param data A data frame containing the data to be uploaded.
 #' @param connection_string A character string specifying the MongoDB connection URL.
 #' @param collection_name A character string specifying the name of the collection.
 #' @param db_name A character string specifying the name of the database.
 #'
-#' @return The number of documents inserted.
+#' @return The number of data documents inserted into the collection (excluding the order document).
 #'
 #' @keywords storage
 #'
@@ -63,11 +88,21 @@ mdb_collection_push <- function(data = NULL, connection_string = NULL, collectio
   # Remove all existing documents in the collection
   collection$remove("{}")
 
-  # Insert the new data
-  result <- collection$insert(data)
+  # Create a metadata document with column information
+  metadata <- list(
+    type = "metadata",
+    columns = names(data),
+    timestamp = Sys.time()
+  )
 
-  # Return the number of documents inserted
-  return(result)
+  # Insert the metadata document first
+  collection$insert(metadata)
+
+  # Insert the new data
+  collection$insert(data)
+
+  # Return the number of documents in the collection (excluding the metadata document)
+  return(collection$count() - 1)
 }
 
 #' Get metadata tables
