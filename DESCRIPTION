@@ -12,6 +12,7 @@ RoxygenNote: 7.3.2
 Imports: 
     config,
     dplyr,
+    duckplyr,
     git2r,
     googlesheets4,
     httr2,
@@ -20,5 +21,8 @@ Imports:
     mongolite,
     purrr,
     rlang,
-    tibble
+    stringr,
+    tibble,
+    tidyr,
+    tidyselect
 URL: https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/
