@@ -4,6 +4,7 @@ FROM rocker/r-ver
 RUN install2.r --error --skipinstalled \
     config \
     dplyr \
+    duckdb \
     duckplyr \
     git2r \
     googlesheets4 \

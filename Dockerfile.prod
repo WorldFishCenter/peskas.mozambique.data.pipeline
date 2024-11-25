@@ -17,6 +17,7 @@ RUN apt-get update -qq && apt-get -y --no-install-recommends install \
 RUN install2.r --error --skipinstalled \
     config \
     dplyr \
+    duckdb \
     duckplyr \
     git2r \
     googlesheets4 \
