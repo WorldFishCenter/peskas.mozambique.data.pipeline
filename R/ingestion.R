@@ -38,10 +38,10 @@
 #' )
 #' }
 ingest_landings <- function(url = NULL,
-                           project_id = NULL,
-                           username = NULL,
-                           psswd = NULL,
-                           encoding = NULL) {
+                            project_id = NULL,
+                            username = NULL,
+                            psswd = NULL,
+                            encoding = NULL) {
   conf <- read_config()
 
   logger::log_info("Downloading WCS Fish Catch Survey Kobo data...")

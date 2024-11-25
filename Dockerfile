@@ -7,6 +7,7 @@ RUN install2.r --error --skipinstalled remotes
 RUN install2.r --error --skipinstalled \
     config \
     dplyr \
+    duckdb \
     duckplyr \
     git2r \
     googlesheets4 \
@@ -22,9 +23,6 @@ RUN install2.r --error --skipinstalled \
     tibble \
     tidyr \
     tidyselect
-
-# Install duckdb version 1.1.2
-RUN Rscript -e "remotes::install_version('duckdb', version = '1.1.2', repos = 'https://cran.r-project.org')"
 
 # Install suggests
 RUN install2.r --error --skipinstalled \

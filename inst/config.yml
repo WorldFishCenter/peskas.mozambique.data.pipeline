@@ -4,9 +4,6 @@ default:
       asset_id: !expr Sys.getenv('KOBO_ASSET_ID')
       username: !expr Sys.getenv('KOBO_USERNAME')
       password: !expr Sys.getenv('KOBO_PASSWORD')
-    pds:
-      token: !expr Sys.getenv('PDS_TOKEN')
-      secret: !expr Sys.getenv('PDS_SECRET')
   storage:
     google:
       key: gcs
@@ -49,9 +46,6 @@ local:
       asset_id: !expr readLines("auth/kobo-asset-id")
       username: !expr readLines("auth/kobo-username")
       password: !expr readLines("auth/kobo-password")
-    pds:
-      token: !expr readLines('auth/pds-token')
-      secret: !expr readLines('auth/pds-secret')
   storage:
     mongodb:
       connection_string: !expr readLines("auth/mongodb-connection-string")
