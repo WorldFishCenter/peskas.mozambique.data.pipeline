@@ -31,7 +31,7 @@ jobs:
           dockerfile: Dockerfile.prod
 
   ingest-landings:
-    name: Ingest mozambique SSF landings
+    name: Ingest landings
     needs: build-container
     runs-on: ubuntu-latest
     container:
@@ -47,7 +47,7 @@ jobs:
         run: Rscript -e 'peskas.mozambique.data.pipeline::ingest_landings()'
 
   preprocess-landings:
-    name: Preprocess mozambique SSF landings
+    name: Preprocess landings
     needs: ingest-landings
     runs-on: ubuntu-latest
     container:
@@ -63,7 +63,7 @@ jobs:
         run: Rscript -e 'peskas.mozambique.data.pipeline::preprocess_landings()'
 
   export-landings:
-    name: Export mozambique SSF landings
+    name: Export landings
     needs: preprocess-landings
     runs-on: ubuntu-latest
     container:
