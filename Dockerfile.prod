@@ -17,8 +17,6 @@ RUN apt-get update -qq && apt-get -y --no-install-recommends install \
 RUN install2.r --error --skipinstalled \
     config \
     dplyr \
-    git2r \
-    googlesheets4 \
     httr2 \
     logger \
     lubridate \
@@ -31,7 +29,8 @@ RUN install2.r --error --skipinstalled \
     tibble \
     tidyr \
     tidyselect \
-    remotes
+    remotes \
+    duckdbfs
 
 # Install suggests
 RUN install2.r --error --skipinstalled \

@@ -3,12 +3,10 @@ FROM rocker/r-ver
 # Install remotes package
 RUN install2.r --error --skipinstalled remotes
 
-# Install other packages except duckdb
+# Install other packages
 RUN install2.r --error --skipinstalled \
     config \
     dplyr \
-    git2r \
-    googlesheets4 \
     httr2 \
     logger \
     lubridate \
@@ -20,7 +18,8 @@ RUN install2.r --error --skipinstalled \
     stringr \
     tibble \
     tidyr \
-    tidyselect
+    tidyselect \
+    duckdbfs
 
 # Install suggests
 RUN install2.r --error --skipinstalled \
