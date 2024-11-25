@@ -8,6 +8,11 @@ default:
       token: !expr Sys.getenv('PDS_TOKEN')
       secret: !expr Sys.getenv('PDS_SECRET')
   storage:
+    google:
+      key: gcs
+      options:
+        project: peskas
+        service_account_key: !expr Sys.getenv('GCP_SA_KEY')
     mongodb:
       connection_string: !expr Sys.getenv('MONGODB_CONNECTION_STRING')
       database:
@@ -22,7 +27,10 @@ default:
       name: metadata-tables
       sheet_id: !expr Sys.getenv("GOOGLE_SHEET_ID")
       tables:
-        - devices
+        - landing_sites
+        - catch_groups
+        - vessel_type
+        - habitat
   validation:
     k_nboats: 3
     k_nfishers: 3
@@ -47,6 +55,9 @@ local:
   storage:
     mongodb:
       connection_string: !expr readLines("auth/mongodb-connection-string")
+    google:
+      options:
+        service_account_key: !expr readLines("auth/gcp-sa-peskas_ingestion-key.json")
   metadata:
     google_sheets:
       sheet_id: !expr readLines("auth/metadata-sheet-id")

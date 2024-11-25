@@ -37,7 +37,7 @@
 #'   encoding = "UTF-8"
 #' )
 #' }
-ingest_surveys <- function(url = NULL,
+ingest_landings <- function(url = NULL,
                            project_id = NULL,
                            username = NULL,
                            psswd = NULL,
