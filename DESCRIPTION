@@ -20,6 +20,7 @@ Imports:
     magrittr,
     mongolite,
     purrr,
+    rfishbase,
     rlang,
     stringr,
     tibble,
