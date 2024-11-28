@@ -61,7 +61,8 @@ preprocess_landings <- function(log_threshold = logger::DEBUG) {
     dplyr::relocate("landing_code", .after = "district") %>%
     dplyr::mutate(dplyr::across(c("lat", "lon"), as.numeric),
       landing_date = lubridate::as_datetime(.data$landing_date),
-      submission_date = lubridate::as_datetime(.data$submission_date)
+      submission_date = lubridate::as_datetime(.data$submission_date),
+      district = stringr::str_to_title(.data$district)
     ) %>%
     dplyr::left_join(metadata$landing_site, by = c("district", "landing_code")) %>%
     dplyr::relocate("submission_date", .after = "landing_date") %>%
@@ -86,12 +87,14 @@ preprocess_landings <- function(log_threshold = logger::DEBUG) {
       male_fishers = "no_fishers/no_men_fishers",
       female_fishers = "no_fishers/no_women_fishers",
       child_fishers = "no_fishers/no_child_fishers",
-      gear = "gear_type",
+      gear_code = "gear_type",
       "mesh_size",
       "hook_size",
       "hook_size_other"
     ) %>%
-    dplyr::mutate(dplyr::across(c("trip_duration", "mesh_size", "hook_size", "hook_size_other", dplyr::ends_with("fishers")), as.numeric),
+    dplyr::mutate(dplyr::across(dplyr::ends_with("fishers"), ~ stringr::str_remove(.x, "_")), # Remove the suffix but need to be fixed
+      dplyr::across(c("trip_duration", "mesh_size", "hook_size", "hook_size_other", dplyr::ends_with("fishers")), as.numeric),
+      tot_fishers = rowSums(dplyr::across(dplyr::ends_with("fishers")), na.rm = TRUE),
       propulsion_gear = dplyr::case_when(
         .data$propulsion_gear == "1" ~ "Motor",
         .data$propulsion_gear == "2" ~ "Vela",
@@ -102,9 +105,11 @@ preprocess_landings <- function(log_threshold = logger::DEBUG) {
     ) %>%
     dplyr::left_join(metadata$habitat, by = c("habitat_code")) %>%
     dplyr::left_join(metadata$vessel_type, by = c("vessel_code")) %>%
+    dplyr::left_join(metadata$gear_type, by = c("gear_code")) %>%
     dplyr::relocate("habitat", .after = "tracker_imei") %>%
     dplyr::relocate("vessel_type", .after = "habitat") %>%
-    dplyr::select(-c("habitat_code", "vessel_code", "hook_size_other"))
+    dplyr::relocate("gear", .after = "vessel_type") %>%
+    dplyr::select(-c("habitat_code", "vessel_code", "gear_code", "hook_size_other", "male_fishers", "female_fishers", "child_fishers"))
 
   species_info <-
     raw_dat %>%
@@ -135,11 +140,25 @@ preprocess_landings <- function(log_threshold = logger::DEBUG) {
       catch_taxon = "catch_name_en",
       "length_class":"catch_estimate"
     ) %>%
-    calculate_catch() %>%
+    dplyr::left_join(peskas.mozambique.data.pipeline::lw_coeffs, by = "catch_taxon") %>%
+    # calculate_catch() %>% # causing bugs ruuning remotely on github actions due rfishbase dependency issues
     tidyr::nest(catch_df = -.data$submission_id)
 
+  market_info <-
+    raw_dat %>%
+    dplyr::rename_with(~ stringr::str_remove(., "group_conservation_trading/")) %>%
+    dplyr::select(
+      "submission_id",
+      "catch_use",
+      "catch_price",
+      "total_catch_value"
+    ) %>%
+    dplyr::mutate(catch_price = dplyr::coalesce(.data$catch_price, .data$total_catch_value)) %>%
+    dplyr::select(-"total_catch_value") %>%
+    dplyr::mutate(catch_price = as.numeric(.data$catch_price))
 
-  info_list <- list(general_info, trip_info, species_info)
+
+  info_list <- list(general_info, trip_info, species_info, market_info)
 
   preprocessed_landings <- purrr::reduce(info_list, dplyr::full_join, by = "submission_id")
 

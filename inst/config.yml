@@ -28,6 +28,7 @@ default:
         - catch_groups
         - vessel_type
         - habitat
+        - gear_type
   validation:
     k_nboats: 3
     k_nfishers: 3

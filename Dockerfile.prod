@@ -23,14 +23,12 @@ RUN install2.r --error --skipinstalled \
     magrittr \
     mongolite \
     purrr \
-    rfishbase \
     rlang \
     stringr \
     tibble \
     tidyr \
     tidyselect \
-    remotes \
-    duckdbfs
+    remotes
 
 # Install suggests
 RUN install2.r --error --skipinstalled \

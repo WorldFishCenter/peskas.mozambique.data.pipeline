@@ -20,10 +20,12 @@ Imports:
     magrittr,
     mongolite,
     purrr,
-    rfishbase,
     rlang,
     stringr,
     tibble,
     tidyr,
     tidyselect
 URL: https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/
+Depends: 
+    R (>= 2.10)
+LazyData: true

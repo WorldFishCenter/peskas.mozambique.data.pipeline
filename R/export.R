@@ -76,9 +76,9 @@ export_landings <- function() {
     dplyr::filter(.data$survey_activity == 1) %>%
     dplyr::select(
       "submission_id", "landing_date", "district",
-      "landing_site", "catch_outcome", "lat", "lon",
+      "landing_site", "catch_outcome", "lat", "lon", "tot_fishers",
       "habitat", "vessel_type", "propulsion_gear",
-      "trip_duration", "gear", "catch_df"
+      "trip_duration", "gear", "catch_use", "catch_price", "catch_df"
     )
 
   logger::log_info("Uploading landings data to mongodb")
