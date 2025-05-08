@@ -41,11 +41,12 @@
 #' @export
 
 alert_outlier <- function(
-    x,
-    no_alert_value = NA_real_,
-    alert_if_larger = no_alert_value,
-    alert_if_smaller = no_alert_value,
-    ...) {
+  x,
+  no_alert_value = NA_real_,
+  alert_if_larger = no_alert_value,
+  alert_if_smaller = no_alert_value,
+  ...
+) {
   # If all values are NA or zero, we can't compute meaningful bounds
   all_na_or_zero <- function(x) {
     isTRUE(all(is.na(x) | x == 0))
@@ -114,13 +115,19 @@ get_catch_bounds_taxon <- function(data, k) {
     dplyr::filter(.data$catch_taxon != "other") %>%
     split(interaction(.$gear, .$catch_taxon)) %>%
     purrr::discard(~ nrow(.) == 0) %>%
-    purrr::map(~ univOutl::LocScaleB(.x[["catch_kg"]], logt = TRUE, k = k)$bounds) %>%
+    purrr::map(
+      ~ univOutl::LocScaleB(.x[["catch_kg"]], logt = TRUE, k = k)$bounds
+    ) %>%
     dplyr::bind_rows(.id = "gear_taxon") %>%
     dplyr::mutate(
       # Bound is on log scale, so exponentiate:
       upper.up = exp(.data$upper.up)
     ) %>%
-    tidyr::separate(col = "gear_taxon", into = c("gear", "catch_taxon"), sep = "\\.") %>%
+    tidyr::separate(
+      col = "gear_taxon",
+      into = c("gear", "catch_taxon"),
+      sep = "\\."
+    ) %>%
     dplyr::select(-"lower.low")
 }
 
@@ -187,7 +194,10 @@ validate_catch_taxa <- function(data, k = 3, flag_value = 4) {
     dplyr::ungroup() %>%
     # Keep only columns of interest
     dplyr::select(
-      "submission_id", "catch_taxon", "catch_kg", "alert_catch"
+      "submission_id",
+      "catch_taxon",
+      "catch_kg",
+      "alert_catch"
     )
 }
 
@@ -243,12 +253,20 @@ get_total_catch_bounds <- function(data, k) {
 
   # 2) Split by landing_site, gear
   data_bounds <- data_total %>%
-    dplyr::mutate(group_id = paste(.data$landing_site, .data$gear, sep = ".")) %>%
+    dplyr::mutate(
+      group_id = paste(.data$landing_site, .data$gear, sep = ".")
+    ) %>%
     split(.$group_id) %>%
     purrr::discard(~ nrow(.) == 0) %>%
-    purrr::map(~ univOutl::LocScaleB(.x$total_catch_kg, logt = TRUE, k = k)$bounds) %>%
+    purrr::map(
+      ~ univOutl::LocScaleB(.x$total_catch_kg, logt = TRUE, k = k)$bounds
+    ) %>%
     dplyr::bind_rows(.id = "group_id") %>%
-    tidyr::separate(.data$group_id, into = c("landing_site", "gear"), sep = "\\.") %>%
+    tidyr::separate(
+      .data$group_id,
+      into = c("landing_site", "gear"),
+      sep = "\\."
+    ) %>%
     dplyr::mutate(upper.up = exp(.data$upper.up)) %>%
     dplyr::select(-"lower.low")
 
@@ -258,7 +276,7 @@ get_total_catch_bounds <- function(data, k) {
 #' Validate Total Catch
 #'
 #' Aggregates \code{catch_kg} to a total per \code{submission_id, landing_site, gear},
-#' computes outlier bounds by landing site + gear, and flags outlier total catches. 
+#' computes outlier bounds by landing site + gear, and flags outlier total catches.
 #' Outliers are assigned a numeric \code{flag_value} and optionally set to \code{NA}.
 #'
 #' @param data A data frame containing \code{submission_id}, \code{landing_site},
@@ -316,7 +334,11 @@ validate_total_catch <- function(data, k = 3, flag_value = 5) {
         .data$total_catch_kg > .data$upper.up ~ flag_value,
         TRUE ~ NA_real_
       ),
-      total_catch_kg = ifelse(is.na(.data$alert_total), .data$total_catch_kg, NA_real_)
+      total_catch_kg = ifelse(
+        is.na(.data$alert_total),
+        .data$total_catch_kg,
+        NA_real_
+      )
     ) %>%
     dplyr::ungroup() %>%
     dplyr::select("submission_id", "total_catch_kg", "alert_total")
@@ -354,13 +376,27 @@ get_price_bounds <- function(data, k) {
   # Group by gear+taxon, detect outliers in catch_price
   data %>%
     dplyr::select("gear", "catch_taxon", "catch_price") %>%
-    # Exclude NAs or zeros as needed
+    # Split by gear and catch_taxon
     split(interaction(.$gear, .$catch_taxon)) %>%
+    # Remove empty groups
     purrr::discard(~ nrow(.) == 0) %>%
-    purrr::map(~ univOutl::LocScaleB(.x[["catch_price"]], logt = TRUE, k = k)$bounds) %>%
+    # Filter out groups with no variation (all values the same)
+    purrr::keep(~ length(unique(.x[["catch_price"]])) > 1) %>%
+    # Now run outlier detection
+    purrr::map(
+      ~ univOutl::LocScaleB(.x[["catch_price"]], logt = TRUE, k = k)$bounds
+    ) %>%
+    # Combine results
     dplyr::bind_rows(.id = "gear_taxon") %>%
+    # Transform upper bound
     dplyr::mutate(upper.up = exp(.data$upper.up)) %>%
-    tidyr::separate(col = "gear_taxon", into = c("gear", "catch_taxon"), sep = "\\.") %>%
+    # Split gear_taxon column
+    tidyr::separate(
+      col = "gear_taxon",
+      into = c("gear", "catch_taxon"),
+      sep = "\\."
+    ) %>%
+    # Remove lower.low column
     dplyr::select(-"lower.low")
 }
 
@@ -415,7 +451,11 @@ validate_price <- function(data, k = 3, flag_value = 6) {
         .data$catch_price > .data$upper.up ~ flag_value,
         TRUE ~ NA_real_
       ),
-      catch_price = ifelse(is.na(.data$alert_price), .data$catch_price, NA_real_)
+      catch_price = ifelse(
+        is.na(.data$alert_price),
+        .data$catch_price,
+        NA_real_
+      )
     ) %>%
     dplyr::ungroup() %>%
     dplyr::select("submission_id", "catch_taxon", "catch_price", "alert_price")
