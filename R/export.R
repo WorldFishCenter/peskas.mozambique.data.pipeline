@@ -62,7 +62,7 @@ export_landings <- function() {
       connection_string = conf$storage$mongodb$connection_string
     ) |>
     dplyr::as_tibble()
-
+ 
   catch_df <-
     preprocessed_data %>%
     dplyr::select("submission_id", "catch_df") %>%
