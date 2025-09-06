@@ -1,6 +1,8 @@
-## Authentication
+## Authentication and Environment Variables
 auth/*
-.env*
+.env
+.env.local
+.env.*.local
 
 ## R & Rstudio
 .Rhistory
@@ -23,3 +25,6 @@ auth/*
 *.tsv
 /.quarto/
 docs
+
+## Other
+CLAUDE.md

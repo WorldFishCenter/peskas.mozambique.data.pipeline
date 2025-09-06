@@ -44,15 +44,15 @@ local:
   inherits: development
   ingestion:
     koboform:
-      asset_id: !expr readLines("auth/kobo-asset-id")
-      username: !expr readLines("auth/kobo-username")
-      password: !expr readLines("auth/kobo-password")
+      asset_id: !expr Sys.getenv('KOBO_ASSET_ID')
+      username: !expr Sys.getenv('KOBO_USERNAME')
+      password: !expr Sys.getenv('KOBO_PASSWORD')
   storage:
     mongodb:
-      connection_string: !expr readLines("auth/mongodb-connection-string")
+      connection_string: !expr Sys.getenv('MONGODB_CONNECTION_STRING')
     google:
       options:
-        service_account_key: !expr readLines("auth/gcp-sa-peskas_ingestion-key.json")
+        service_account_key: !expr Sys.getenv('GCP_SA_KEY')
   metadata:
     google_sheets:
-      sheet_id: !expr readLines("auth/metadata-sheet-id")
+      sheet_id: !expr Sys.getenv("GOOGLE_SHEET_ID")
