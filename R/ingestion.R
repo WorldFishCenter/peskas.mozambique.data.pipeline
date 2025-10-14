@@ -37,41 +37,47 @@
 #'   encoding = "UTF-8"
 #' )
 #' }
-ingest_landings <- function(url = NULL,
-                            project_id = NULL,
-                            username = NULL,
-                            psswd = NULL,
-                            encoding = NULL) {
+ingest_landings <- function(
+  url = NULL,
+  project_id = NULL,
+  username = NULL,
+  psswd = NULL,
+  encoding = NULL
+) {
   conf <- read_config()
 
   logger::log_info("Downloading WCS Fish Catch Survey Kobo data...")
   data_raw <-
     get_kobo_data(
       url = "eu.kobotoolbox.org",
-      assetid = conf$ingestion$koboform$asset_id,
-      uname = conf$ingestion$koboform$username,
-      pwd = conf$ingestion$koboform$password,
+      assetid = conf$ingestion$`kobo-v1`$asset_id,
+      uname = conf$ingestion$`kobo-v1`$username,
+      pwd = conf$ingestion$`kobo-v1`$password,
       encoding = "UTF-8",
       format = "json"
     )
 
   # Check that submissions are unique in case there is overlap in the pagination
-  if (dplyr::n_distinct(purrr::map_dbl(data_raw, ~ .$`_id`)) != length(data_raw)) {
+  if (
+    dplyr::n_distinct(purrr::map_dbl(data_raw, ~ .$`_id`)) != length(data_raw)
+  ) {
     stop("Number of submission ids not the same as number of records")
   }
 
-  logger::log_info("Converting WCS Fish Catch Survey Kobo data to tabular format...")
+  logger::log_info(
+    "Converting WCS Fish Catch Survey Kobo data to tabular format..."
+  )
   raw_survey <-
     purrr::map(data_raw, flatten_row) %>%
     dplyr::bind_rows() %>%
     dplyr::rename("submission_id" = .data$`_id`)
 
-  logger::log_info("Uploading raw data to mongodb")
-  mdb_collection_push(
+  logger::log_info("Uploading raw data to cloud storage")
+  upload_parquet_to_cloud(
     data = raw_survey,
-    connection_string = conf$storage$mongodb$connection_string,
-    collection_name = conf$storage$mongodb$database$pipeline$collection_name$raw,
-    db_name = conf$storage$mongodb$database$pipeline$name
+    prefix = conf$ingestion$`kobo-v1`$raw_surveys$file_prefix,
+    provider = conf$storage$google$key,
+    options = conf$storage$google$options
   )
 }
 
@@ -103,18 +109,50 @@ ingest_landings <- function(url = NULL,
 #'   pwd = "your_password"
 #' )
 #' }
-get_kobo_data <- function(assetid, url = "eu.kobotoolbox.org", uname = NULL, pwd = NULL, encoding = "UTF-8", format = "json") {
-  if (!is.character(url)) stop("URL entered is not a string")
-  if (!is.character(uname)) stop("uname (username) entered is not a string")
-  if (!is.character(pwd)) stop("pwd (password) entered is not a string")
-  if (!is.character(assetid)) stop("assetid entered is not a string")
-  if (is.null(url) | url == "") stop("URL empty")
-  if (is.null(uname) | uname == "") stop("uname (username) empty")
-  if (is.null(pwd) | pwd == "") stop("pwd (password) empty")
-  if (is.null(assetid) | assetid == "") stop("assetid empty")
-  if (!format %in% c("json", "xml")) stop("format must be either 'json' or 'xml'")
+get_kobo_data <- function(
+  assetid,
+  url = "eu.kobotoolbox.org",
+  uname = NULL,
+  pwd = NULL,
+  encoding = "UTF-8",
+  format = "json"
+) {
+  if (!is.character(url)) {
+    stop("URL entered is not a string")
+  }
+  if (!is.character(uname)) {
+    stop("uname (username) entered is not a string")
+  }
+  if (!is.character(pwd)) {
+    stop("pwd (password) entered is not a string")
+  }
+  if (!is.character(assetid)) {
+    stop("assetid entered is not a string")
+  }
+  if (is.null(url) | url == "") {
+    stop("URL empty")
+  }
+  if (is.null(uname) | uname == "") {
+    stop("uname (username) empty")
+  }
+  if (is.null(pwd) | pwd == "") {
+    stop("pwd (password) empty")
+  }
+  if (is.null(assetid) | assetid == "") {
+    stop("assetid empty")
+  }
+  if (!format %in% c("json", "xml")) {
+    stop("format must be either 'json' or 'xml'")
+  }
 
-  base_url <- paste0("https://", url, "/api/v2/assets/", assetid, "/data.", format)
+  base_url <- paste0(
+    "https://",
+    url,
+    "/api/v2/assets/",
+    assetid,
+    "/data.",
+    format
+  )
 
   message("Starting data retrieval from ", base_url)
 
@@ -130,7 +168,11 @@ get_kobo_data <- function(assetid, url = "eu.kobotoolbox.org", uname = NULL, pwd
           httr2::req_perform()
       },
       error = function(x) {
-        message("Error on page starting at record ", start, ". Please try again or check the input parameters.")
+        message(
+          "Error on page starting at record ",
+          start,
+          ". Please try again or check the input parameters."
+        )
         return(NULL)
       }
     )
@@ -145,10 +187,20 @@ get_kobo_data <- function(assetid, url = "eu.kobotoolbox.org", uname = NULL, pwd
         message("Successfully retrieved XML data starting at record ", start)
         return(httr2::resp_body_string(respon.kpi, encoding = encoding))
       } else if (grepl("html", content_type)) {
-        warning("Unexpected HTML response for start ", start, ". Unable to parse.")
+        warning(
+          "Unexpected HTML response for start ",
+          start,
+          ". Unable to parse."
+        )
         return(NULL)
       } else {
-        warning("Unexpected content type: ", content_type, " for start ", start, ". Unable to parse.")
+        warning(
+          "Unexpected content type: ",
+          content_type,
+          " for start ",
+          start,
+          ". Unable to parse."
+        )
         return(NULL)
       }
     } else {
@@ -182,12 +234,17 @@ get_kobo_data <- function(assetid, url = "eu.kobotoolbox.org", uname = NULL, pwd
     }
   }
 
-  message("Data retrieval complete. Total records retrieved: ", length(all_results))
+  message(
+    "Data retrieval complete. Total records retrieved: ",
+    length(all_results)
+  )
 
   # Check for unique submission IDs
   submission_ids <- sapply(all_results, function(x) x$`_id`)
   if (length(unique(submission_ids)) != length(all_results)) {
-    warning("Number of unique submission IDs does not match the number of records. There may be duplicates.")
+    warning(
+      "Number of unique submission IDs does not match the number of records. There may be duplicates."
+    )
   }
 
   return(all_results)
@@ -209,7 +266,8 @@ flatten_row <- function(x) {
     # Each row is composed of several fields
     purrr::imap(flatten_field) %>%
     rlang::squash() %>%
-    tibble::as_tibble(.name_repair = "unique")
+    purrr::compact() %>%
+    tibble::as_tibble()
 }
 
 #' Flatten a Single Field of Kobotoolbox Data
@@ -237,6 +295,9 @@ flatten_field <- function(x, p) {
         # If the field-list is an "array" we need to iterate over its children
         x <- purrr::imap(x, rename_child, p = p)
       }
+    } else {
+      # Return NULL for empty lists - will be removed by compact()
+      return(NULL)
     }
   } else {
     if (is.null(x)) x <- NA
@@ -257,7 +318,9 @@ flatten_field <- function(x, p) {
 #' @keywords internal
 rename_child <- function(x, i, p) {
   if (length(x) == 0) {
-    if (is.null(x)) x <- NA
+    if (is.null(x)) {
+      x <- NA
+    }
     x <- list(x)
     x <- rlang::set_names(x, paste(p, i - 1, sep = "."))
   } else {
@@ -268,4 +331,341 @@ rename_child <- function(x, i, p) {
     }
   }
   x
+}
+
+
+#' Ingest Pelagic Data Systems (PDS) Trip Data
+#'
+#' @description
+#' This function handles the automated ingestion of GPS boat trip data from Pelagic Data Systems (PDS).
+#' It performs the following operations:
+#' 1. Retrieves device metadata from the configured source
+#' 2. Downloads trip data from PDS API using device IMEIs
+#' 3. Converts the data to parquet format
+#' 4. Uploads the processed file to configured cloud storage
+#'
+#' @details
+#' The function requires specific configuration in the `conf.yml` file with the following structure:
+#'
+#' ```yaml
+#' pds:
+#'   token: "your_pds_token"               # PDS API token
+#'   secret: "your_pds_secret"             # PDS API secret
+#'   pds_trips:
+#'     file_prefix: "pds_trips"            # Prefix for output files
+#' storage:
+#'   google:                               # Storage provider name
+#'     key: "google"                       # Storage provider identifier
+#'     options:
+#'       project: "project-id"             # Cloud project ID
+#'       bucket: "bucket-name"             # Storage bucket name
+#'       service_account_key: "path/to/key.json"
+#' ```
+#'
+#' The function processes trips sequentially:
+#' - Retrieves device metadata using `get_metadata()`
+#' - Downloads trip data using the `get_trips()` function
+#' - Converts the data to parquet format
+#' - Uploads the resulting file to configured storage provider
+#'
+#' @param log_threshold The logging threshold to use. Default is logger::DEBUG.
+#'   See `logger::log_levels` for available options.
+#'
+#' @return None (invisible). The function performs its operations for side effects:
+#'   - Creates a parquet file locally with trip data
+#'   - Uploads file to configured cloud storage
+#'   - Generates logs of the process
+#'
+#' @examples
+#' \dontrun{
+#' # Run with default debug logging
+#' ingest_pds_trips()
+#'
+#' # Run with info-level logging only
+#' ingest_pds_trips(logger::INFO)
+#' }
+#'
+#' @seealso
+#' * [get_trips()] for details on the PDS trip data retrieval process
+#' * [get_metadata()] for details on the device metadata retrieval
+#' * [upload_cloud_file()] for details on the cloud upload process
+#'
+#' @keywords workflow ingestion
+#' @export
+ingest_pds_trips <- function(log_threshold = logger::DEBUG) {
+  logger::log_threshold(log_threshold)
+  conf <- read_config()
+
+  devices <- airtable_to_df(
+    base_id = conf$airtable$frame$base_id,
+    table_name = "pds_devices",
+    token = conf$airtable$token
+  )
+
+  unique_devices <-
+    devices |>
+    dplyr::filter(stringr::str_detect(
+      .data$customer_name,
+      stringr::regex("mozambique", ignore_case = TRUE)
+    )) |>
+    dplyr::select(.data$imei) |>
+    dplyr::distinct() |>
+    dplyr::pull()
+
+  boats_trips <- get_trips(
+    token = conf$pds$token,
+    secret = conf$pds$secret,
+    dateFrom = "2025-01-01",
+    dateTo = Sys.Date(),
+    imeis = unique_devices
+  )
+
+  filename <- conf$pds$pds_trips$file_prefix %>%
+    add_version(extension = "parquet")
+
+  arrow::write_parquet(
+    x = boats_trips,
+    sink = filename,
+    compression = "lz4",
+    compression_level = 12
+  )
+
+  logger::log_info("Uploading {filename} to cloud storage")
+  upload_cloud_file(
+    file = filename,
+    provider = conf$storage$google$key,
+    options = conf$storage$google$options
+  )
+}
+#' Ingest Pelagic Data Systems (PDS) Track Data
+#'
+#' @description
+#' This function handles the automated ingestion of GPS boat track data from Pelagic Data Systems (PDS).
+#' It downloads and stores only new tracks that haven't been previously uploaded to Google Cloud Storage.
+#' Uses parallel processing for improved performance.
+#'
+#' @param log_threshold The logging threshold to use. Default is logger::DEBUG.
+#' @param batch_size Optional number of tracks to process. If NULL, processes all new tracks.
+#'
+#' @return None (invisible). The function performs its operations for side effects.
+#'
+#' @keywords workflow ingestion
+#' @export
+ingest_pds_tracks <- function(
+  log_threshold = logger::DEBUG,
+  batch_size = NULL
+) {
+  logger::log_threshold(log_threshold)
+  conf <- read_config()
+
+  # Get trips file from cloud storage
+  logger::log_info("Getting trips file from cloud storage...")
+  pds_trips_parquet <- cloud_object_name(
+    prefix = conf$pds$pds_trips$file_prefix,
+    provider = conf$storage$google$key,
+    extension = "parquet",
+    version = conf$pds$pds_trips$version,
+    options = conf$storage$google$options
+  )
+
+  logger::log_info("Downloading {pds_trips_parquet}")
+  download_cloud_file(
+    name = pds_trips_parquet,
+    provider = conf$storage$google$key,
+    options = conf$storage$google$options
+  )
+
+  # Read trip IDs
+  logger::log_info("Reading trip IDs...")
+  trips_data <- arrow::read_parquet(file = pds_trips_parquet) %>%
+    dplyr::pull("Trip") %>%
+    unique()
+
+  # Clean up downloaded file
+  unlink(pds_trips_parquet)
+
+  # List existing files in GCS bucket
+  logger::log_info("Checking existing tracks in cloud storage...")
+  existing_tracks <-
+    googleCloudStorageR::gcs_list_objects(
+      bucket = conf$pds_storage$google$options$bucket,
+      prefix = conf$pds$pds_tracks$file_prefix
+    )$name
+
+  # Get new trip IDs
+  existing_trip_ids <- extract_trip_ids_from_filenames(existing_tracks)
+  new_trip_ids <- setdiff(trips_data, existing_trip_ids)
+
+  if (length(new_trip_ids) == 0) {
+    logger::log_info("No new tracks to download")
+    return(invisible())
+  }
+
+  # Setup parallel processing
+  workers <- parallel::detectCores() - 1
+  logger::log_info("Setting up parallel processing with {workers} workers...")
+  future::plan(future::multisession, workers = workers)
+
+  # Select tracks to process
+  process_ids <- if (!is.null(batch_size)) {
+    new_trip_ids[1:batch_size]
+  } else {
+    new_trip_ids
+  }
+  logger::log_info("Processing {length(process_ids)} new tracks in parallel...")
+
+  # Process tracks in parallel with progress bar
+  results <- furrr::future_map(
+    process_ids,
+    function(trip_id) {
+      tryCatch(
+        {
+          # Create filename for this track
+          track_filename <- sprintf(
+            "%s_%s.parquet",
+            conf$pds$pds_tracks$file_prefix,
+            trip_id
+          )
+
+          # Get track data
+          track_data <- get_trip_points(
+            token = conf$pds$token,
+            secret = conf$pds$secret,
+            id = as.character(trip_id),
+            deviceInfo = TRUE
+          )
+
+          # Save to parquet
+          arrow::write_parquet(
+            x = track_data,
+            sink = track_filename,
+            compression = "lz4",
+            compression_level = 12
+          )
+
+          # Upload to cloud
+          logger::log_info("Uploading track for trip {trip_id}")
+          upload_cloud_file(
+            file = track_filename,
+            provider = conf$pds_storage$google$key,
+            options = conf$pds_storage$google$options
+          )
+
+          # Clean up local file
+          unlink(track_filename)
+
+          list(
+            status = "success",
+            trip_id = trip_id,
+            message = "Successfully processed"
+          )
+        },
+        error = function(e) {
+          list(
+            status = "error",
+            trip_id = trip_id,
+            message = e$message
+          )
+        }
+      )
+    },
+    .options = furrr::furrr_options(seed = TRUE),
+    .progress = TRUE
+  )
+
+  # Clean up parallel processing
+  future::plan(future::sequential)
+
+  # Summarize results
+  successes <- sum(purrr::map_chr(results, "status") == "success")
+  failures <- sum(purrr::map_chr(results, "status") == "error")
+
+  logger::log_info(
+    "Processing complete. Successfully processed {successes} tracks."
+  )
+  if (failures > 0) {
+    logger::log_warn("Failed to process {failures} tracks.")
+    failed_results <- results[purrr::map_chr(results, "status") == "error"]
+    failed_trips <- purrr::map_chr(failed_results, "trip_id")
+    failed_messages <- purrr::map_chr(failed_results, "message")
+
+    logger::log_warn("Failed trip IDs and reasons:")
+    purrr::walk2(
+      failed_trips,
+      failed_messages,
+      ~ logger::log_warn("Trip {.x}: {.y}")
+    )
+  }
+}
+
+#' Extract Trip IDs from Track Filenames
+#'
+#' @param filenames Character vector of track filenames
+#' @return Character vector of trip IDs
+#' @keywords internal
+extract_trip_ids_from_filenames <- function(filenames) {
+  if (length(filenames) == 0) {
+    return(character(0))
+  }
+  # Assuming filenames are in format: pds-tracks_TRIPID.parquet
+  gsub(".*_([0-9]+)\\.parquet$", "\\1", filenames)
+}
+
+#' Process Single PDS Track
+#'
+#' @param trip_id Character. The ID of the trip to process.
+#' @param conf List. Configuration parameters.
+#' @return List with processing status and details.
+#' @keywords internal
+process_single_track <- function(trip_id, conf) {
+  tryCatch(
+    {
+      # Create filename for this track
+      track_filename <- sprintf(
+        "%s_%s.parquet",
+        conf$pds$pds_tracks$file_prefix,
+        trip_id
+      )
+
+      # Get track data
+      track_data <- get_trip_points(
+        token = conf$pds$token,
+        secret = conf$pds$secret,
+        id = trip_id,
+        deviceInfo = TRUE
+      )
+
+      # Save to parquet
+      arrow::write_parquet(
+        x = track_data,
+        sink = track_filename,
+        compression = "lz4",
+        compression_level = 12
+      )
+
+      # Upload to cloud
+      logger::log_info("Uploading track for trip {trip_id}")
+      upload_cloud_file(
+        file = track_filename,
+        provider = conf$pds_storage$google$key,
+        options = conf$pds_storage$google$options
+      )
+
+      # Clean up local file
+      unlink(track_filename)
+
+      list(
+        status = "success",
+        trip_id = trip_id,
+        message = "Successfully processed"
+      )
+    },
+    error = function(e) {
+      list(
+        status = "error",
+        trip_id = trip_id,
+        message = e$message
+      )
+    }
+  )
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/validation.R
 \name{validate_landings}
 \alias{validate_landings}
-\title{Validate Fisheries Data}
+\title{Validate Wild Fisheries Survey Data}
 \usage{
 validate_landings(log_threshold = logger::DEBUG)
 }
@@ -11,40 +11,40 @@ validate_landings(log_threshold = logger::DEBUG)
 }
 \value{
 This function does not return a value. Instead, it processes the data and
-uploads the validated results to a MongoDB collection in the pipeline database.
+uploads both the validated results and validation flags to cloud storage.
 }
 \description{
-This function imports and validates preprocessed fisheries data from a MongoDB
-collection. It conducts a series of validation checks to ensure data integrity,
-including checks on \strong{catch weights} at both the taxon level and aggregated
-level, and checks on catch \strong{prices}.
+This function validates preprocessed fisheries survey data using a comprehensive
+approach adapted from the Peskas Zanzibar pipeline. It performs both basic data
+quality checks and composite economic indicator validation to ensure data integrity.
 }
 \details{
-The function performs the following main operations:
+The validation process follows a two-stage approach:
+
+\strong{Stage 1: Basic Data Quality Checks (Flags 1-7)}
 \enumerate{
-\item Pulls preprocessed landings data from the MongoDB collection specified in the config.
-\item Summarizes data by \code{submission_id} and \code{catch_taxon}, computing total
-\code{catch_kg}, \code{catch_estimate}, and keeping the first value of certain
-metadata fields (e.g., \code{landing_date}, \code{landing_site}, \code{gear}, etc.).
-\item Filters out records where \code{catch_outcome == 1} but \code{catch_gr == 0}.
-\item Validates:
-\itemize{
-\item \emph{Taxon-level catch} with \code{\link{validate_catch_taxa}}
-\item \emph{Total catch} with \code{\link{validate_total_catch}}
-\item \emph{Price} with \code{\link{validate_price}}
+\item \strong{Form completeness}: Catch outcome is "1" but catch_taxon is missing
+\item \strong{Catch info completeness}: Catch taxon exists but no weight or individuals
+\item \strong{Length validation}: Fish length below species minimum
+\item \strong{Length validation}: Fish length above species 75th percentile maximum
+\item \strong{Bucket weight}: Weight per bucket exceeds 50kg
+\item \strong{Bucket count}: Number of buckets exceeds 300
+\item \strong{Individual count}: Number of individuals exceeds 200 per record
 }
-\item Calculates additional price-based checks, such as \emph{price per kg}.
-\item Merges all validation flags into a single dataset and constructs a combined
-alert column.
-\item Finally, it filters out any records with alerts, leaving only valid data,
-and uploads the filtered data back to another MongoDB collection (the
-"validated" collection).
+
+\strong{Stage 2: Composite Economic Indicators (Flags 8-10)}
+\enumerate{
+\item \strong{Price per kg}: Exceeds 1875 MZN/kg (~30 EUR/kg, following Zanzibar thresholds)
+\item \strong{CPUE}: Catch per unit effort exceeds 30 kg/fisher/day
+\item \strong{RPUE}: Revenue per unit effort exceeds 1875 MZN/fisher/day
 }
+
+Submissions with any validation flags are excluded from the final validated dataset
+but the flags are preserved for data quality monitoring.
 }
 \note{
-This function requires a configuration file to be present and readable by
-the \code{read_config} function, which should provide MongoDB connection details
-and parameters for validation.
+This function requires a configuration file accessible via \code{read_config()}
+providing cloud storage connection details.
 }
 \examples{
 \dontrun{

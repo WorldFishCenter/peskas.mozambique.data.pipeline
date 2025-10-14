@@ -1,24 +1,70 @@
 default:
   ingestion:
-    koboform:
+    kobo-v1:
       asset_id: !expr Sys.getenv('KOBO_ASSET_ID')
       username: !expr Sys.getenv('KOBO_USERNAME')
       password: !expr Sys.getenv('KOBO_PASSWORD')
+      raw_surveys:
+        file_prefix: wf-v1-surveys-raw
+        version: latest
+      preprocessed_surveys:
+        file_prefix: wf-v1-surveys-preprocessed
+        version: latest
+      validated_surveys:
+        file_prefix: wf-1-surveys-validated
+        version: latest
+    # kobo-v2:
+    #   asset_id: !expr Sys.getenv('KOBO_ASSET_ID')
+    #   username: !expr Sys.getenv('KOBO_USERNAME')
+    #   password: !expr Sys.getenv('KOBO_PASSWORD')
+    #   raw_surveys:
+    #     file_prefix: wf-v1-surveys-raw
+    #     version: latest
+    #   preprocessed_surveys:
+    #     file_prefix: wf-v1-surveys-preprocessed
+    #     version: latest
+    #   validated_surveys:
+    #     file_prefix: wf-1-surveys-validated
+    #     version: latest
   storage:
     google:
       key: gcs
       options:
         project: peskas
+        bucket: mozambique-dev
         service_account_key: !expr Sys.getenv('GCP_SA_KEY')
+      options_coasts:
+        project: peskas
+        bucket: peskas-coasts
+        service_account_key: !expr Sys.getenv('GCP_SA_KEY')
+  pds_storage:
+    google:
+      key: gcs
+      options:
+        project: peskas
+        bucket: pds-mozambique-dev
+        service_account_key: !expr Sys.getenv('GCP_SA_KEY')
+    
     mongodb:
       connection_string: !expr Sys.getenv('MONGODB_CONNECTION_STRING')
-      database:
-        pipeline:
-          name: pipeline
-          collection_name:
-            raw: raw
-            preprocessed: preprocessed
-            validated: validated
+      pipeline:
+        database_name: mozambique-dev
+        collection:
+          export: export
+      portal:
+        database_name: portal-dev
+        collection:
+          monthly_summaries: monthly_summaries
+  pds:
+    token: !expr Sys.getenv('PDS_TOKEN')
+    secret: !expr Sys.getenv('PDS_SECRET')
+    pds_trips:
+      file_prefix: pds-trips
+      version: latest
+    pds_tracks:
+      file_prefix: pds-tracks
+      version: latest
+
   metadata:
     google_sheets:
       name: metadata-tables
@@ -29,6 +75,13 @@ default:
         - vessel_type
         - habitat
         - gear_type
+  airtable:
+    token: !expr Sys.getenv('AIRTABLE_TOKEN')
+    frame:
+      base_id: !expr Sys.getenv('AIRTABLE_BASE_ID_FRAME')
+      tables:
+        countries: Countries
+        pds_devices: pds_devices
   validation:
     k_nboats: 3
     k_nfishers: 3
@@ -37,22 +90,27 @@ default:
 
 production:
   storage:
+    google:
+      options:
+        bucket: mozambique-prod
     mongodb:
-      connection_string: !expr Sys.getenv('MONGODB_CONNECTION_STRING')
+      pipeline:
+        database_name: mozambique-prod
+      validation:
+        database_name: mozambique-prod
+      portal:
+        database_name: portal-prod
+  pds_storage:
+    google:
+      options:
+        bucket: pds-mozambique-prod
+
 
 local:
-  inherits: development
-  ingestion:
-    koboform:
-      asset_id: !expr Sys.getenv('KOBO_ASSET_ID')
-      username: !expr Sys.getenv('KOBO_USERNAME')
-      password: !expr Sys.getenv('KOBO_PASSWORD')
+  inherits: default
   storage:
-    mongodb:
-      connection_string: !expr Sys.getenv('MONGODB_CONNECTION_STRING')
     google:
       options:
         service_account_key: !expr Sys.getenv('GCP_SA_KEY')
-  metadata:
-    google_sheets:
-      sheet_id: !expr Sys.getenv("GOOGLE_SHEET_ID")
+    mongodb:
+      connection_string: !expr Sys.getenv('MONGODB_CONNECTION_STRING')

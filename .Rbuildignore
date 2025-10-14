@@ -18,3 +18,7 @@
 ^Python$
 ^.DS_Store$
 ^CODE_OF_CONDUCT\.md$
+^\.env$
+^\.env\.example$
+^\.claude$
+^CLAUDE\.md$
