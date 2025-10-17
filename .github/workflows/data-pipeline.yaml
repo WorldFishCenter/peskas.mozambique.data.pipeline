@@ -6,6 +6,11 @@ env:
   KOBO_PASSWORD: ${{ secrets.KOBO_PASSWORD }}
   KOBO_USERNAME: ${{ secrets.KOBO_USERNAME }}
   MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
+  AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
+  AIRTABLE_BASE_ID_FRAME: ${{ secrets.AIRTABLE_BASE_ID_FRAME }}
+  PDS_TOKEN: ${{ secrets.PDS_TOKEN }}
+  PDS_SECRET: ${{ secrets.PDS_SECRET }}
+
 jobs:
   build-container:
     name: Build R container

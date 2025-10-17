@@ -23,6 +23,7 @@ auth/*
 *.xlsx
 *.csv
 *.tsv
+*.parquet
 /.quarto/
 docs
 
