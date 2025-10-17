@@ -51,3 +51,14 @@ reference:
   desc: Functions dedicated to data processing.
   contents:
   - has_keyword("helper")
+
+- title: Airtable Integration
+  desc: Functions for interacting with Airtable API.
+  contents:
+  - airtable_to_df
+  - get_writable_fields
+  - update_airtable_record
+  - bulk_update_airtable
+  - df_to_airtable
+  - device_sync
+  - sync_device_users
