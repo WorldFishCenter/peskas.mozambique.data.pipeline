@@ -47,7 +47,7 @@
   * Enhanced examples to reflect actual usage patterns
 
 * **Survey Processing Pipeline**:
-  * Added support for multiple species field normalization (species_TL, species_RF, etc.)
+  * Added support for multiple species field normalization
   * Improved handling of separate length group structures for large fish
   * Enhanced catch data validation with species-specific thresholds
   * Better integration with Airtable form assets for data mapping
