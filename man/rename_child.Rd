@@ -2,21 +2,21 @@
 % Please edit documentation in R/ingestion.R
 \name{rename_child}
 \alias{rename_child}
-\title{Rename Child Elements in Nested Kobotoolbox Data}
+\title{Rename Nested Survey Data Elements}
 \usage{
 rename_child(x, i, p)
 }
 \arguments{
-\item{x}{The child element to be renamed.}
+\item{x}{A list element, possibly nested, to be renamed.}
 
-\item{i}{The index or name of the child element.}
+\item{i}{The index or key of the element within the parent list.}
 
-\item{p}{The name of the parent element.}
+\item{p}{The parent name to prepend to the element's existing name for context.}
 }
 \value{
-A renamed list of child elements.
+A renamed list element, structured to maintain contextual relevance in a flattened dataset.
 }
 \description{
-This internal function renames child elements in nested Kobotoolbox data structures.
+Appends a parent name or index to child elements within a nested list, assisting in creating a coherent and traceable data structure during the flattening process.
 }
 \keyword{internal}

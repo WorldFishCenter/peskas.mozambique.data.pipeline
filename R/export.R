@@ -38,8 +38,8 @@
 #' }
 #'
 #' @seealso
-#' \code{\link{preprocess_landings}} for data preprocessing
-#' \code{\link{calculate_catch}} for catch weight calculations
+#' \code{\link{preprocess_landings_adnap}} for data preprocessing
+#' \code{\link{calculate_catch_adnap}} for catch weight calculations
 #'
 #' @importFrom dplyr as_tibble filter select group_by summarise
 #' @importFrom tidyr unnest
@@ -59,7 +59,7 @@ export_landings <- function() {
 
   validated_data <-
     download_parquet_from_cloud(
-      prefix = conf$ingestion$`kobo-v1`$validated_surveys$file_prefix,
+      prefix = conf$ingestion$`kobo-lurio`$validated_surveys$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
     ) |>
@@ -160,7 +160,7 @@ export_landings <- function() {
         ),
         ~ dplyr::first(.x)
       ),
-      lenght = mean(.data$length),
+      length = mean(.data$length),
       tot_catch_kg = sum(.data$catch_kg),
       .groups = "drop"
     ) |>

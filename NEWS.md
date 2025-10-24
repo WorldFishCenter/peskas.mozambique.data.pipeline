@@ -1,3 +1,73 @@
+# peskas.mozambique.data.pipeline 2.0.0
+
+## Major Changes
+
+* **Dual Survey System Integration**: Full support for both Lurio and ADNAP fisheries surveys with parallel processing workflows.
+  * Added `ingest_landings_lurio()` and `ingest_landings_adnap()` for separate survey data streams
+  * Implemented `preprocess_landings_lurio()` and `preprocess_landings_adnap()` with survey-specific transformations
+  * Created `validate_surveys_lurio()` and `validate_surveys_adnap()` with tailored validation rules
+  * Added `calculate_catch_lurio()` and `calculate_catch_adnap()` for survey-specific catch weight estimation
+  * Introduced survey version detection and adaptive processing via `reshape_catch_data()`
+
+* **Enhanced Validation System for ADNAP**: Advanced validation with KoBoToolbox integration.
+  * Integrated KoBoToolbox validation status API for manual approval workflow
+  * Added `get_validation_status()` to query submission approval status
+  * Implemented parallel processing for validation status queries across multiple submissions
+  * Manual approvals in KoBoToolbox now bypass automatic validation flags
+  * Maintained two-stage validation (7 basic checks + 3 composite economic indicators)
+
+* **Flexible Survey Data Reshaping**: New module for handling multiple survey form structures.
+  * Introduced `reshape_species_groups()` for converting wide-format species data to long format
+  * Created `reshape_catch_data()` supporting both version 1 and version 2 survey structures
+  * Added `preprocess_catch()` with automatic survey version detection
+  * Implemented `preprocess_general_adnap()` for ADNAP-specific trip information processing
+  * Enhanced handling of nested length groups and fish over 100cm
+
+* **Improved GitHub Actions Workflow**: Enhanced automation with clearer job naming and parallel execution.
+  * Renamed workflow jobs for better visibility (e.g., "Ingest Lurio landings", "Validate ADNAP landings")
+  * Parallel execution of Lurio and ADNAP pipelines for faster processing
+  * Separate PDS data ingestion and preprocessing jobs
+  * Clear dependency chains between ingestion, preprocessing, and validation stages
+
+## Improvements
+
+* **Documentation Overhaul**:
+  * Corrected all storage backend references from MongoDB to Google Cloud Storage
+  * Updated function documentation to accurately reflect Parquet file usage
+  * Added specific titles to distinguish Lurio and ADNAP functions
+  * Removed misleading unused parameters from ingestion functions
+  * Added explicit `invisible(NULL)` returns to all workflow functions for consistency
+  * Enhanced documentation for KoBoToolbox validation integration
+  * Improved parameter documentation honesty (noting hardcoded values)
+
+* **Code Quality Enhancements**:
+  * Cleaned up function signatures by removing unused parameters
+  * Made return values explicit across all workflow functions
+  * Improved consistency between function documentation and implementation
+  * Enhanced examples to reflect actual usage patterns
+
+* **Survey Processing Pipeline**:
+  * Added support for multiple species field normalization (species_TL, species_RF, etc.)
+  * Improved handling of separate length group structures for large fish
+  * Enhanced catch data validation with species-specific thresholds
+  * Better integration with Airtable form assets for data mapping
+
+## Bug Fixes
+
+* Fixed incorrect package reference in documentation (removed non-existent KoboconnectR package)
+* Corrected validation threshold documentation (200 individuals, not 100) for ADNAP surveys
+* Fixed duplicate GitHub Actions job names that made debugging difficult
+* Corrected storage backend documentation throughout codebase (MongoDB → GCS)
+* Updated validation flag numbering documentation for consistency across surveys
+
+## Infrastructure & Dependencies
+
+* Maintained compatibility with parallel processing packages (`future`, `furrr`)
+* Enhanced configuration system to support multiple survey sources
+* Improved separation of concerns between Lurio and ADNAP processing pipelines
+* Updated documentation generation with roxygen2
+* Package maintains clean R CMD check status
+
 # peskas.mozambique.data.pipeline 1.0.0
 
 ## Major Changes

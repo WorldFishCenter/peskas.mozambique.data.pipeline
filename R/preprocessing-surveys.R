@@ -1,31 +1,33 @@
-#' Preprocess Landings Data
+#' Preprocess Lurio Landings Data
 #'
-#' This function preprocesses raw landings data from a MongoDB collection.
-#' It performs various data cleaning and transformation operations, including
-#' column renaming, data pivoting, and standardization of catch names.
+#' This function preprocesses raw Lurio survey data from Google Cloud Storage.
+#' It performs data cleaning, transformation, catch weight calculations using
+#' length-weight relationships, and uploads processed data back to GCS.
 #'
 #' @param log_threshold Logging threshold level (default: logger::DEBUG)
 #'
-#' @return A tibble containing the preprocessed landings data
+#' @return Invisible NULL. Function processes data and uploads to Google Cloud Storage.
 #'
 #' @details
 #' The function performs the following main operations:
-#' 1. Pulls raw data from the MongoDB collection
-#' 2. Renames columns and selects relevant fields
-#' 3. Generates unique survey IDs
-#' 4. Cleans and standardizes text fields
-#' 5. Pivots catch data from wide to long format
-#' 6. Standardizes catch names and separates size information
-#' 7. Converts data types and handles cases with no catch data
-#' 7. Uploads the processed data to the preprocessed MongoDB collection.
+#' 1. Downloads ASFIS species data and Airtable form assets from GCS
+#' 2. Downloads raw survey data from GCS as Parquet file
+#' 3. Extracts and processes general trip information (dates, location, GPS)
+#' 4. Extracts and processes trip details (vessel, gear, fishers, duration)
+#' 5. Processes catch data using `process_species_group()` to reshape from wide to long format
+#' 6. Calculates catch weights via `calculate_catch_lurio()` using length-weight coefficients
+#' 7. Processes market information (catch use and price)
+#' 8. Joins all datasets and filters for active surveys
+#' 9. Maps survey codes to standardized names using Airtable assets
+#' 10. Uploads preprocessed data as versioned Parquet file to GCS
 #'
 #' @keywords workflow preprocessing
 #' @examples
 #' \dontrun{
-#' preprocessed_data <- preprocess_landings()
+#' preprocess_landings_lurio()
 #' }
 #' @export
-preprocess_landings <- function(log_threshold = logger::DEBUG) {
+preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
   conf <- read_config()
 
   asfis <- download_parquet_from_cloud(
@@ -34,11 +36,17 @@ preprocess_landings <- function(log_threshold = logger::DEBUG) {
     options = conf$storage$google$options
   )
 
-  metadata <- get_metadata()
+  assets <- fetch_assets(
+    form_id = get_airtable_form_id(
+      kobo_asset_id = conf$ingestion$`kobo-lurio`$asset_id,
+      conf = conf
+    ),
+    conf = conf
+  )
 
   # get raw landings from cloud storage
   raw_dat <- download_parquet_from_cloud(
-    prefix = conf$ingestion$`kobo-v1`$raw_surveys$file_prefix,
+    prefix = conf$ingestion$`kobo-lurio`$raw_surveys$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   ) %>%
@@ -75,11 +83,11 @@ preprocess_landings <- function(log_threshold = logger::DEBUG) {
       dplyr::across(c("lat", "lon"), as.numeric),
       landing_date = lubridate::as_datetime(.data$landing_date),
       submission_date = lubridate::as_datetime(.data$submission_date),
-      district = stringr::str_to_title(.data$district)
-    ) %>%
-    dplyr::left_join(
-      metadata$landing_site,
-      by = c("district", "landing_code")
+      district = stringr::str_to_title(.data$district),
+      landing_site = dplyr::coalesce(
+        .data$landing_site_palma,
+        .data$landing_site_mocimboa
+      )
     ) %>%
     dplyr::relocate("submission_date", .after = "landing_date") %>%
     dplyr::relocate("landing_site", .after = "district") %>%
@@ -102,14 +110,14 @@ preprocess_landings <- function(log_threshold = logger::DEBUG) {
       "boat_reg_no",
       "has_PDS",
       tracker_imei = "PDS_IMEI",
-      vessel_code = "vessel_type",
+      "vessel_type",
       "propulsion_gear",
       "trip_duration",
-      habitat_code = "habitat",
+      "habitat",
       male_fishers = "no_fishers/no_men_fishers",
       female_fishers = "no_fishers/no_women_fishers",
       child_fishers = "no_fishers/no_child_fishers",
-      gear_code = "gear_type",
+      gear = "gear_type",
       "mesh_size",
       "hook_size",
       "hook_size_other"
@@ -133,25 +141,16 @@ preprocess_landings <- function(log_threshold = logger::DEBUG) {
         dplyr::across(dplyr::ends_with("fishers")),
         na.rm = TRUE
       ),
-      propulsion_gear = dplyr::case_when(
-        .data$propulsion_gear == "1" ~ "Motor",
-        .data$propulsion_gear == "2" ~ "Vela",
-        .data$propulsion_gear == "3" ~ "Remo",
-        TRUE ~ NA_character_
-      ),
+      #propulsion_gear = dplyr::case_when(
+      #  .data$propulsion_gear == "1" ~ "Engine",
+      #  .data$propulsion_gear == "2" ~ "Sail",
+      #  .data$propulsion_gear == "3" ~ "Oar",
+      #  TRUE ~ NA_character_
+      #),
       hook_size = dplyr::coalesce(.data$hook_size, .data$hook_size_other)
     ) %>%
-    dplyr::left_join(metadata$habitat, by = c("habitat_code")) %>%
-    dplyr::left_join(metadata$vessel_type, by = c("vessel_code")) %>%
-    dplyr::left_join(metadata$gear_type, by = c("gear_code")) %>%
-    dplyr::relocate("habitat", .after = "tracker_imei") %>%
-    dplyr::relocate("vessel_type", .after = "habitat") %>%
-    dplyr::relocate("gear", .after = "vessel_type") %>%
     dplyr::select(
       -c(
-        "habitat_code",
-        "vessel_code",
-        "gear_code",
         "hook_size_other",
         "male_fishers",
         "female_fishers",
@@ -188,14 +187,13 @@ preprocess_landings <- function(log_threshold = logger::DEBUG) {
       counts = "value"
     ) %>%
     dplyr::left_join(
-      metadata$catch_groups,
-      by = c("catch_number"),
-      relationship = "many-to-many"
+      assets$taxa,
+      by = c("catch_number" = "survey_label")
     ) %>%
     dplyr::select(
       "submission_id",
       "n",
-      catch_taxon = "interagency_code",
+      catch_taxon = "alpha3_code",
       "length_class":"catch_estimate"
     ) %>%
     dplyr::select(
@@ -234,7 +232,7 @@ preprocess_landings <- function(log_threshold = logger::DEBUG) {
   lwcoeffs$lw <- dplyr::bind_rows(lwcoeffs$lw, fly_lwcoeffs)
 
   catch_df <-
-    calculate_catch(catch_data = catch_info, lwcoeffs = lwcoeffs$lw) |>
+    calculate_catch_lurio(catch_data = catch_info, lwcoeffs = lwcoeffs$lw) |>
     dplyr::left_join(lwcoeffs$ml, by = "catch_taxon") |>
     dplyr::select(-"max_weightkg_75")
 
@@ -268,15 +266,136 @@ preprocess_landings <- function(log_threshold = logger::DEBUG) {
       -c("survey_activity", "survey_activity_whynot", "tracker_imei")
     )
 
+  preprocessed_data <-
+    map_surveys(
+      data = preprocessed_landings,
+      taxa_mapping = assets$taxa,
+      gear_mapping = assets$gear,
+      vessels_mapping = assets$vessels,
+      sites_mapping = assets$sites
+    ) |>
+    dplyr::mutate(
+      habitat = dplyr::case_when(
+        .data$habitat == "1" ~ "Reef",
+        .data$habitat == "2" ~ "FAD",
+        .data$habitat == "3" ~ "Open Sea",
+        .data$habitat == "4" ~ "Shore",
+        .data$habitat == "6" ~ "Mangrove",
+        .data$habitat == "7" ~ "Seagrass",
+        TRUE ~ .data$habitat
+      )
+    )
+
   logger::log_info("Uploading preprocessed data to cloud storage")
   # upload preprocessed landings
   upload_parquet_to_cloud(
-    data = preprocessed_landings,
-    prefix = conf$ingestion$`kobo-v1`$preprocessed_surveys$file_prefix,
+    data = preprocessed_data,
+    prefix = conf$ingestion$`kobo-lurio`$preprocessed_surveys$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )
+
+  invisible(NULL)
 }
+
+#' Preprocess ADNAP Landings Data
+#'
+#' This function preprocesses raw ADNAP survey data from Google Cloud Storage.
+#' It performs data cleaning, transformation, catch weight calculations using
+#' length-weight relationships, and uploads processed data back to GCS.
+#'
+#' @param log_threshold Logging threshold level (default: logger::DEBUG)
+#'
+#' @return Invisible NULL. Function processes data and uploads to Google Cloud Storage.
+#'
+#' @details
+#' The function performs the following main operations:
+#' 1. Downloads ASFIS species data and Airtable form assets from GCS
+#' 2. Downloads raw survey data from GCS as Parquet file
+#' 3. Processes general trip information using `preprocess_general_adnap()`
+#' 4. Processes catch data using `preprocess_catch()` which handles survey version detection
+#' 5. Calculates catch weights via `calculate_catch_adnap()` using length-weight coefficients
+#' 6. Joins trip and catch data
+#' 7. Maps survey codes to standardized names using Airtable assets
+#' 8. Uploads preprocessed data as versioned Parquet file to GCS
+#'
+#' @keywords workflow preprocessing
+#' @examples
+#' \dontrun{
+#' preprocess_landings_adnap()
+#' }
+#' @export
+preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
+  conf <- read_config()
+
+  asfis <- download_parquet_from_cloud(
+    prefix = "asfis",
+    provider = conf$storage$google$key,
+    options = conf$storage$google$options
+  )
+
+  assets <- fetch_assets(
+    form_id = get_airtable_form_id(
+      kobo_asset_id = conf$ingestion$`kobo-adnap`$asset_id,
+      conf = conf
+    ),
+    conf = conf
+  )
+
+  # get raw landings from cloud storage
+  raw_dat <- download_parquet_from_cloud(
+    prefix = conf$ingestion$`kobo-adnap`$raw_surveys$file_prefix,
+    provider = conf$storage$google$key,
+    options = conf$storage$google$options
+  ) %>%
+    dplyr::mutate_all(as.character)
+
+  trip_info <- preprocess_general_adnap(data = raw_dat)
+  catch_info <- preprocess_catch(data = raw_dat)
+
+  catch_df <- process_version_data(catch_info = catch_info, asfis = asfis)
+
+  preprocessed_landings <-
+    dplyr::left_join(trip_info, catch_df, by = "submission_id") |>
+    dplyr::arrange(.data$submission_id, .data$n_catch) |>
+    dplyr::distinct()
+
+  preprocessed_data <-
+    map_surveys(
+      data = preprocessed_landings,
+      taxa_mapping = assets$taxa,
+      gear_mapping = assets$gear,
+      vessels_mapping = assets$vessels,
+      sites_mapping = assets$sites
+    ) |>
+    dplyr::mutate(
+      habitat = dplyr::case_when(
+        .data$habitat == "creef" ~ "Reef",
+        .data$habitat == "fad" ~ "FAD",
+        .data$habitat == "opsea" ~ "Open sea",
+        .data$habitat == "shore" ~ "Shore",
+        .data$habitat == "mang" ~ "Mangrove",
+        .data$habitat == "seagr" ~ "Seagrass",
+        .data$habitat == "east" ~ "Estuary",
+        .data$habitat == "intzone" ~ "Intertidal zone",
+        .data$habitat == "rock" ~ "Rocky area / Reef base",
+        .data$habitat == "mud" ~ "Mud / Algae / Sand",
+        TRUE ~ .data$habitat
+      )
+    )
+
+  logger::log_info("Uploading preprocessed data to cloud storage")
+  # upload preprocessed landings
+  upload_parquet_to_cloud(
+    data = preprocessed_data,
+    prefix = conf$ingestion$`kobo-adnap`$preprocessed_surveys$file_prefix,
+    provider = conf$storage$google$key,
+    options = conf$storage$google$options
+  )
+
+  invisible(NULL)
+}
+
 
 #' Process Species Length and Catch Data
 #'
@@ -500,7 +619,7 @@ process_species_group <- function(data = NULL) {
 #' @examples
 #' \dontrun{
 #' # Calculate catch weights
-#' catch_weights <- calculate_catch(
+#' catch_weights <- calculate_catch_lurio(
 #'   catch_data = catch_data,
 #'   lwcoeffs = length_weight_coeffs
 #' )
@@ -513,7 +632,7 @@ process_species_group <- function(data = NULL) {
 #'
 #' @keywords mining preprocessing
 #' @export
-calculate_catch <- function(catch_data = NULL, lwcoeffs = NULL) {
+calculate_catch_lurio <- function(catch_data = NULL, lwcoeffs = NULL) {
   catch_data |>
     dplyr::left_join(lwcoeffs, by = "catch_taxon") |>
     dplyr::mutate(
@@ -742,318 +861,312 @@ calculate_fishery_metrics <- function(data = NULL) {
   return(fishery_metrics)
 }
 
-
-#' Preprocess Pelagic Data Systems (PDS) Track Data
+#' Get Airtable Form ID from KoBoToolbox Asset ID
 #'
 #' @description
-#' Downloads raw GPS tracks and creates a gridded summary of fishing activity.
+#' Retrieves the Airtable record ID for a form based on its KoBoToolbox asset ID.
 #'
-#' @param log_threshold The logging threshold to use. Default is logger::DEBUG.
-#' @param grid_size Numeric. Size of grid cells in meters (100, 250, 500, or 1000).
+#' @param kobo_asset_id Character. The KoBoToolbox asset ID to match.
+#' @param conf Configuration object from read_config().
 #'
-#' @return None (invisible). Creates and uploads preprocessed files.
-#'
-#' @keywords workflow preprocessing
+#' @return Character. The Airtable record ID for the matching form.
+#' @keywords preprocessing helper
 #' @export
-preprocess_pds_tracks <- function(
-  log_threshold = logger::DEBUG,
-  grid_size = 500
+get_airtable_form_id <- function(kobo_asset_id = NULL, conf = NULL) {
+  airtable_to_df(
+    base_id = conf$airtable$frame$base_id,
+    table_name = "forms",
+    token = conf$airtable$token
+  ) |>
+    janitor::clean_names() |>
+    dplyr::filter(.data$form_id == kobo_asset_id) |>
+    dplyr::pull(.data$airtable_id)
+}
+
+#' Map Survey Labels to Standardized Taxa, Gear, and Vessel Names
+#'
+#' @description
+#' Converts local species, gear, and vessel labels from surveys to standardized names using
+#' Airtable reference tables. Replaces catch_taxon with scientific_name and alpha3_code,
+#' and replaces local gear and vessel names with standardized types.
+#'
+#' @param data A data frame with preprocessed survey data containing catch_taxon, gear,
+#'   vessel_type, and landing_site columns.
+#' @param taxa_mapping A data frame from Airtable taxa table with survey_label, alpha3_code,
+#'   and scientific_name columns.
+#' @param gear_mapping A data frame from Airtable gears table with survey_label and
+#'   standard_name columns.
+#' @param vessels_mapping A data frame from Airtable vessels table with survey_label and
+#'   standard_name columns.
+#' @param sites_mapping A data frame from Airtable landing_sites table with site_code and
+#'   site columns.
+#'
+#' @return A tibble with catch_taxon replaced by scientific_name and alpha3_code, gear and
+#'   vessel_type replaced by standardized names, and landing_site replaced by the full site name.
+#'   Records without matches will have NA values.
+#'
+#' @details
+#' This function is called within `preprocess_landings()` after processing raw survey data.
+#' The mapping tables are retrieved from Airtable frame base and filtered by
+#' form ID before being passed to this function.
+#'
+#' @keywords preprocessing helper
+#' @export
+map_surveys <- function(
+  data = NULL,
+  taxa_mapping = NULL,
+  gear_mapping = NULL,
+  vessels_mapping = NULL,
+  sites_mapping = NULL
 ) {
-  logger::log_threshold(log_threshold)
-  pars <- read_config()
+  data |>
+    dplyr::left_join(taxa_mapping, by = c("catch_taxon" = "survey_label")) |>
+    dplyr::select(-c("catch_taxon")) |>
+    dplyr::relocate("scientific_name", .after = "n_catch") |>
+    dplyr::relocate("alpha3_code", .after = "scientific_name") |>
+    dplyr::left_join(gear_mapping, by = c("gear" = "survey_label")) |>
+    dplyr::select(-c("gear")) |>
+    dplyr::relocate("standard_name", .after = "vessel_type") |>
+    dplyr::rename(gear = "standard_name") |>
+    dplyr::left_join(
+      vessels_mapping,
+      by = c("vessel_type" = "survey_label")
+    ) |>
+    dplyr::select(-c("vessel_type")) |>
+    dplyr::relocate("standard_name", .after = "habitat") |>
+    dplyr::rename(vessel_type = "standard_name") |>
+    dplyr::left_join(
+      sites_mapping,
+      by = c("landing_site" = "site_code")
+    ) |>
+    dplyr::select(-c("landing_site")) |>
+    dplyr::relocate("site", .after = "district") |>
+    dplyr::rename(landing_site = "site")
+}
 
-  # Get already preprocessed tracks
-  logger::log_info("Checking existing preprocessed tracks...")
-  preprocessed_filename <- cloud_object_name(
-    prefix = paste0(pars$pds$pds_tracks$file_prefix, "-preprocessed"),
-    provider = pars$storage$google$key,
-    extension = "parquet",
-    version = pars$pds$pds_tracks$version,
-    options = pars$storage$google$options
-  )
 
-  # Get preprocessed trip IDs if file exists
-  preprocessed_trips <- tryCatch(
-    {
-      download_cloud_file(
-        name = preprocessed_filename,
-        provider = pars$storage$google$key,
-        options = pars$storage$google$options
+#' Fetch and Filter Asset Data from Airtable
+#'
+#' @description
+#' Retrieves data from a specified Airtable table and filters it based on form ID.
+#' Handles cases where form_id column contains multiple comma-separated IDs.
+#'
+#' @param table_name Character. Name of the Airtable table to fetch.
+#' @param select_cols Character vector. Column names to select from the table.
+#' @param form Character. Form ID to filter by.
+#' @param conf Configuration object from read_config().
+#'
+#' @return A filtered and selected data frame from Airtable containing only rows where
+#'   the form_id field contains the specified form ID.
+#'
+#' @details
+#' This function uses string detection to handle multi-valued form_id fields that may
+#' contain comma-separated lists of form IDs.
+#'
+#' @keywords preprocessing helper
+#' @export
+fetch_asset <- function(
+  table_name = NULL,
+  select_cols = NULL,
+  form = NULL,
+  conf = NULL
+) {
+  airtable_to_df(
+    base_id = conf$airtable$frame$base_id,
+    table_name = table_name,
+    token = conf$airtable$token
+  ) |>
+    janitor::clean_names() |>
+    # Filter rows where form_id contains the target ID
+    dplyr::filter(stringr::str_detect(
+      .data$form_id,
+      stringr::fixed(form)
+    )) |>
+    dplyr::select(dplyr::all_of(select_cols))
+}
+
+#' Fetch Multiple Asset Tables from Airtable
+#'
+#' @description
+#' Fetches taxa, gear, vessels, and landing sites data from Airtable filtered
+#' by the specified form ID. Returns distinct records for each table.
+#'
+#' @param form_id Character. Form ID to filter assets by. This is passed to each
+#'   individual fetch_asset call.
+#' @param conf Configuration object from read_config().
+#'
+#' @return A named list containing four data frames:
+#'   \itemize{
+#'     \item \code{taxa}: Contains survey_label, alpha3_code, and scientific_name columns
+#'     \item \code{gear}: Contains survey_label and standard_name columns
+#'     \item \code{vessels}: Contains survey_label and standard_name columns
+#'     \item \code{sites}: Contains site and site_code columns
+#'   }
+#'
+#' @details
+#' Each table is fetched separately using `fetch_asset()` and filtered to return
+#' only distinct rows to avoid duplicates in the mapping tables.
+#'
+#' @keywords preprocessing helper
+#' @export
+fetch_assets <- function(form_id = NULL, conf = NULL) {
+  assets_list <-
+    list(
+      taxa = fetch_asset(
+        table_name = "taxa",
+        select_cols = c("survey_label", "alpha3_code", "scientific_name"),
+        form = form_id,
+        conf = conf
+      ),
+      gear = fetch_asset(
+        table_name = "gears",
+        select_cols = c("survey_label", "standard_name"),
+        form = form_id,
+        conf = conf
+      ),
+      vessels = fetch_asset(
+        table_name = "vessels",
+        select_cols = c("survey_label", "standard_name"),
+        form = form_id,
+        conf = conf
+      ),
+      sites = fetch_asset(
+        table_name = "landing_sites",
+        select_cols = c("site", "site_code"),
+        form = form_id,
+        conf = conf
       )
-      preprocessed_data <- arrow::read_parquet(preprocessed_filename)
-      unique(preprocessed_data$Trip)
+    )
+
+  purrr::map(assets_list, ~ dplyr::distinct(.x))
+}
+
+#' Preprocess General Survey Information for ADNAP
+#'
+#' Processes general survey information from ADNAP KoBoToolbox forms including
+#' trip details, fisher counts, vessel information, and survey metadata.
+#'
+#' @param data A data frame containing raw ADNAP survey data
+#'
+#' @return A data frame with processed general survey information including:
+#'   submission_id, dates, location, gear, trip details, fisher counts, etc.
+#'
+#' @keywords preprocessing
+#' @export
+preprocess_general_adnap <- function(data = NULL) {
+  general_info <-
+    data %>%
+    dplyr::rename_with(~ stringr::str_remove(., "group_general/")) %>%
+    dplyr::rename_with(~ stringr::str_remove(., "group_trip/")) %>%
+    dplyr::rename_with(~ stringr::str_remove(., "no_fishers/")) %>%
+    dplyr::rename_with(
+      ~ stringr::str_remove(., "group_conservation_trading/")
+    ) %>%
+    dplyr::select(
+      "submission_id",
+      submitted_by = "_submitted_by",
+      submission_date = "today",
+      "landing_date",
+      district = "District",
+      dplyr::contains("landing_site"),
+      "collect_data_today",
+      "survey_activity",
+      dplyr::contains("fishing_days_week"),
+      "has_boat",
+      "vessel_type",
+      "propulsion_gear",
+      "fuel_L",
+      "has_PDS",
+      "habitat",
+      "fishing_ground",
+      "gear",
+      "mesh_size",
+      "fishing_start",
+      "fishing_end",
+      dplyr::ends_with("_fishers"),
+      "catch_outcome",
+      "conservation",
+      "catch_use",
+      "trader",
+      "catch_price",
+      "happiness_rating"
+    ) %>%
+    dplyr::mutate(
+      landing_site = dplyr::coalesce(
+        !!!dplyr::select(., dplyr::contains("landing_site"))
+      )
+    ) |>
+    dplyr::select(-dplyr::contains("landing_site"), "landing_site") |>
+    dplyr::relocate("landing_site", .after = "district") |>
+    # dplyr::mutate(landing_code = dplyr::coalesce(.data$landing_site_palma, .data$landing_site_mocimboa)) %>%
+    # tidyr::separate(.data$gps,
+    #  into = c("lat", "lon", "drop1", "drop2"),
+    #  sep = " "
+    # ) %>%
+    # dplyr::relocate("landing_code", .after = "district") %>%
+    dplyr::mutate(
+      landing_date = lubridate::as_date(.data$landing_date),
+      submission_date = lubridate::as_date(.data$submission_date),
+      fishing_start = lubridate::as_datetime(.data$fishing_start),
+      fishing_end = lubridate::as_datetime(.data$fishing_end),
+      trip_duration = as.numeric(difftime(
+        .data$fishing_end,
+        .data$fishing_start,
+        units = "hours"
+      )),
+      dplyr::across(
+        c(
+          dplyr::contains("fishing_days_week"),
+          "catch_price",
+          dplyr::ends_with("_fishers")
+        ),
+        ~ as.double(.x)
+      )
+    )
+  general_info
+}
+
+#' Process Version Data Helper Function
+#'
+#' Internal helper function to process catch and general info for a specific survey version
+#'
+#' @param catch_info Processed catch information
+#' @param asfis ASFIS species data
+#'
+#' @return Combined and processed survey data
+#' @keywords internal
+process_version_data <- function(catch_info = NULL, asfis = NULL) {
+  # Try to get length-weight coefficients from Rfishbase
+  lwcoeffs <- tryCatch(
+    {
+      getLWCoeffs(
+        taxa_list = unique(catch_info$catch_taxon),
+        asfis_list = asfis
+      )
     },
     error = function(e) {
-      logger::log_info("No existing preprocessed tracks file found")
-      character(0)
+      message("Error in getLWCoeffs, using local fallback: ", e$message)
+      # Fallback to local data
+      readr::read_rds(system.file(
+        "length_weight_params.rds",
+        package = "peskas.mozambique.data.pipeline"
+      ))
     }
   )
 
-  # List raw tracks
-  logger::log_info("Listing raw tracks...")
-  raw_tracks <- googleCloudStorageR::gcs_list_objects(
-    bucket = pars$pds_storage$google$options$bucket,
-    prefix = pars$pds$pds_tracks$file_prefix
-  )$name
-
-  raw_trip_ids <- extract_trip_ids_from_filenames(raw_tracks)
-  new_trip_ids <- setdiff(raw_trip_ids, preprocessed_trips)
-
-  if (length(new_trip_ids) == 0) {
-    logger::log_info("No new tracks to preprocess")
-    return(invisible())
-  }
-
-  # Get raw tracks that need preprocessing
-  new_tracks <- raw_tracks[raw_trip_ids %in% new_trip_ids]
-
-  workers <- parallel::detectCores() - 1
-  logger::log_info("Setting up parallel processing with {workers} workers...")
-  future::plan(future::multisession, workers = workers)
-
-  logger::log_info("Processing {length(new_tracks)} tracks in parallel...")
-  new_processed_data <- furrr::future_map_dfr(
-    new_tracks,
-    function(track_file) {
-      download_cloud_file(
-        name = track_file,
-        provider = pars$pds_storage$google$key,
-        options = pars$pds_storage$google$options
-      )
-
-      track_data <- arrow::read_parquet(track_file) %>%
-        preprocess_track_data(grid_size = grid_size)
-
-      unlink(track_file)
-      track_data
-    },
-    .options = furrr::furrr_options(seed = TRUE),
-    .progress = TRUE
+  # add flying fish estimates
+  fly_lwcoeffs <- dplyr::tibble(
+    catch_taxon = "FLY",
+    n = 0,
+    a_6 = 0.00631,
+    b_6 = 3.05
   )
+  lwcoeffs$lw <- dplyr::bind_rows(lwcoeffs$lw, fly_lwcoeffs)
 
-  future::plan(future::sequential)
+  catch_df <-
+    calculate_catch_adnap(catch_data = catch_info, lwcoeffs = lwcoeffs$lw) |>
+    dplyr::left_join(lwcoeffs$ml, by = "catch_taxon") |>
+    dplyr::select(-"max_weightkg_75")
 
-  # Combine with existing preprocessed data if it exists
-  final_data <- if (length(preprocessed_trips) > 0) {
-    dplyr::bind_rows(preprocessed_data, new_processed_data)
-  } else {
-    new_processed_data
-  }
-
-  output_filename <-
-    paste0(pars$pds$pds_tracks$file_prefix, "-preprocessed") |>
-    add_version(extension = "parquet")
-
-  arrow::write_parquet(
-    final_data,
-    sink = output_filename,
-    compression = "lz4",
-    compression_level = 12
-  )
-
-  logger::log_info("Uploading preprocessed tracks...")
-  upload_cloud_file(
-    file = output_filename,
-    provider = pars$storage$google$key,
-    options = pars$storage$google$options
-  )
-
-  unlink(output_filename)
-  if (exists("preprocessed_filename")) {
-    unlink(preprocessed_filename)
-  }
-
-  logger::log_success("Track preprocessing complete")
-
-  grid_summaries <- generate_track_summaries(final_data)
-
-  output_filename <-
-    paste0(pars$pds$pds_tracks$file_prefix, "-grid_summaries") |>
-    add_version(extension = "parquet")
-
-  arrow::write_parquet(
-    grid_summaries,
-    sink = output_filename,
-    compression = "lz4",
-    compression_level = 12
-  )
-
-  logger::log_info("Uploading preprocessed tracks...")
-  upload_cloud_file(
-    file = output_filename,
-    provider = pars$storage$google$key,
-    options = pars$storage$google$options
-  )
-}
-
-
-#' Preprocess Track Data into Spatial Grid Summary
-#'
-#' @description
-#' This function processes GPS track data into a spatial grid summary, calculating time spent
-#' and other metrics for each grid cell. The grid size can be specified to analyze spatial
-#' patterns at different scales.
-#'
-#' @param data A data frame containing GPS track data with columns:
-#'   - Trip: Unique trip identifier
-#'   - Time: Timestamp of the GPS point
-#'   - Lat: Latitude
-#'   - Lng: Longitude
-#'   - Speed (M/S): Speed in meters per second
-#'   - Range (Meters): Range in meters
-#'   - Heading: Heading in degrees
-#'
-#' @param grid_size Numeric. Size of grid cells in meters. Must be one of:
-#'   - 100: ~100m grid cells
-#'   - 250: ~250m grid cells
-#'   - 500: ~500m grid cells (default)
-#'   - 1000: ~1km grid cells
-#'
-#' @return A tibble with the following columns:
-#'   - Trip: Trip identifier
-#'   - lat_grid: Latitude of grid cell center
-#'   - lng_grid: Longitude of grid cell center
-#'   - time_spent_mins: Total time spent in grid cell in minutes
-#'   - mean_speed: Average speed in grid cell (M/S)
-#'   - mean_range: Average range in grid cell (Meters)
-#'   - first_seen: First timestamp in grid cell
-#'   - last_seen: Last timestamp in grid cell
-#'   - n_points: Number of GPS points in grid cell
-#'
-#' @details
-#' The function creates a grid by rounding coordinates based on the specified grid size.
-#' Grid sizes are approximate due to the conversion from meters to degrees, with calculations
-#' based on 1 degree ≈ 111km at the equator. Time spent is calculated using the time
-#' differences between consecutive points.
-#'
-#' @keywords preprocessing
-#'
-#' @examples
-#' \dontrun{
-#' # Process tracks with 500m grid (default)
-#' result_500m <- preprocess_track_data(tracks_data)
-#'
-#' # Use 100m grid for finer resolution
-#' result_100m <- preprocess_track_data(tracks_data, grid_size = 100)
-#'
-#' # Use 1km grid for broader patterns
-#' result_1km <- preprocess_track_data(tracks_data, grid_size = 1000)
-#' }
-#'
-#' @keywords preprocessing
-#' @export
-preprocess_track_data <- function(data, grid_size = 500) {
-  # Define grid size in meters to degrees (approximately)
-  # 1 degree = 111km at equator
-  grid_degrees <- switch(
-    as.character(grid_size),
-    "100" = 0.001, # ~100m
-    "250" = 0.0025, # ~250m
-    "500" = 0.005, # ~500m
-    "1000" = 0.01, # ~1km
-    stop("grid_size must be one of: 100, 250, 500, 1000")
-  )
-
-  data %>%
-    dplyr::select(
-      "Trip",
-      "Time",
-      "Lat",
-      "Lng",
-      "Speed (M/S)",
-      "Range (Meters)",
-      "Heading"
-    ) %>%
-    dplyr::group_by(.data$Trip) %>%
-    dplyr::arrange(.data$Time) %>%
-    dplyr::mutate(
-      # Create grid cells based on selected size
-      lat_grid = round(.data$Lat / grid_degrees, 0) * grid_degrees,
-      lng_grid = round(.data$Lng / grid_degrees, 0) * grid_degrees,
-
-      # Calculate time spent (difference with next point)
-      time_diff = as.numeric(difftime(
-        dplyr::lead(.data$Time),
-        .data$Time,
-        units = "mins"
-      )),
-      # For last point in series, use difference with previous point
-      time_diff = dplyr::if_else(
-        is.na(.data$time_diff),
-        as.numeric(difftime(
-          .data$Time,
-          dplyr::lag(.data$Time),
-          units = "mins"
-        )),
-        .data$time_diff
-      )
-    ) %>%
-    # Group by trip and grid cell
-    dplyr::group_by(.data$Trip, .data$lat_grid, .data$lng_grid) %>%
-    dplyr::summarise(
-      time_spent_mins = sum(.data$time_diff, na.rm = TRUE),
-      mean_speed = mean(.data$`Speed (M/S)`, na.rm = TRUE),
-      mean_range = mean(.data$`Range (Meters)`, na.rm = TRUE),
-      first_seen = min(.data$Time),
-      last_seen = max(.data$Time),
-      n_points = dplyr::n(),
-      .groups = "drop"
-    ) %>%
-    dplyr::filter(.data$time_spent_mins > 0) %>%
-    dplyr::group_by(.data$Trip) %>%
-    dplyr::arrange(.data$first_seen) %>%
-    dplyr::filter(
-      !(dplyr::row_number() %in% c(1, 2, dplyr::n() - 1, dplyr::n()))
-    ) %>%
-    dplyr::ungroup()
-}
-
-#' Generate Grid Summaries for Track Data
-#'
-#' @description
-#' Processes GPS track data into 1km grid summaries for visualization and analysis.
-#'
-#' @param data Preprocessed track data
-#' @param min_hours Minimum hours threshold for filtering (default: 0.15)
-#' @param max_hours Maximum hours threshold for filtering (default: 10)
-#'
-#' @return A dataframe with grid summary statistics
-#'
-#' @keywords preprocessing
-#' @export
-generate_track_summaries <- function(data, min_hours = 0.15, max_hours = 15) {
-  data %>%
-    # First summarize by current grid (500m)
-    dplyr::group_by(.data$lat_grid, .data$lng_grid) %>%
-    dplyr::summarise(
-      avg_time_mins = mean(.data$time_spent_mins),
-      avg_speed = mean(.data$mean_speed),
-      avg_range = mean(.data$mean_range),
-      visits = dplyr::n_distinct(.data$Trip),
-      total_points = sum(.data$n_points),
-      .groups = "drop"
-    ) %>%
-    # Then regrid to 1km
-    dplyr::mutate(
-      lat_grid_1km = round(.data$lat_grid / 0.01) * 0.01,
-      lng_grid_1km = round(.data$lng_grid / 0.01) * 0.01
-    ) %>%
-    dplyr::group_by(.data$lat_grid_1km, .data$lng_grid_1km) %>%
-    dplyr::summarise(
-      avg_time_mins = mean(.data$avg_time_mins),
-      avg_speed = mean(.data$avg_speed),
-      avg_range = mean(.data$avg_range),
-      total_visits = sum(.data$visits),
-      original_cells = dplyr::n(),
-      total_points = sum(.data$total_points),
-      .groups = "drop"
-    ) %>%
-    dplyr::mutate(
-      avg_time_hours = .data$avg_time_mins / 60
-    ) %>%
-    dplyr::filter(
-      .data$avg_time_hours >= min_hours,
-      .data$avg_time_hours <= max_hours
-    ) |>
-    dplyr::select(-"avg_time_mins")
+  return(catch_df)
 }

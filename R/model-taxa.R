@@ -57,7 +57,7 @@
 #' @examples
 #' \dontrun{
 #' # Calculate catch weights
-#' catch_weights <- calculate_catch(
+#' catch_weights <- calculate_catch_adnap(
 #'   catch_data = catch_data,
 #'   lwcoeffs = length_weight_coeffs
 #' )
@@ -70,7 +70,7 @@
 #'
 #' @keywords mining preprocessing
 #' @export
-calculate_catch <- function(catch_data = NULL, lwcoeffs = NULL) {
+calculate_catch_adnap <- function(catch_data = NULL, lwcoeffs = NULL) {
   catch_data |>
     dplyr::left_join(lwcoeffs, by = "catch_taxon") |>
     dplyr::mutate(

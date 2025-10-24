@@ -2,19 +2,19 @@
 % Please edit documentation in R/ingestion.R
 \name{flatten_field}
 \alias{flatten_field}
-\title{Flatten a Single Field of Kobotoolbox Data}
+\title{Flatten Survey Data Fields}
 \usage{
 flatten_field(x, p)
 }
 \arguments{
-\item{x}{The field to be flattened.}
+\item{x}{A vector or list representing a field in the data.}
 
-\item{p}{The name of the parent field.}
+\item{p}{The prefix or name associated with the field, used for naming during the flattening process.}
 }
 \value{
-A flattened list representing the input field.
+Modified field, either unchanged, unnested, or appropriately renamed.
 }
 \description{
-This internal function flattens a single field within a row of Kobotoolbox data.
+Processes each field within a row of survey data, handling both simple vectors and nested lists. For lists with named elements, renames and unlists them for flat structure preparation.
 }
 \keyword{internal}

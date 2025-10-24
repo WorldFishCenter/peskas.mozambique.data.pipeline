@@ -55,8 +55,8 @@ export_landings()
 
 }
 \seealso{
-\code{\link{preprocess_landings}} for data preprocessing
-\code{\link{calculate_catch}} for catch weight calculations
+\code{\link{preprocess_landings_adnap}} for data preprocessing
+\code{\link{calculate_catch_adnap}} for catch weight calculations
 }
 \keyword{export}
 \keyword{workflow}

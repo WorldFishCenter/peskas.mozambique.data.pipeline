@@ -1,58 +1,111 @@
-#' Download and Process Surveys from Kobotoolbox
+#' Download and Process Lurio Surveys from Kobotoolbox
 #'
-#' This function retrieves survey data from Kobotoolbox for a specific project,
-#' processes it, and uploads the raw data to a MongoDB database. It uses the
-#' `get_kobo_data` function, which is a wrapper for `kobotools_kpi_data` from
-#' the KoboconnectR package.
+#' This function retrieves Lurio survey data from Kobotoolbox, processes it,
+#' and uploads the raw data to Google Cloud Storage as Parquet files. It uses the
+#' `get_kobo_data` function to retrieve survey submissions via the Kobotoolbox API.
 #'
-#' @param url The URL of Kobotoolbox (default is NULL, uses value from configuration).
-#' @param project_id The asset ID of the project to download data from (default is NULL, uses value from configuration).
-#' @param username Username for Kobotoolbox account (default is NULL, uses value from configuration).
-#' @param psswd Password for Kobotoolbox account (default is NULL, uses value from configuration).
-#' @param encoding Encoding to be used for data retrieval (default is NULL, uses "UTF-8").
-#'
-#' @return No return value. Function downloads data, processes it, and uploads to MongoDB.
+#' @return Invisible NULL. Function downloads data, processes it, and uploads to Google Cloud Storage.
 #'
 #' @details
 #' The function performs the following steps:
-#' 1. Reads configuration settings.
-#' 2. Downloads survey data from Kobotoolbox using `get_kobo_data`.
-#' 3. Checks for uniqueness of submissions.
-#' 4. Converts data to tabular format.
-#' 5. Uploads raw data to MongoDB.
+#' 1. Reads configuration settings from config.yml
+#' 2. Downloads survey data from Kobotoolbox using `get_kobo_data`
+#' 3. Checks for uniqueness of submissions
+#' 4. Flattens nested JSON data to tabular format
+#' 5. Uploads raw data as versioned Parquet file to Google Cloud Storage
 #'
-#' Note that while parameters are provided for customization, the function
-#' currently uses hardcoded values and configuration settings for some parameters.
+#' @note The function uses configuration values from config.yml:
+#' - Hardcoded URL: "eu.kobotoolbox.org"
+#' - Hardcoded encoding: "UTF-8"
+#' - Configuration values for: asset_id, username, password
+#' - GCS bucket and credentials from configuration
 #'
 #' @keywords workflow ingestion
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' ingest_surveys(
-#'   url = "eu.kobotoolbox.org",
-#'   project_id = "my_project_id",
-#'   username = "admin",
-#'   psswd = "admin",
-#'   encoding = "UTF-8"
-#' )
+#' ingest_landings_lurio()
 #' }
-ingest_landings <- function(
-  url = NULL,
-  project_id = NULL,
-  username = NULL,
-  psswd = NULL,
-  encoding = NULL
-) {
+ingest_landings_lurio <- function() {
+  conf <- read_config()
+
+  logger::log_info("Downloading Lurio Fish Catch Survey Kobo data...")
+  data_raw <-
+    get_kobo_data(
+      url = "eu.kobotoolbox.org",
+      assetid = conf$ingestion$`kobo-lurio`$asset_id,
+      uname = conf$ingestion$`kobo-lurio`$username,
+      pwd = conf$ingestion$`kobo-lurio`$password,
+      encoding = "UTF-8",
+      format = "json"
+    )
+
+  # Check that submissions are unique in case there is overlap in the pagination
+  if (
+    dplyr::n_distinct(purrr::map_dbl(data_raw, ~ .$`_id`)) != length(data_raw)
+  ) {
+    stop("Number of submission ids not the same as number of records")
+  }
+
+  logger::log_info(
+    "Converting Lurio Fish Catch Survey Kobo data to tabular format..."
+  )
+  raw_survey <-
+    purrr::map(data_raw, flatten_row) %>%
+    dplyr::bind_rows() %>%
+    dplyr::rename("submission_id" = .data$`_id`)
+
+  logger::log_info("Uploading raw data to cloud storage")
+  upload_parquet_to_cloud(
+    data = raw_survey,
+    prefix = conf$ingestion$`kobo-lurio`$raw_surveys$file_prefix,
+    provider = conf$storage$google$key,
+    options = conf$storage$google$options
+  )
+
+  invisible(NULL)
+}
+
+#' Download and Process ADNAP Surveys from Kobotoolbox
+#'
+#' This function retrieves ADNAP survey data from Kobotoolbox, processes it,
+#' and uploads the raw data to Google Cloud Storage as Parquet files. It uses the
+#' `get_kobo_data` function to retrieve survey submissions via the Kobotoolbox API.
+#'
+#' @return Invisible NULL. Function downloads data, processes it, and uploads to Google Cloud Storage.
+#'
+#' @details
+#' The function performs the following steps:
+#' 1. Reads configuration settings from config.yml
+#' 2. Downloads survey data from Kobotoolbox using `get_kobo_data`
+#' 3. Checks for uniqueness of submissions
+#' 4. Flattens nested JSON data to tabular format
+#' 5. Uploads raw data as versioned Parquet file to Google Cloud Storage
+#'
+#' @note The function uses configuration values from config.yml:
+#' - Hardcoded URL: "eu.kobotoolbox.org"
+#' - Hardcoded encoding: "UTF-8"
+#' - Configuration values for: asset_id, username, password (shared with Lurio)
+#' - GCS bucket and credentials from configuration
+#'
+#' @keywords workflow ingestion
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ingest_landings_adnap()
+#' }
+ingest_landings_adnap <- function() {
   conf <- read_config()
 
   logger::log_info("Downloading WCS Fish Catch Survey Kobo data...")
   data_raw <-
     get_kobo_data(
       url = "eu.kobotoolbox.org",
-      assetid = conf$ingestion$`kobo-v1`$asset_id,
-      uname = conf$ingestion$`kobo-v1`$username,
-      pwd = conf$ingestion$`kobo-v1`$password,
+      assetid = conf$ingestion$`kobo-adnap`$asset_id,
+      uname = conf$ingestion$`kobo-lurio`$username,
+      pwd = conf$ingestion$`kobo-lurio`$password,
       encoding = "UTF-8",
       format = "json"
     )
@@ -75,10 +128,12 @@ ingest_landings <- function(
   logger::log_info("Uploading raw data to cloud storage")
   upload_parquet_to_cloud(
     data = raw_survey,
-    prefix = conf$ingestion$`kobo-v1`$raw_surveys$file_prefix,
+    prefix = conf$ingestion$`kobo-adnap`$raw_surveys$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )
+
+  invisible(NULL)
 }
 
 #' Retrieve Data from Kobotoolbox API
@@ -251,35 +306,33 @@ get_kobo_data <- function(
 }
 
 
-#' Flatten a Single Row of Kobotoolbox Data
+#' Flatten Survey Data Rows
 #'
-#' This internal function flattens a single row of Kobotoolbox data,
-#' converting nested structures into a flat tibble.
+#' Transforms each row of nested survey data into a flat tabular format using a mapping and flattening process.
 #'
-#' @param x A list representing a single row of Kobotoolbox data.
-#'
-#' @return A flattened tibble representing the input row.
-#'
+#' @param x A list representing a row of data, potentially containing nested lists or vectors.
+#' @return A tibble with each row representing flattened survey data.
 #' @keywords internal
+#' @export
 flatten_row <- function(x) {
   x %>%
     # Each row is composed of several fields
     purrr::imap(flatten_field) %>%
     rlang::squash() %>%
+    # Remove NULL values before creating tibble
     purrr::compact() %>%
-    tibble::as_tibble()
+    tibble::as_tibble(.name_repair = "unique")
 }
 
-#' Flatten a Single Field of Kobotoolbox Data
+#' Flatten Survey Data Fields
 #'
-#' This internal function flattens a single field within a row of Kobotoolbox data.
+#' Processes each field within a row of survey data, handling both simple vectors and nested lists. For lists with named elements, renames and unlists them for flat structure preparation.
 #'
-#' @param x The field to be flattened.
-#' @param p The name of the parent field.
-#'
-#' @return A flattened list representing the input field.
-#'
+#' @param x A vector or list representing a field in the data.
+#' @param p The prefix or name associated with the field, used for naming during the flattening process.
+#' @return Modified field, either unchanged, unnested, or appropriately renamed.
 #' @keywords internal
+#' @export
 flatten_field <- function(x, p) {
   # If the field is a simple vector do nothing but if the field is a list we
   # need more logic
@@ -296,7 +349,7 @@ flatten_field <- function(x, p) {
         x <- purrr::imap(x, rename_child, p = p)
       }
     } else {
-      # Return NULL for empty lists - will be removed by compact()
+      # Handle empty lists by returning NULL (will be removed by compact)
       return(NULL)
     }
   } else {
@@ -305,17 +358,16 @@ flatten_field <- function(x, p) {
   x
 }
 
-#' Rename Child Elements in Nested Kobotoolbox Data
+#' Rename Nested Survey Data Elements
 #'
-#' This internal function renames child elements in nested Kobotoolbox data structures.
+#' Appends a parent name or index to child elements within a nested list, assisting in creating a coherent and traceable data structure during the flattening process.
 #'
-#' @param x The child element to be renamed.
-#' @param i The index or name of the child element.
-#' @param p The name of the parent element.
-#'
-#' @return A renamed list of child elements.
-#'
+#' @param x A list element, possibly nested, to be renamed.
+#' @param i The index or key of the element within the parent list.
+#' @param p The parent name to prepend to the element's existing name for context.
+#' @return A renamed list element, structured to maintain contextual relevance in a flattened dataset.
 #' @keywords internal
+#' @export
 rename_child <- function(x, i, p) {
   if (length(x) == 0) {
     if (is.null(x)) {
@@ -332,7 +384,6 @@ rename_child <- function(x, i, p) {
   }
   x
 }
-
 
 #' Ingest Pelagic Data Systems (PDS) Trip Data
 #'
