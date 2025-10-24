@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,87 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.0.0" id="peskasmozambiquedatapipeline-200">peskas.mozambique.data.pipeline 2.0.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-200"></a></h2>
+<div class="section level3">
+<h3 id="major-changes-2-0-0">Major Changes<a class="anchor" aria-label="anchor" href="#major-changes-2-0-0"></a></h3>
+<ul><li>
+<strong>Dual Survey System Integration</strong>: Full support for both Lurio and ADNAP fisheries surveys with parallel processing workflows.
+<ul><li>Added <code><a href="../reference/ingest_landings_lurio.html">ingest_landings_lurio()</a></code> and <code><a href="../reference/ingest_landings_adnap.html">ingest_landings_adnap()</a></code> for separate survey data streams</li>
+<li>Implemented <code><a href="../reference/preprocess_landings_lurio.html">preprocess_landings_lurio()</a></code> and <code><a href="../reference/preprocess_landings_adnap.html">preprocess_landings_adnap()</a></code> with survey-specific transformations</li>
+<li>Created <code><a href="../reference/validate_surveys_lurio.html">validate_surveys_lurio()</a></code> and <code><a href="../reference/validate_surveys_adnap.html">validate_surveys_adnap()</a></code> with tailored validation rules</li>
+<li>Added <code><a href="../reference/calculate_catch_lurio.html">calculate_catch_lurio()</a></code> and <code><a href="../reference/calculate_catch_adnap.html">calculate_catch_adnap()</a></code> for survey-specific catch weight estimation</li>
+<li>Introduced survey version detection and adaptive processing via <code><a href="../reference/reshape_catch_data.html">reshape_catch_data()</a></code>
+</li>
+</ul></li>
+<li>
+<strong>Enhanced Validation System for ADNAP</strong>: Advanced validation with KoBoToolbox integration.
+<ul><li>Integrated KoBoToolbox validation status API for manual approval workflow</li>
+<li>Added <code><a href="../reference/get_validation_status.html">get_validation_status()</a></code> to query submission approval status</li>
+<li>Implemented parallel processing for validation status queries across multiple submissions</li>
+<li>Manual approvals in KoBoToolbox now bypass automatic validation flags</li>
+<li>Maintained two-stage validation (7 basic checks + 3 composite economic indicators)</li>
+</ul></li>
+<li>
+<strong>Flexible Survey Data Reshaping</strong>: New module for handling multiple survey form structures.
+<ul><li>Introduced <code><a href="../reference/reshape_species_groups.html">reshape_species_groups()</a></code> for converting wide-format species data to long format</li>
+<li>Created <code><a href="../reference/reshape_catch_data.html">reshape_catch_data()</a></code> supporting both version 1 and version 2 survey structures</li>
+<li>Added <code><a href="../reference/preprocess_catch.html">preprocess_catch()</a></code> with automatic survey version detection</li>
+<li>Implemented <code><a href="../reference/preprocess_general_adnap.html">preprocess_general_adnap()</a></code> for ADNAP-specific trip information processing</li>
+<li>Enhanced handling of nested length groups and fish over 100cm</li>
+</ul></li>
+<li>
+<strong>Improved GitHub Actions Workflow</strong>: Enhanced automation with clearer job naming and parallel execution.
+<ul><li>Renamed workflow jobs for better visibility (e.g., “Ingest Lurio landings”, “Validate ADNAP landings”)</li>
+<li>Parallel execution of Lurio and ADNAP pipelines for faster processing</li>
+<li>Separate PDS data ingestion and preprocessing jobs</li>
+<li>Clear dependency chains between ingestion, preprocessing, and validation stages</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-2-0-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-0-0"></a></h3>
+<ul><li>
+<strong>Documentation Overhaul</strong>:
+<ul><li>Corrected all storage backend references from MongoDB to Google Cloud Storage</li>
+<li>Updated function documentation to accurately reflect Parquet file usage</li>
+<li>Added specific titles to distinguish Lurio and ADNAP functions</li>
+<li>Removed misleading unused parameters from ingestion functions</li>
+<li>Added explicit <code>invisible(NULL)</code> returns to all workflow functions for consistency</li>
+<li>Enhanced documentation for KoBoToolbox validation integration</li>
+<li>Improved parameter documentation honesty (noting hardcoded values)</li>
+</ul></li>
+<li>
+<strong>Code Quality Enhancements</strong>:
+<ul><li>Cleaned up function signatures by removing unused parameters</li>
+<li>Made return values explicit across all workflow functions</li>
+<li>Improved consistency between function documentation and implementation</li>
+<li>Enhanced examples to reflect actual usage patterns</li>
+</ul></li>
+<li>
+<strong>Survey Processing Pipeline</strong>:
+<ul><li>Added support for multiple species field normalization</li>
+<li>Improved handling of separate length group structures for large fish</li>
+<li>Enhanced catch data validation with species-specific thresholds</li>
+<li>Better integration with Airtable form assets for data mapping</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-2-0-0">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-0-0"></a></h3>
+<ul><li>Fixed incorrect package reference in documentation (removed non-existent KoboconnectR package)</li>
+<li>Corrected validation threshold documentation (200 individuals, not 100) for ADNAP surveys</li>
+<li>Fixed duplicate GitHub Actions job names that made debugging difficult</li>
+<li>Corrected storage backend documentation throughout codebase (MongoDB → GCS)</li>
+<li>Updated validation flag numbering documentation for consistency across surveys</li>
+</ul></div>
+<div class="section level3">
+<h3 id="infrastructure--dependencies-2-0-0">Infrastructure &amp; Dependencies<a class="anchor" aria-label="anchor" href="#infrastructure--dependencies-2-0-0"></a></h3>
+<ul><li>Maintained compatibility with parallel processing packages (<code>future</code>, <code>furrr</code>)</li>
+<li>Enhanced configuration system to support multiple survey sources</li>
+<li>Improved separation of concerns between Lurio and ADNAP processing pipelines</li>
+<li>Updated documentation generation with roxygen2</li>
+<li>Package maintains clean R CMD check status</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.0" id="peskasmozambiquedatapipeline-100">peskas.mozambique.data.pipeline 1.0.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-100"></a></h2>
 <div class="section level3">
 <h3 id="major-changes-1-0-0">Major Changes<a class="anchor" aria-label="anchor" href="#major-changes-1-0-0"></a></h3>
@@ -54,7 +135,7 @@
 </ul></li>
 <li>
 <strong>Comprehensive Data Validation Framework</strong>: Implemented multi-stage validation adapted from Peskas Zanzibar pipeline.
-<ul><li>Redesigned <code><a href="../reference/validate_landings.html">validate_landings()</a></code> with 10 validation flags across two stages</li>
+<ul><li>Redesigned <code>validate_landings()</code> with 10 validation flags across two stages</li>
 <li>Stage 1: Basic data quality checks (form completeness, catch info, length validation, bucket/individual counts)</li>
 <li>Stage 2: Composite economic indicators (price per kg, CPUE, RPUE) following Zanzibar thresholds</li>
 <li>Created modular validation functions: <code><a href="../reference/validate_catch_taxa.html">validate_catch_taxa()</a></code>, <code><a href="../reference/validate_price.html">validate_price()</a></code>, <code><a href="../reference/validate_total_catch.html">validate_total_catch()</a></code>
@@ -92,7 +173,7 @@
 </ul></li>
 <li>
 <strong>Data Preprocessing Pipeline</strong>:
-<ul><li>Enhanced <code><a href="../reference/preprocess_landings.html">preprocess_landings()</a></code> with metadata table joins (landing sites, boats, enumerators)</li>
+<ul><li>Enhanced <code>preprocess_landings()</code> with metadata table joins (landing sites, boats, enumerators)</li>
 <li>Implemented <code><a href="../reference/process_species_group.html">process_species_group()</a></code> for handling species group disaggregation</li>
 <li>Added species validation and enrichment with FishBase/SeaLifeBase data</li>
 <li>Integrated length-weight conversion using local coefficient database</li>

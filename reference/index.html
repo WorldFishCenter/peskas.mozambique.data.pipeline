@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,10 +49,22 @@
         <dd>Export Processed Landings Data</dd>
       </dl><dl><dt>
 
-          <code><a href="ingest_landings.html">ingest_landings()</a></code>
+          <code><a href="get_validation_status.html">get_validation_status()</a></code>
 
         </dt>
-        <dd>Download and Process Surveys from Kobotoolbox</dd>
+        <dd>Get Validation Status from KoboToolbox</dd>
+      </dl><dl><dt>
+
+          <code><a href="ingest_landings_adnap.html">ingest_landings_adnap()</a></code>
+
+        </dt>
+        <dd>Download and Process ADNAP Surveys from Kobotoolbox</dd>
+      </dl><dl><dt>
+
+          <code><a href="ingest_landings_lurio.html">ingest_landings_lurio()</a></code>
+
+        </dt>
+        <dd>Download and Process Lurio Surveys from Kobotoolbox</dd>
       </dl><dl><dt>
 
           <code><a href="ingest_pds_tracks.html">ingest_pds_tracks()</a></code>
@@ -67,10 +79,16 @@
         <dd>Ingest Pelagic Data Systems (PDS) Trip Data</dd>
       </dl><dl><dt>
 
-          <code><a href="preprocess_landings.html">preprocess_landings()</a></code>
+          <code><a href="preprocess_landings_adnap.html">preprocess_landings_adnap()</a></code>
 
         </dt>
-        <dd>Preprocess Landings Data</dd>
+        <dd>Preprocess ADNAP Landings Data</dd>
+      </dl><dl><dt>
+
+          <code><a href="preprocess_landings_lurio.html">preprocess_landings_lurio()</a></code>
+
+        </dt>
+        <dd>Preprocess Lurio Landings Data</dd>
       </dl><dl><dt>
 
           <code><a href="preprocess_pds_tracks.html">preprocess_pds_tracks()</a></code>
@@ -79,10 +97,22 @@
         <dd>Preprocess Pelagic Data Systems (PDS) Track Data</dd>
       </dl><dl><dt>
 
-          <code><a href="validate_landings.html">validate_landings()</a></code>
+          <code><a href="update_validation_status.html">update_validation_status()</a></code>
 
         </dt>
-        <dd>Validate Wild Fisheries Survey Data</dd>
+        <dd>Update Validation Status in KoboToolbox</dd>
+      </dl><dl><dt>
+
+          <code><a href="validate_surveys_adnap.html">validate_surveys_adnap()</a></code>
+
+        </dt>
+        <dd>Validate ADNAP Survey Data</dd>
+      </dl><dl><dt>
+
+          <code><a href="validate_surveys_lurio.html">validate_surveys_lurio()</a></code>
+
+        </dt>
+        <dd>Validate Lurio Survey Data</dd>
       </dl></div><div class="section level2">
       <h2 id="cloud-storage">Cloud Storage<a class="anchor" aria-label="anchor" href="#cloud-storage"></a></h2>
 
@@ -179,10 +209,16 @@
         <dd>Retrieve Trip Details from Pelagic Data API</dd>
       </dl><dl><dt>
 
-          <code><a href="ingest_landings.html">ingest_landings()</a></code>
+          <code><a href="ingest_landings_adnap.html">ingest_landings_adnap()</a></code>
 
         </dt>
-        <dd>Download and Process Surveys from Kobotoolbox</dd>
+        <dd>Download and Process ADNAP Surveys from Kobotoolbox</dd>
+      </dl><dl><dt>
+
+          <code><a href="ingest_landings_lurio.html">ingest_landings_lurio()</a></code>
+
+        </dt>
+        <dd>Download and Process Lurio Surveys from Kobotoolbox</dd>
       </dl><dl><dt>
 
           <code><a href="ingest_pds_tracks.html">ingest_pds_tracks()</a></code>
@@ -208,7 +244,13 @@
 
       <dl><dt>
 
-          <code><a href="calculate_catch.html">calculate_catch()</a></code>
+          <code><a href="calculate_catch_adnap.html">calculate_catch_adnap()</a></code>
+
+        </dt>
+        <dd>Calculate Catch Weight from Length-Weight Relationships or Bucket Measurements</dd>
+      </dl><dl><dt>
+
+          <code><a href="calculate_catch_lurio.html">calculate_catch_lurio()</a></code>
 
         </dt>
         <dd>Calculate Catch Weight from Length-Weight Relationships or Bucket Measurements</dd>
@@ -218,6 +260,18 @@
 
         </dt>
         <dd>Calculate Fishery Metrics</dd>
+      </dl><dl><dt>
+
+          <code><a href="fetch_asset.html">fetch_asset()</a></code>
+
+        </dt>
+        <dd>Fetch and Filter Asset Data from Airtable</dd>
+      </dl><dl><dt>
+
+          <code><a href="fetch_assets.html">fetch_assets()</a></code>
+
+        </dt>
+        <dd>Fetch Multiple Asset Tables from Airtable</dd>
       </dl><dl><dt>
 
           <code><a href="generate_track_summaries.html">generate_track_summaries()</a></code>
@@ -230,6 +284,12 @@
 
         </dt>
         <dd>Get Length-Weight Coefficients and Morphological Data for Species</dd>
+      </dl><dl><dt>
+
+          <code><a href="get_airtable_form_id.html">get_airtable_form_id()</a></code>
+
+        </dt>
+        <dd>Get Airtable Form ID from KoBoToolbox Asset ID</dd>
       </dl><dl><dt>
 
           <code><a href="get_fao_groups.html">get_fao_groups()</a></code>
@@ -256,16 +316,34 @@
         <dd>Load Taxa Data from FishBase and SeaLifeBase</dd>
       </dl><dl><dt>
 
+          <code><a href="map_surveys.html">map_surveys()</a></code>
+
+        </dt>
+        <dd>Map Survey Labels to Standardized Taxa, Gear, and Vessel Names</dd>
+      </dl><dl><dt>
+
           <code><a href="match_species_from_taxa.html">match_species_from_taxa()</a></code>
 
         </dt>
         <dd>Match Species from Taxa Databases</dd>
       </dl><dl><dt>
 
-          <code><a href="preprocess_landings.html">preprocess_landings()</a></code>
+          <code><a href="preprocess_general_adnap.html">preprocess_general_adnap()</a></code>
 
         </dt>
-        <dd>Preprocess Landings Data</dd>
+        <dd>Preprocess General Survey Information for ADNAP</dd>
+      </dl><dl><dt>
+
+          <code><a href="preprocess_landings_adnap.html">preprocess_landings_adnap()</a></code>
+
+        </dt>
+        <dd>Preprocess ADNAP Landings Data</dd>
+      </dl><dl><dt>
+
+          <code><a href="preprocess_landings_lurio.html">preprocess_landings_lurio()</a></code>
+
+        </dt>
+        <dd>Preprocess Lurio Landings Data</dd>
       </dl><dl><dt>
 
           <code><a href="preprocess_pds_tracks.html">preprocess_pds_tracks()</a></code>
@@ -290,6 +368,18 @@
 
         </dt>
         <dd>Process Species List with Taxonomic Information</dd>
+      </dl><dl><dt>
+
+          <code><a href="reshape_catch_data.html">reshape_catch_data()</a></code>
+
+        </dt>
+        <dd>Reshape Catch Data with Length Groupings</dd>
+      </dl><dl><dt>
+
+          <code><a href="reshape_species_groups.html">reshape_species_groups()</a></code>
+
+        </dt>
+        <dd>Reshape Species Groups from Wide to Long Format</dd>
       </dl></div><div class="section level2">
       <h2 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a></h2>
 
@@ -327,22 +417,40 @@
         <dd>Get Total Catch Bounds by Landing Site and Gear</dd>
       </dl><dl><dt>
 
+          <code><a href="get_validation_status.html">get_validation_status()</a></code>
+
+        </dt>
+        <dd>Get Validation Status from KoboToolbox</dd>
+      </dl><dl><dt>
+
+          <code><a href="update_validation_status.html">update_validation_status()</a></code>
+
+        </dt>
+        <dd>Update Validation Status in KoboToolbox</dd>
+      </dl><dl><dt>
+
           <code><a href="validate_catch_taxa.html">validate_catch_taxa()</a></code>
 
         </dt>
         <dd>Validate Catch at Taxon Level</dd>
       </dl><dl><dt>
 
-          <code><a href="validate_landings.html">validate_landings()</a></code>
-
-        </dt>
-        <dd>Validate Wild Fisheries Survey Data</dd>
-      </dl><dl><dt>
-
           <code><a href="validate_price.html">validate_price()</a></code>
 
         </dt>
         <dd>Validate Catch Price</dd>
+      </dl><dl><dt>
+
+          <code><a href="validate_surveys_adnap.html">validate_surveys_adnap()</a></code>
+
+        </dt>
+        <dd>Validate ADNAP Survey Data</dd>
+      </dl><dl><dt>
+
+          <code><a href="validate_surveys_lurio.html">validate_surveys_lurio()</a></code>
+
+        </dt>
+        <dd>Validate Lurio Survey Data</dd>
       </dl><dl><dt>
 
           <code><a href="validate_total_catch.html">validate_total_catch()</a></code>
@@ -385,10 +493,34 @@
         <dd>Add timestamp and sha string to a file name</dd>
       </dl><dl><dt>
 
+          <code><a href="fetch_asset.html">fetch_asset()</a></code>
+
+        </dt>
+        <dd>Fetch and Filter Asset Data from Airtable</dd>
+      </dl><dl><dt>
+
+          <code><a href="fetch_assets.html">fetch_assets()</a></code>
+
+        </dt>
+        <dd>Fetch Multiple Asset Tables from Airtable</dd>
+      </dl><dl><dt>
+
+          <code><a href="get_airtable_form_id.html">get_airtable_form_id()</a></code>
+
+        </dt>
+        <dd>Get Airtable Form ID from KoBoToolbox Asset ID</dd>
+      </dl><dl><dt>
+
           <code><a href="load_dotenv.html">load_dotenv()</a></code>
 
         </dt>
         <dd>Load environment variables from .env file</dd>
+      </dl><dl><dt>
+
+          <code><a href="map_surveys.html">map_surveys()</a></code>
+
+        </dt>
+        <dd>Map Survey Labels to Standardized Taxa, Gear, and Vessel Names</dd>
       </dl><dl><dt>
 
           <code><a href="read_config.html">read_config()</a></code>
