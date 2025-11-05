@@ -384,14 +384,6 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
       )
     )
 
-  assets <- fetch_assets(
-    form_id = get_airtable_form_id(
-      kobo_asset_id = conf$ingestion$`kobo-adnap`$asset_id,
-      conf = conf
-    ),
-    conf = conf
-  )
-
   # get raw landings from cloud storage
   raw_dat <- download_parquet_from_cloud(
     prefix = conf$ingestion$`kobo-adnap`$raw_surveys$file_prefix,
