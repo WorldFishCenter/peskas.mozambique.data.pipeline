@@ -19,6 +19,7 @@ default:
           file_prefix: lurio-flags
     kobo-adnap:
       asset_id: !expr Sys.getenv('KOBO_ASSET_ID_ADNAP')
+      token: !expr Sys.getenv('KOBO_TOKEN')
       raw_surveys:
         file_prefix: wf-adnap-surveys-raw
         version: latest
@@ -42,28 +43,31 @@ default:
         project: peskas
         bucket: peskas-coasts
         service_account_key: !expr Sys.getenv('GCP_SA_KEY')
-  pds_storage:
-    google:
-      key: gcs
-      options:
-        project: peskas
-        bucket: pds-mozambique-dev
-        service_account_key: !expr Sys.getenv('GCP_SA_KEY')
+    pds_storage:
+      google:
+        key: gcs
+        options:
+          project: peskas
+          bucket: pds-mozambique-dev
+          service_account_key: !expr Sys.getenv('GCP_SA_KEY')
     mongodb:
-      connection_string: !expr Sys.getenv('MONGODB_CONNECTION_STRING')
-      pipeline:
-        database_name: mozambique-dev
-        collection:
-          export: export
-      portal:
-        database_name: portal-dev
-        collection:
-          monthly_summaries: monthly_summaries
-      validation:
-        database_name: mozambique-dev
-        collection:
-          flags: surveys_flags
-          enumerators_stats: enumerators_stats
+      connection_strings:
+        main: !expr Sys.getenv('MONGODB_CONNECTION_STRING')
+        validation: !expr Sys.getenv('MONGODB_CONNECTION_STRING_VALIDATION')
+      databases:
+        pipeline:
+          database_name: mozambique-dev
+          collections:
+            export: export
+        portal:
+          database_name: portal-dev
+          collections:
+            monthly_summaries: monthly_summaries
+        validation:
+          database_name: validation-dev
+          collections:
+            flags: surveys_flags
+            enumerators_stats: enumerators_stats
   pds:
     token: !expr Sys.getenv('PDS_TOKEN')
     secret: !expr Sys.getenv('PDS_SECRET')
@@ -85,6 +89,7 @@ default:
         - habitat
         - gear_type
   airtable:
+    assets: assets
     token: !expr Sys.getenv('AIRTABLE_TOKEN')
     frame:
       base_id: !expr Sys.getenv('AIRTABLE_BASE_ID_FRAME')
@@ -105,21 +110,12 @@ production:
     mongodb:
       pipeline:
         database_name: mozambique-prod
-      validation:
-        database_name: mozambique-prod
       portal:
         database_name: portal-prod
+      validation:
+        database_name: validation-prod
+        
   pds_storage:
     google:
       options:
         bucket: pds-mozambique-prod
-
-
-local:
-  inherits: default
-  storage:
-    google:
-      options:
-        service_account_key: !expr Sys.getenv('GCP_SA_KEY')
-    mongodb:
-      connection_string: !expr Sys.getenv('MONGODB_CONNECTION_STRING')

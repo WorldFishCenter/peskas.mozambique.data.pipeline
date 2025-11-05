@@ -1,3 +1,70 @@
+# peskas.mozambique.data.pipeline 2.1.0
+
+## Major Changes
+
+* **Enhanced Validation Sync System**: New automated validation status synchronization with KoBoToolbox.
+  * Added `sync_validation_submissions()` for bidirectional validation status updates
+  * Automated approval/rejection of submissions in KoBoToolbox based on validation results
+  * Integrated parallel processing for bulk validation status queries
+  * Stores validation metadata in MongoDB for enumerator performance tracking
+  * Distinguishes between manual human approvals and system-generated approvals
+
+* **Improved Asset Management**: Enhanced preprocessing with form-specific asset filtering.
+  * Preprocessing functions now automatically filter Airtable assets by form_id
+  * Better separation of metadata between Lurio and ADNAP survey forms
+  * Improved handling of shared assets across multiple survey versions
+  * More reliable species, gear, vessel, and site mappings
+
+* **Optimized GitHub Actions Workflow**: Streamlined pipeline execution by combining ingestion and preprocessing stages.
+  * Combined ingest and preprocess jobs for each data source (Lurio, ADNAP, PDS) reducing container startups by ~30%
+  * Simplified dependency graph from 10 jobs to 7 jobs for faster pipeline execution
+  * Maintained separation of validation stages for better error isolation and independent re-runs
+  * Aligned workflow structure with Kenya pipeline best practices
+
+## Improvements
+
+* **Validation System Enhancements**:
+  * Manual approvals by human reviewers now properly bypass automatic validation flags
+  * System-generated approvals are re-validated to ensure data quality
+  * Better logging of validation status queries with submission counts
+  * Enhanced validation flag preservation for monitoring and reporting
+  * Improved handling of catch_taxon field mapping in Lurio surveys
+
+* **Configuration Management**:
+  * Restructured MongoDB connection strings to support separate validation database
+  * Added KOBO_TOKEN authentication for ADNAP asset
+  * Improved configuration structure for multiple database contexts
+  * Enhanced PDS storage configuration organization
+  * Added explicit assets configuration for Airtable integration
+
+* **Workflow Performance**:
+  * Reduced overall pipeline execution time through job consolidation
+  * Parallel execution of independent data streams (Lurio, ADNAP, PDS)
+  * Cleaner job naming for better CI/CD monitoring
+  * Maintained robust error handling with granular validation stages
+
+* **Code Quality**:
+  * Added new exported functions: `summarize_data()`, `sync_validation_submissions()`
+  * Enhanced function documentation with proper importFrom declarations
+  * Improved variable scoping and data pipeline clarity
+  * Better separation of concerns between preprocessing and validation
+
+## Bug Fixes
+
+* Fixed asset fetching logic to properly filter by target form_id
+* Corrected catch_taxon column mapping in Lurio validation (changed to alpha3_code)
+* Fixed validation status query to exclude system approvals from manual approval overrides
+* Improved MongoDB configuration paths for validation collections
+* Removed redundant asset fetching code in preprocessing functions
+
+## Infrastructure & Dependencies
+
+* Added MONGODB_CONNECTION_STRING_VALIDATION environment variable for separate validation database
+* Enhanced GitHub Actions workflow with combined ingest-preprocess jobs
+* Improved parallel processing configuration in validation sync
+* Updated NAMESPACE with new imports for future, furrr, and progressr packages
+* Maintained compatibility with existing storage and authentication systems
+
 # peskas.mozambique.data.pipeline 2.0.0
 
 ## Major Changes

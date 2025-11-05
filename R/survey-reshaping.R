@@ -144,14 +144,6 @@ preprocess_catch <- function(data = NULL) {
     # fix fields
     dplyr::mutate(
       dplyr::across(c("n_buckets":"catch_weight"), ~ as.double(.x))
-    ) |>
-    # replace TUN with TUS and SKH to Carcharhiniformes as more pertinent
-    dplyr::mutate(
-      catch_taxon = dplyr::case_when(
-        .data$catch_taxon == "TUN" ~ "TUS",
-        .data$catch_taxon == "SKH" ~ "CVX",
-        TRUE ~ .data$catch_taxon
-      )
     )
 }
 

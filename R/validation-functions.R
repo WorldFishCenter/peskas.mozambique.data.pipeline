@@ -512,9 +512,9 @@ get_validation_status <- function(
   )
   url <- paste0(base_url, submission_id, "/validation_status/")
 
-  # Remove "Token " prefix if it exists
-  if (grepl("^Token ", token)) {
-    token <- gsub("^Token ", "", token)
+  # Add "Token " prefix to token if it doesn't already have it
+  if (!grepl("^Token ", token)) {
+    token <- paste("Token", token)
   }
 
   req <- httr2::request(url) %>%
@@ -691,12 +691,6 @@ update_validation_status <- function(
 
       if (httr2::resp_status(response) %in% c(200, 201, 204)) {
         # If update was successful, get the current validation status
-        # Make sure to add the Token prefix for get_validation_status too
-        original_token <- token
-        if (grepl("^Token ", token)) {
-          token <- gsub("^Token ", "", token)
-        }
-
         updated_data <- get_validation_status(
           submission_id = submission_id,
           asset_id = asset_id,

@@ -8,6 +8,7 @@ env:
   KOBO_PASSWORD: ${{ secrets.KOBO_PASSWORD }}
   KOBO_USERNAME: ${{ secrets.KOBO_USERNAME }}
   MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
+  MONGODB_CONNECTION_STRING_VALIDATION: ${{ secrets.MONGODB_CONNECTION_STRING_VALIDATION }}
   AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
   AIRTABLE_BASE_ID_FRAME: ${{ secrets.AIRTABLE_BASE_ID_FRAME }}
   PDS_TOKEN: ${{ secrets.PDS_TOKEN }}
@@ -29,13 +30,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           username: $GITHUB_ACTOR
-  ingest-lurio-landings:
+  ingest-preprocess-lurio:
     container:
       credentials:
         password: ${{ secrets.GITHUB_TOKEN }}
         username: ${{ github.actor }}
       image: docker.pkg.github.com/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique
-    name: Ingest Lurio landings
+    name: Ingest and preprocess Lurio landings
     needs: build-container
     runs-on: ubuntu-latest
     steps:
@@ -44,13 +45,16 @@ jobs:
         run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
       - name: Call ingest_landings_lurio()
         run: Rscript -e 'peskas.mozambique.data.pipeline::ingest_landings_lurio()'
-  ingest-adnap-landings:
+      - name: Call preprocess_landings_lurio()
+        run: Rscript -e 'peskas.mozambique.data.pipeline::preprocess_landings_lurio()'
+
+  ingest-preprocess-adnap:
     container:
       credentials:
         password: ${{ secrets.GITHUB_TOKEN }}
         username: ${{ github.actor }}
       image: docker.pkg.github.com/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique
-    name: Ingest ADNAP landings
+    name: Ingest and preprocess ADNAP landings
     needs: build-container
     runs-on: ubuntu-latest
     steps:
@@ -59,14 +63,16 @@ jobs:
         run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
       - name: Call ingest_landings_adnap()
         run: Rscript -e 'peskas.mozambique.data.pipeline::ingest_landings_adnap()'
-        
-  ingest-pds-data:
+      - name: Call preprocess_landings_adnap()
+        run: Rscript -e 'peskas.mozambique.data.pipeline::preprocess_landings_adnap()'
+
+  ingest-preprocess-pds:
     container:
       credentials:
         password: ${{ secrets.GITHUB_TOKEN }}
         username: ${{ github.actor }}
       image: docker.pkg.github.com/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique
-    name: Ingest GPS data
+    name: Ingest and preprocess GPS data
     needs: build-container
     runs-on: ubuntu-24.04
     steps:
@@ -77,62 +83,17 @@ jobs:
         run: Rscript --vanilla -e 'peskas.mozambique.data.pipeline::ingest_pds_trips()'
       - name: Call ingest_pds_tracks()
         run: Rscript --vanilla -e 'peskas.mozambique.data.pipeline::ingest_pds_tracks()'
-
-  preprocess-lurio-landings:
-    container:
-      credentials:
-        password: ${{ secrets.GITHUB_TOKEN }}
-        username: ${{ github.actor }}
-      image: docker.pkg.github.com/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique
-    name: Preprocess Lurio landings
-    needs: ingest-lurio-landings
-    runs-on: ubuntu-latest
-    steps:
-      - if: endsWith(github.ref, '/main')
-        name: Set env to production
-        run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
-      - name: Call preprocess_landings_lurio()
-        run: Rscript -e 'peskas.mozambique.data.pipeline::preprocess_landings_lurio()'
-  preprocess-adnap-landings:
-    container:
-      credentials:
-        password: ${{ secrets.GITHUB_TOKEN }}
-        username: ${{ github.actor }}
-      image: docker.pkg.github.com/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique
-    name: Preprocess ADNAP landings
-    needs: ingest-adnap-landings
-    runs-on: ubuntu-latest
-    steps:
-      - if: endsWith(github.ref, '/main')
-        name: Set env to production
-        run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
-      - name: Call preprocess_landings_adnap()
-        run: Rscript -e 'peskas.mozambique.data.pipeline::preprocess_landings_adnap()'
-
-  preprocess-pds-tracks:
-    container:
-      credentials:
-        password: ${{ secrets.GITHUB_TOKEN }}
-        username: ${{ github.actor }}
-      image: docker.pkg.github.com/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique
-    name: Preprocess GPS tracks
-    needs: ingest-pds-data
-    runs-on: ubuntu-24.04
-    steps:
-      - if: endsWith(github.ref, '/main')
-        name: Set env to production
-        run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
       - name: Call preprocess_pds_tracks()
         run: Rscript --vanilla -e 'peskas.mozambique.data.pipeline::preprocess_pds_tracks()'
 
-  validate-lurio-landings:
+  validate-lurio:
     container:
       credentials:
         password: ${{ secrets.GITHUB_TOKEN }}
         username: ${{ github.actor }}
       image: docker.pkg.github.com/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique
     name: Validate Lurio landings
-    needs: preprocess-lurio-landings
+    needs: ingest-preprocess-lurio
     runs-on: ubuntu-latest
     steps:
       - if: endsWith(github.ref, '/main')
@@ -140,14 +101,15 @@ jobs:
         run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
       - name: Call validate_surveys_lurio()
         run: Rscript -e 'peskas.mozambique.data.pipeline::validate_surveys_lurio()'
-  validate-adnap-landings:
+
+  validate-adnap:
     container:
       credentials:
         password: ${{ secrets.GITHUB_TOKEN }}
         username: ${{ github.actor }}
       image: docker.pkg.github.com/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique
     name: Validate ADNAP landings
-    needs: preprocess-adnap-landings
+    needs: ingest-preprocess-adnap
     runs-on: ubuntu-latest
     steps:
       - if: endsWith(github.ref, '/main')
@@ -156,6 +118,21 @@ jobs:
       - name: Call validate_surveys_adnap()
         run: Rscript -e 'peskas.mozambique.data.pipeline::validate_surveys_adnap()'
         
+  sync-validation:
+    name: Sync surveys validation
+    needs: validate-adnap
+    runs-on: ubuntu-24.04
+    container:
+      image: docker.pkg.github.com/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Set env to production
+        if: endsWith(github.ref, '/main')
+        run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
+      - name: Call sync_validation_submissions()
+        run: Rscript --vanilla -e 'peskas.mozambique.data.pipeline::sync_validation_submissions()'
 
 name: Peskas mozambique Data Pipeline
 'on':

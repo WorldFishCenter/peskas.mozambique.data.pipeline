@@ -36,13 +36,34 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
     options = conf$storage$google$options
   )
 
-  assets <- fetch_assets(
-    form_id = get_airtable_form_id(
-      kobo_asset_id = conf$ingestion$`kobo-lurio`$asset_id,
-      conf = conf
-    ),
+  target_form_id = get_airtable_form_id(
+    kobo_asset_id = conf$ingestion$`kobo-lurio`$asset_id,
     conf = conf
   )
+
+  assets <-
+    cloud_object_name(
+      prefix = conf$airtable$assets,
+      provider = conf$storage$google$key,
+      version = "latest",
+      extension = "rds",
+      options = conf$storage$google$options_coasts
+    ) |>
+    download_cloud_file(
+      provider = conf$storage$google$key,
+      options = conf$storage$google$options_coasts
+    ) |>
+    readr::read_rds() |>
+    purrr::keep_at(c("taxa", "gear", "vessels", "sites")) |>
+    purrr::map(
+      ~ dplyr::filter(
+        .x,
+        stringr::str_detect(
+          .data$form_id,
+          paste0("(^|,\\s*)", !!target_form_id, "(\\s*,|$)")
+        )
+      )
+    )
 
   # get raw landings from cloud storage
   raw_dat <- download_parquet_from_cloud(
@@ -333,6 +354,35 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )
+
+  target_form_id = get_airtable_form_id(
+    kobo_asset_id = conf$ingestion$`kobo-adnap`$asset_id,
+    conf = conf
+  )
+
+  assets <-
+    cloud_object_name(
+      prefix = conf$airtable$assets,
+      provider = conf$storage$google$key,
+      version = "latest",
+      extension = "rds",
+      options = conf$storage$google$options_coasts
+    ) |>
+    download_cloud_file(
+      provider = conf$storage$google$key,
+      options = conf$storage$google$options_coasts
+    ) |>
+    readr::read_rds() |>
+    purrr::keep_at(c("taxa", "gear", "vessels", "sites")) |>
+    purrr::map(
+      ~ dplyr::filter(
+        .x,
+        stringr::str_detect(
+          .data$form_id,
+          paste0("(^|,\\s*)", !!target_form_id, "(\\s*,|$)")
+        )
+      )
+    )
 
   assets <- fetch_assets(
     form_id = get_airtable_form_id(
@@ -921,25 +971,25 @@ map_surveys <- function(
 ) {
   data |>
     dplyr::left_join(taxa_mapping, by = c("catch_taxon" = "survey_label")) |>
-    dplyr::select(-c("catch_taxon")) |>
+    dplyr::select(-c("catch_taxon", "form_id", "english_name")) |>
     dplyr::relocate("scientific_name", .after = "n_catch") |>
     dplyr::relocate("alpha3_code", .after = "scientific_name") |>
     dplyr::left_join(gear_mapping, by = c("gear" = "survey_label")) |>
-    dplyr::select(-c("gear")) |>
+    dplyr::select(-c("gear", "form_id")) |>
     dplyr::relocate("standard_name", .after = "vessel_type") |>
     dplyr::rename(gear = "standard_name") |>
     dplyr::left_join(
       vessels_mapping,
       by = c("vessel_type" = "survey_label")
     ) |>
-    dplyr::select(-c("vessel_type")) |>
+    dplyr::select(-c("vessel_type", "form_id")) |>
     dplyr::relocate("standard_name", .after = "habitat") |>
     dplyr::rename(vessel_type = "standard_name") |>
     dplyr::left_join(
       sites_mapping,
       by = c("landing_site" = "site_code")
     ) |>
-    dplyr::select(-c("landing_site")) |>
+    dplyr::select(-c("landing_site", "form_id")) |>
     dplyr::relocate("site", .after = "district") |>
     dplyr::rename(landing_site = "site")
 }
