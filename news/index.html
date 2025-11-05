@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,84 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.1.0" id="peskasmozambiquedatapipeline-210">peskas.mozambique.data.pipeline 2.1.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-210"></a></h2>
+<div class="section level3">
+<h3 id="major-changes-2-1-0">Major Changes<a class="anchor" aria-label="anchor" href="#major-changes-2-1-0"></a></h3>
+<ul><li>
+<strong>Enhanced Validation Sync System</strong>: New automated validation status synchronization with KoBoToolbox.
+<ul><li>Added <code><a href="../reference/sync_validation_submissions.html">sync_validation_submissions()</a></code> for bidirectional validation status updates</li>
+<li>Automated approval/rejection of submissions in KoBoToolbox based on validation results</li>
+<li>Integrated parallel processing for bulk validation status queries</li>
+<li>Stores validation metadata in MongoDB for enumerator performance tracking</li>
+<li>Distinguishes between manual human approvals and system-generated approvals</li>
+</ul></li>
+<li>
+<strong>Improved Asset Management</strong>: Enhanced preprocessing with form-specific asset filtering.
+<ul><li>Preprocessing functions now automatically filter Airtable assets by form_id</li>
+<li>Better separation of metadata between Lurio and ADNAP survey forms</li>
+<li>Improved handling of shared assets across multiple survey versions</li>
+<li>More reliable species, gear, vessel, and site mappings</li>
+</ul></li>
+<li>
+<strong>Optimized GitHub Actions Workflow</strong>: Streamlined pipeline execution by combining ingestion and preprocessing stages.
+<ul><li>Combined ingest and preprocess jobs for each data source (Lurio, ADNAP, PDS) reducing container startups by ~30%</li>
+<li>Simplified dependency graph from 10 jobs to 7 jobs for faster pipeline execution</li>
+<li>Maintained separation of validation stages for better error isolation and independent re-runs</li>
+<li>Aligned workflow structure with Kenya pipeline best practices</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-2-1-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-1-0"></a></h3>
+<ul><li>
+<strong>Validation System Enhancements</strong>:
+<ul><li>Manual approvals by human reviewers now properly bypass automatic validation flags</li>
+<li>System-generated approvals are re-validated to ensure data quality</li>
+<li>Better logging of validation status queries with submission counts</li>
+<li>Enhanced validation flag preservation for monitoring and reporting</li>
+<li>Improved handling of catch_taxon field mapping in Lurio surveys</li>
+</ul></li>
+<li>
+<strong>Configuration Management</strong>:
+<ul><li>Restructured MongoDB connection strings to support separate validation database</li>
+<li>Added KOBO_TOKEN authentication for ADNAP asset</li>
+<li>Improved configuration structure for multiple database contexts</li>
+<li>Enhanced PDS storage configuration organization</li>
+<li>Added explicit assets configuration for Airtable integration</li>
+</ul></li>
+<li>
+<strong>Workflow Performance</strong>:
+<ul><li>Reduced overall pipeline execution time through job consolidation</li>
+<li>Parallel execution of independent data streams (Lurio, ADNAP, PDS)</li>
+<li>Cleaner job naming for better CI/CD monitoring</li>
+<li>Maintained robust error handling with granular validation stages</li>
+</ul></li>
+<li>
+<strong>Code Quality</strong>:
+<ul><li>Added new exported functions: <code><a href="../reference/summarize_data.html">summarize_data()</a></code>, <code><a href="../reference/sync_validation_submissions.html">sync_validation_submissions()</a></code>
+</li>
+<li>Enhanced function documentation with proper importFrom declarations</li>
+<li>Improved variable scoping and data pipeline clarity</li>
+<li>Better separation of concerns between preprocessing and validation</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-2-1-0">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-1-0"></a></h3>
+<ul><li>Fixed asset fetching logic to properly filter by target form_id</li>
+<li>Corrected catch_taxon column mapping in Lurio validation (changed to alpha3_code)</li>
+<li>Fixed validation status query to exclude system approvals from manual approval overrides</li>
+<li>Improved MongoDB configuration paths for validation collections</li>
+<li>Removed redundant asset fetching code in preprocessing functions</li>
+</ul></div>
+<div class="section level3">
+<h3 id="infrastructure--dependencies-2-1-0">Infrastructure &amp; Dependencies<a class="anchor" aria-label="anchor" href="#infrastructure--dependencies-2-1-0"></a></h3>
+<ul><li>Added MONGODB_CONNECTION_STRING_VALIDATION environment variable for separate validation database</li>
+<li>Enhanced GitHub Actions workflow with combined ingest-preprocess jobs</li>
+<li>Improved parallel processing configuration in validation sync</li>
+<li>Updated NAMESPACE with new imports for future, furrr, and progressr packages</li>
+<li>Maintained compatibility with existing storage and authentication systems</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.0.0" id="peskasmozambiquedatapipeline-200">peskas.mozambique.data.pipeline 2.0.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-200"></a></h2>
 <div class="section level3">
