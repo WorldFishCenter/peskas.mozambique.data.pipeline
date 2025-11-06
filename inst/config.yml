@@ -43,13 +43,13 @@ default:
         project: peskas
         bucket: peskas-coasts
         service_account_key: !expr Sys.getenv('GCP_SA_KEY')
-    pds_storage:
-      google:
-        key: gcs
-        options:
-          project: peskas
-          bucket: pds-mozambique-dev
-          service_account_key: !expr Sys.getenv('GCP_SA_KEY')
+  pds_storage:
+    google:
+      key: gcs
+      options:
+        project: peskas
+        bucket: pds-mozambique-dev
+        service_account_key: !expr Sys.getenv('GCP_SA_KEY')
     mongodb:
       connection_strings:
         main: !expr Sys.getenv('MONGODB_CONNECTION_STRING')
