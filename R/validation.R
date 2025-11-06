@@ -954,10 +954,10 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
   # Push the validation flags with KoboToolbox status to MongoDB
   mdb_collection_push(
     data = validation_flags_with_kobo_status,
-    connection_string = conf$storage$mongodb$connection_strings$validation,
-    db_name = conf$storage$mongodb$databases$validation$database_name,
+    connection_string = conf$mongodb$connection_strings$validation,
+    db_name = conf$mongodb$databases$validation$database_name,
     collection_name = paste(
-      conf$storage$mongodb$databases$validation$collections$flags,
+      conf$mongodb$databases$validation$collections$flags,
       asset_id,
       sep = "-"
     )
@@ -966,10 +966,10 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
   # Push enumerators statistics to MongoDB
   mdb_collection_push(
     data = validation_flags_long,
-    connection_string = conf$storage$mongodb$connection_strings$validation,
-    db_name = conf$storage$mongodb$databases$validation$database_name,
+    connection_string = conf$mongodb$connection_strings$validation,
+    db_name = conf$mongodb$databases$validation$database_name,
     collection_name = paste(
-      conf$storage$mongodb$databases$validation$collection$enumerators_stats,
+      conf$mongodb$databases$validation$collection$enumerators_stats,
       asset_id,
       sep = "-"
     )
