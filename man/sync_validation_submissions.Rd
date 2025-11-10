@@ -15,35 +15,44 @@ None. The function performs status updates and database operations as side effec
 }
 \description{
 Synchronizes validation statuses between the local system and KoboToolbox by processing
-validation flags and updating submission statuses accordingly. This function handles
-both flagged (not approved) and clean (approved) submissions in parallel.
+validation flags and updating submission statuses accordingly. This function follows the
+Kenya pipeline pattern with rate limiting, manual approval respect, and optimized API usage.
 }
 \details{
 The function follows these steps:
 \enumerate{
 \item Downloads the current validation flags from cloud storage
-\item Sets up parallel processing using the future package
-\item Processes submissions with alert flags (marking them as not approved in KoboToolbox)
-\item Processes submissions without alert flags (marking them as approved in KoboToolbox)
-\item Retrieves current validation status from KoboToolbox for all submissions
-\item Adds KoboToolbox validation status (validation_status, validated_at, validated_by) to validation flags
-\item Pushes all validation flags with KoboToolbox status to MongoDB for record-keeping
+\item Sets up parallel processing with rate limiting
+\item Fetches current validation status from KoboToolbox FIRST (before any updates)
+\item Identifies manually approved submissions (excluding system username)
+\item Updates flagged submissions as "not approved" (EXCLUDING manual approvals)
+\item Updates clean submissions as "approved" (SKIPPING already-approved ones)
+\item Fetches final validation status after updates
+\item Combines results and pushes to MongoDB for record-keeping
 }
 
-Progress reporting is enabled to track the status of submissions being processed.
+Key improvements over previous implementation:
+\itemize{
+\item Rate limiting prevents overwhelming KoboToolbox API
+\item Manual approvals are respected and never overwritten
+\item Already-approved submissions are skipped to minimize API calls
+\item Better error tracking and logging
+}
 }
 \note{
 This function requires proper configuration in the config file, including:
 \itemize{
 \item MongoDB connection parameters
 \item KoboToolbox asset ID and token (configured under ingestion$kobo-adnap)
+\item KoboToolbox username (to identify system approvals)
 \item Google cloud storage parameters
 }
 }
 \section{Parallel Processing}{
 
 The function uses the future and furrr packages for parallel processing, with the number
-of workers set to system cores minus 2 to prevent resource exhaustion.
+of workers set to system cores minus 2 to prevent resource exhaustion. Rate limiting is
+implemented via Sys.sleep() to respect API constraints.
 }
 
 \examples{
@@ -55,6 +64,13 @@ sync_validation_submissions()
 sync_validation_submissions(log_threshold = logger::INFO)
 }
 
+}
+\seealso{
+\itemize{
+\item \code{\link[=process_submissions_parallel]{process_submissions_parallel()}} for the helper function with rate limiting
+\item \code{\link[=get_validation_status]{get_validation_status()}} for fetching KoboToolbox validation status
+\item \code{\link[=update_validation_status]{update_validation_status()}} for updating KoboToolbox validation status
+}
 }
 \keyword{validation}
 \keyword{workflow}

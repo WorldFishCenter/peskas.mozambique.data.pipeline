@@ -792,20 +792,25 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
 #'
 #' @description
 #' Synchronizes validation statuses between the local system and KoboToolbox by processing
-#' validation flags and updating submission statuses accordingly. This function handles
-#' both flagged (not approved) and clean (approved) submissions in parallel.
+#' validation flags and updating submission statuses accordingly. This function follows the
+#' Kenya pipeline pattern with rate limiting, manual approval respect, and optimized API usage.
 #'
 #' @details
 #' The function follows these steps:
 #' 1. Downloads the current validation flags from cloud storage
-#' 2. Sets up parallel processing using the future package
-#' 3. Processes submissions with alert flags (marking them as not approved in KoboToolbox)
-#' 4. Processes submissions without alert flags (marking them as approved in KoboToolbox)
-#' 5. Retrieves current validation status from KoboToolbox for all submissions
-#' 6. Adds KoboToolbox validation status (validation_status, validated_at, validated_by) to validation flags
-#' 7. Pushes all validation flags with KoboToolbox status to MongoDB for record-keeping
+#' 2. Sets up parallel processing with rate limiting
+#' 3. Fetches current validation status from KoboToolbox FIRST (before any updates)
+#' 4. Identifies manually approved submissions (excluding system username)
+#' 5. Updates flagged submissions as "not approved" (EXCLUDING manual approvals)
+#' 6. Updates clean submissions as "approved" (SKIPPING already-approved ones)
+#' 7. Fetches final validation status after updates
+#' 8. Combines results and pushes to MongoDB for record-keeping
 #'
-#' Progress reporting is enabled to track the status of submissions being processed.
+#' Key improvements over previous implementation:
+#' - Rate limiting prevents overwhelming KoboToolbox API
+#' - Manual approvals are respected and never overwritten
+#' - Already-approved submissions are skipped to minimize API calls
+#' - Better error tracking and logging
 #'
 #' @param log_threshold The logging level threshold for the logger package (e.g., DEBUG, INFO).
 #'        Default is logger::DEBUG.
@@ -814,12 +819,14 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
 #'
 #' @section Parallel Processing:
 #' The function uses the future and furrr packages for parallel processing, with the number
-#' of workers set to system cores minus 2 to prevent resource exhaustion.
+#' of workers set to system cores minus 2 to prevent resource exhaustion. Rate limiting is
+#' implemented via Sys.sleep() to respect API constraints.
 #'
 #' @note
 #' This function requires proper configuration in the config file, including:
 #' - MongoDB connection parameters
 #' - KoboToolbox asset ID and token (configured under ingestion$kobo-adnap)
+#' - KoboToolbox username (to identify system approvals)
 #' - Google cloud storage parameters
 #'
 #' @examples
@@ -831,11 +838,15 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
 #' sync_validation_submissions(log_threshold = logger::INFO)
 #' }
 #'
+#' @seealso
+#' * [process_submissions_parallel()] for the helper function with rate limiting
+#' * [get_validation_status()] for fetching KoboToolbox validation status
+#' * [update_validation_status()] for updating KoboToolbox validation status
+#'
 #' @importFrom logger log_threshold log_info
 #' @importFrom dplyr filter pull
-#' @importFrom future plan multicore availableCores
-#' @importFrom progressr handlers handler_progress with_progress progressor
-#' @importFrom furrr future_walk
+#' @importFrom future plan multisession availableCores
+#' @importFrom progressr handlers handler_progress
 #'
 #' @keywords workflow validation
 #' @export
@@ -852,13 +863,9 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
       options = conf$storage$google$options
     )
 
-  # 1. First handle submissions with alert flags (mark as not approved)
-  flagged_submissions <-
-    validation_flags %>%
-    dplyr::filter(!is.na(.data$alert_flag)) %>%
-    dplyr::pull(.data$submission_id) %>%
-    unique()
+  all_submission_ids <- unique(validation_flags$submission_id)
 
+  # Setup parallel processing
   future::plan(
     strategy = future::multisession,
     workers = future::availableCores() - 2
@@ -869,89 +876,152 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
     format = "[:bar] :current/:total (:percent) eta: :eta"
   ))
 
+  # STEP 1: Fetch current status FIRST (with rate limiting)
   logger::log_info(
-    "Processing {length(flagged_submissions)} submissions with alert flags"
+    "Fetching current validation status for {length(all_submission_ids)} submissions"
   )
 
-  # Process flagged submissions
-  progressr::with_progress({
-    p_flagged <- progressr::progressor(along = flagged_submissions)
-
-    flagged_submissions %>%
-      furrr::future_walk(
-        function(id) {
-          update_validation_status(
-            submission_id = id,
-            status = "validation_status_not_approved",
-            asset_id = conf$ingestion$`kobo-adnap`$asset_id,
-            token = conf$ingestion$`kobo-adnap`$token
-          )
-        },
-        .options = furrr::furrr_options(seed = TRUE)
+  current_kobo_status <- process_submissions_parallel(
+    submission_ids = all_submission_ids,
+    process_fn = function(id) {
+      get_validation_status(
+        submission_id = id,
+        asset_id = conf$ingestion$`kobo-adnap`$asset_id,
+        token = conf$ingestion$`kobo-adnap`$token
       )
-  })
+    },
+    description = "current validation statuses",
+    rate_limit = 0.1
+  )
 
-  # 2. Now handle submissions without alert flags (mark as approved)
-  clean_submissions <-
-    validation_flags %>%
+  # STEP 2: Identify manual approvals (exclude system username)
+  # Manual approvals = submissions approved by ANY human user (not the system/API user)
+  # These represent human review decisions that should NEVER be overwritten
+  # Filter criteria:
+  #   - validation_status is "approved"
+  #   - validated_by is not empty/NA
+  #   - validated_by is NOT the system username (conf$ingestion$`kobo-adnap`$username)
+  # Result: Any approval by a human reviewer (e.g., enumerators, supervisors, data managers)
+  manual_approved_ids <- current_kobo_status %>%
+    dplyr::filter(
+      .data$validation_status == "validation_status_approved" &
+        !is.na(.data$validated_by) &
+        .data$validated_by != "" &
+        .data$validated_by != conf$ingestion$`kobo-adnap`$username
+    ) %>%
+    dplyr::pull(.data$submission_id)
+
+  logger::log_info(
+    "Found {length(manual_approved_ids)} manually approved submissions (will not be overwritten)"
+  )
+
+  # STEP 3: Identify flagged submissions (EXCLUDING manual approvals)
+  flagged_submissions <- validation_flags %>%
+    dplyr::filter(!is.na(.data$alert_flag)) %>%
+    dplyr::pull(.data$submission_id) %>%
+    unique() %>%
+    setdiff(manual_approved_ids)  # CRITICAL: Don't override human decisions
+
+  # STEP 4: Update flagged submissions (with rate limiting)
+  if (length(flagged_submissions) > 0) {
+    logger::log_info(
+      "Marking {length(flagged_submissions)} flagged submissions as not approved"
+    )
+
+    flagged_results <- process_submissions_parallel(
+      submission_ids = flagged_submissions,
+      process_fn = function(id) {
+        update_validation_status(
+          submission_id = id,
+          status = "validation_status_not_approved",
+          asset_id = conf$ingestion$`kobo-adnap`$asset_id,
+          token = conf$ingestion$`kobo-adnap`$token
+        )
+      },
+      description = "flagged submissions",
+      rate_limit = 0.1
+    )
+  } else {
+    logger::log_info("No flagged submissions to process")
+  }
+
+  # STEP 5: Identify clean submissions that need approval
+  clean_submissions <- validation_flags %>%
     dplyr::filter(is.na(.data$alert_flag)) %>%
     dplyr::pull(.data$submission_id) %>%
     unique()
 
-  logger::log_info(
-    "Processing {length(clean_submissions)} submissions without alert flags"
-  )
-
-  progressr::with_progress({
-    p_clean <- progressr::progressor(along = clean_submissions)
-
-    clean_submissions %>%
-      furrr::future_walk(
-        function(id) {
-          update_validation_status(
-            submission_id = id,
-            status = "validation_status_approved",
-            asset_id = conf$ingestion$`kobo-adnap`$asset_id,
-            token = conf$ingestion$`kobo-adnap`$token
-          )
-        },
-        .options = furrr::furrr_options(seed = TRUE)
-      )
-  })
-
-  # Get current validation status from KoboToolbox for all submissions
-  logger::log_info(
-    "Retrieving current validation status from KoboToolbox for {nrow(validation_flags)} submissions"
-  )
-
-  submission_ids <- validation_flags$submission_id
-
-  current_kobo_status <- submission_ids %>%
-    furrr::future_map_dfr(
-      get_validation_status,
-      asset_id = conf$ingestion$`kobo-adnap`$asset_id,
-      token = conf$ingestion$`kobo-adnap`$token,
-      .options = furrr::furrr_options(seed = TRUE)
+  # OPTIMIZATION: Skip already-approved submissions
+  clean_to_update <- clean_submissions %>%
+    setdiff(
+      current_kobo_status %>%
+        dplyr::filter(.data$validation_status == "validation_status_approved") %>%
+        dplyr::pull(.data$submission_id)
     )
 
-  # Add current KoboToolbox validation status to validation_flags
-  validation_flags_with_kobo_status <-
-    validation_flags %>%
+  skipped_count <- length(clean_submissions) - length(clean_to_update)
+  if (skipped_count > 0) {
+    logger::log_info(
+      "Skipping {skipped_count} already-approved clean submissions"
+    )
+  }
+
+  # STEP 6: Update clean submissions (with rate limiting)
+  if (length(clean_to_update) > 0) {
+    logger::log_info(
+      "Marking {length(clean_to_update)} clean submissions as approved"
+    )
+
+    clean_results <- process_submissions_parallel(
+      submission_ids = clean_to_update,
+      process_fn = function(id) {
+        update_validation_status(
+          submission_id = id,
+          status = "validation_status_approved",
+          asset_id = conf$ingestion$`kobo-adnap`$asset_id,
+          token = conf$ingestion$`kobo-adnap`$token
+        )
+      },
+      description = "clean submissions",
+      rate_limit = 0.2  # Slightly slower for approvals
+    )
+  } else {
+    logger::log_info("No clean submissions need approval updates")
+  }
+
+  # STEP 7: Fetch final status after updates
+  logger::log_info("Fetching final validation status after updates")
+
+  final_kobo_status <- process_submissions_parallel(
+    submission_ids = all_submission_ids,
+    process_fn = function(id) {
+      get_validation_status(
+        submission_id = id,
+        asset_id = conf$ingestion$`kobo-adnap`$asset_id,
+        token = conf$ingestion$`kobo-adnap`$token
+      )
+    },
+    description = "final validation statuses",
+    rate_limit = 0.1
+  )
+
+  # STEP 8: Combine with validation flags
+  validation_flags_with_kobo_status <- validation_flags %>%
     dplyr::left_join(
-      current_kobo_status,
+      final_kobo_status,
       by = "submission_id",
       suffix = c("", "_kobo")
     )
 
-  # Create long format for enumerators statistics
-  validation_flags_long <-
-    validation_flags_with_kobo_status |>
+  # STEP 9: Create long format for enumerator statistics
+  validation_flags_long <- validation_flags_with_kobo_status |>
     dplyr::mutate(alert_flag = as.character(.data$alert_flag)) %>%
     tidyr::separate_rows("alert_flag", sep = ",\\s*") |>
     dplyr::select(-c(dplyr::starts_with("valid")))
 
+  # STEP 10: Push to MongoDB
   asset_id <- conf$ingestion$`kobo-adnap`$asset_id
-  # Push the validation flags with KoboToolbox status to MongoDB
+
   mdb_collection_push(
     data = validation_flags_with_kobo_status,
     connection_string = conf$mongodb$connection_strings$validation,
@@ -963,17 +1033,17 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
     )
   )
 
-  # Push enumerators statistics to MongoDB
   mdb_collection_push(
     data = validation_flags_long,
     connection_string = conf$mongodb$connection_strings$validation,
     db_name = conf$mongodb$databases$validation$database_name,
     collection_name = paste(
-      conf$mongodb$databases$validation$collection$enumerators_stats,
+      conf$mongodb$databases$validation$collections$enumerators_stats,
       asset_id,
       sep = "-"
     )
   )
 
   logger::log_info("Validation synchronization completed successfully")
+  invisible(NULL)
 }

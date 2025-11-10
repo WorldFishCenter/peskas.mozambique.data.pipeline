@@ -19,6 +19,7 @@ default:
           file_prefix: lurio-flags
     kobo-adnap:
       asset_id: !expr Sys.getenv('KOBO_ASSET_ID_ADNAP')
+      username: !expr Sys.getenv('KOBO_USERNAME')
       token: !expr Sys.getenv('KOBO_TOKEN')
       raw_surveys:
         file_prefix: wf-adnap-surveys-raw
