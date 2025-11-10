@@ -144,6 +144,8 @@ Functions dedicated to the validation module
   : Get Total Catch Bounds by Landing Site and Gear
 - [`get_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_validation_status.md)
   : Get Validation Status from KoboToolbox
+- [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_submissions_parallel.md)
+  : Process Submissions in Parallel with Rate Limiting
 - [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.md)
   : Synchronize Validation Statuses with KoboToolbox
 - [`update_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/update_validation_status.md)

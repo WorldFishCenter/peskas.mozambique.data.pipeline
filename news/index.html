@@ -36,12 +36,19 @@
 <div class="section level3">
 <h3 id="major-changes-2-1-0">Major Changes<a class="anchor" aria-label="anchor" href="#major-changes-2-1-0"></a></h3>
 <ul><li>
-<strong>Enhanced Validation Sync System</strong>: New automated validation status synchronization with KoBoToolbox.
-<ul><li>Added <code><a href="../reference/sync_validation_submissions.html">sync_validation_submissions()</a></code> for bidirectional validation status updates</li>
-<li>Automated approval/rejection of submissions in KoBoToolbox based on validation results</li>
-<li>Integrated parallel processing for bulk validation status queries</li>
+<strong>Enhanced Validation Sync System</strong>: Restructured validation synchronization following Kenya pipeline best practices.
+<ul><li>Added <code><a href="../reference/sync_validation_submissions.html">sync_validation_submissions()</a></code> for bidirectional validation status updates with rate limiting</li>
+<li>Implemented <code><a href="../reference/process_submissions_parallel.html">process_submissions_parallel()</a></code> helper function for consistent API interactions</li>
+<li>
+<strong>Rate limiting</strong> (0.1-0.2s delays) prevents overwhelming KoboToolbox API</li>
+<li>
+<strong>Manual approval respect</strong>: Human review decisions are never overwritten by system updates</li>
+<li>
+<strong>Optimized API usage</strong>: Skips already-approved submissions to minimize unnecessary calls</li>
+<li>Fetches current validation status BEFORE making updates for smarter decision-making</li>
+<li>Automated approval/rejection of submissions in KoboToolbox based on validation results</li>
 <li>Stores validation metadata in MongoDB for enumerator performance tracking</li>
-<li>Distinguishes between manual human approvals and system-generated approvals</li>
+<li>Enhanced error tracking with success/failure logging</li>
 </ul></li>
 <li>
 <strong>Improved Asset Management</strong>: Enhanced preprocessing with form-specific asset filtering.
@@ -85,11 +92,12 @@
 </ul></li>
 <li>
 <strong>Code Quality</strong>:
-<ul><li>Added new exported functions: <code><a href="../reference/summarize_data.html">summarize_data()</a></code>, <code><a href="../reference/sync_validation_submissions.html">sync_validation_submissions()</a></code>
+<ul><li>Added new exported functions: <code><a href="../reference/summarize_data.html">summarize_data()</a></code>, <code><a href="../reference/sync_validation_submissions.html">sync_validation_submissions()</a></code>, <code><a href="../reference/process_submissions_parallel.html">process_submissions_parallel()</a></code>
 </li>
 <li>Enhanced function documentation with proper importFrom declarations</li>
 <li>Improved variable scoping and data pipeline clarity</li>
 <li>Better separation of concerns between preprocessing and validation</li>
+<li>Centralized API interaction logic in reusable helper functions</li>
 </ul></li>
 </ul></div>
 <div class="section level3">
@@ -97,8 +105,10 @@
 <ul><li>Fixed asset fetching logic to properly filter by target form_id</li>
 <li>Corrected catch_taxon column mapping in Lurio validation (changed to alpha3_code)</li>
 <li>Fixed validation status query to exclude system approvals from manual approval overrides</li>
-<li>Improved MongoDB configuration paths for validation collections</li>
+<li>Fixed MongoDB configuration path typo (collection → collections) in enumerators_stats</li>
 <li>Removed redundant asset fetching code in preprocessing functions</li>
+<li>Added missing KOBO_USERNAME configuration for ADNAP asset</li>
+<li>Fixed sync function to never overwrite manual approvals from human reviewers</li>
 </ul></div>
 <div class="section level3">
 <h3 id="infrastructure--dependencies-2-1-0">Infrastructure &amp; Dependencies<a class="anchor" aria-label="anchor" href="#infrastructure--dependencies-2-1-0"></a></h3>

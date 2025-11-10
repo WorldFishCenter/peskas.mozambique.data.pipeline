@@ -2,8 +2,8 @@
 
 Synchronizes validation statuses between the local system and
 KoboToolbox by processing validation flags and updating submission
-statuses accordingly. This function handles both flagged (not approved)
-and clean (approved) submissions in parallel.
+statuses accordingly. This function follows the Kenya pipeline pattern
+with rate limiting, manual approval respect, and optimized API usage.
 
 ## Usage
 
@@ -29,25 +29,32 @@ The function follows these steps:
 
 1.  Downloads the current validation flags from cloud storage
 
-2.  Sets up parallel processing using the future package
+2.  Sets up parallel processing with rate limiting
 
-3.  Processes submissions with alert flags (marking them as not approved
-    in KoboToolbox)
+3.  Fetches current validation status from KoboToolbox FIRST (before any
+    updates)
 
-4.  Processes submissions without alert flags (marking them as approved
-    in KoboToolbox)
+4.  Identifies manually approved submissions (excluding system username)
 
-5.  Retrieves current validation status from KoboToolbox for all
-    submissions
+5.  Updates flagged submissions as "not approved" (EXCLUDING manual
+    approvals)
 
-6.  Adds KoboToolbox validation status (validation_status, validated_at,
-    validated_by) to validation flags
+6.  Updates clean submissions as "approved" (SKIPPING already-approved
+    ones)
 
-7.  Pushes all validation flags with KoboToolbox status to MongoDB for
-    record-keeping
+7.  Fetches final validation status after updates
 
-Progress reporting is enabled to track the status of submissions being
-processed.
+8.  Combines results and pushes to MongoDB for record-keeping
+
+Key improvements over previous implementation:
+
+- Rate limiting prevents overwhelming KoboToolbox API
+
+- Manual approvals are respected and never overwritten
+
+- Already-approved submissions are skipped to minimize API calls
+
+- Better error tracking and logging
 
 ## Note
 
@@ -59,13 +66,27 @@ including:
 - KoboToolbox asset ID and token (configured under
   ingestion\$kobo-adnap)
 
+- KoboToolbox username (to identify system approvals)
+
 - Google cloud storage parameters
 
 ## Parallel Processing
 
 The function uses the future and furrr packages for parallel processing,
 with the number of workers set to system cores minus 2 to prevent
-resource exhaustion.
+resource exhaustion. Rate limiting is implemented via Sys.sleep() to
+respect API constraints.
+
+## See also
+
+- [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_submissions_parallel.md)
+  for the helper function with rate limiting
+
+- [`get_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_validation_status.md)
+  for fetching KoboToolbox validation status
+
+- [`update_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/update_validation_status.md)
+  for updating KoboToolbox validation status
 
 ## Examples
 

@@ -4,18 +4,27 @@
 
 ### Major Changes
 
-- **Enhanced Validation Sync System**: New automated validation status
-  synchronization with KoBoToolbox.
+- **Enhanced Validation Sync System**: Restructured validation
+  synchronization following Kenya pipeline best practices.
   - Added
     [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.md)
-    for bidirectional validation status updates
-  - Automated approval/rejection of submissions in KoBoToolbox based on
+    for bidirectional validation status updates with rate limiting
+  - Implemented
+    [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_submissions_parallel.md)
+    helper function for consistent API interactions
+  - **Rate limiting** (0.1-0.2s delays) prevents overwhelming
+    KoboToolbox API
+  - **Manual approval respect**: Human review decisions are never
+    overwritten by system updates
+  - **Optimized API usage**: Skips already-approved submissions to
+    minimize unnecessary calls
+  - Fetches current validation status BEFORE making updates for smarter
+    decision-making
+  - Automated approval/rejection of submissions in KoboToolbox based on
     validation results
-  - Integrated parallel processing for bulk validation status queries
   - Stores validation metadata in MongoDB for enumerator performance
     tracking
-  - Distinguishes between manual human approvals and system-generated
-    approvals
+  - Enhanced error tracking with success/failure logging
 - **Improved Asset Management**: Enhanced preprocessing with
   form-specific asset filtering.
   - Preprocessing functions now automatically filter Airtable assets by
@@ -57,10 +66,12 @@
 - **Code Quality**:
   - Added new exported functions:
     [`summarize_data()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/summarize_data.md),
-    [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.md)
+    [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.md),
+    [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_submissions_parallel.md)
   - Enhanced function documentation with proper importFrom declarations
   - Improved variable scoping and data pipeline clarity
   - Better separation of concerns between preprocessing and validation
+  - Centralized API interaction logic in reusable helper functions
 
 ### Bug Fixes
 
@@ -69,8 +80,12 @@
   alpha3_code)
 - Fixed validation status query to exclude system approvals from manual
   approval overrides
-- Improved MongoDB configuration paths for validation collections
+- Fixed MongoDB configuration path typo (collection → collections) in
+  enumerators_stats
 - Removed redundant asset fetching code in preprocessing functions
+- Added missing KOBO_USERNAME configuration for ADNAP asset
+- Fixed sync function to never overwrite manual approvals from human
+  reviewers
 
 ### Infrastructure & Dependencies
 
