@@ -44,6 +44,24 @@ default:
         project: peskas
         bucket: peskas-coasts
         service_account_key: !expr Sys.getenv('GCP_SA_KEY')
+    mongodb:
+      connection_strings:
+        main: !expr Sys.getenv('MONGODB_CONNECTION_STRING')
+        validation: !expr Sys.getenv('MONGODB_CONNECTION_STRING_VALIDATION')
+      databases:
+        pipeline:
+          database_name: mozambique-dev
+          collections:
+            export: export
+        portal:
+          database_name: portal-dev
+          collections:
+            monthly_summaries: monthly_summaries
+        validation:
+          database_name: validation-dev
+          collections:
+            flags: surveys_flags
+            enumerators_stats: enumerators_stats
   pds_storage:
     google:
       key: gcs
@@ -51,24 +69,6 @@ default:
         project: peskas
         bucket: pds-mozambique-dev
         service_account_key: !expr Sys.getenv('GCP_SA_KEY')
-  mongodb:
-    connection_strings:
-      main: !expr Sys.getenv('MONGODB_CONNECTION_STRING')
-      validation: !expr Sys.getenv('MONGODB_CONNECTION_STRING_VALIDATION')
-    databases:
-      pipeline:
-        database_name: mozambique-dev
-        collections:
-          export: export
-      portal:
-        database_name: portal-dev
-        collections:
-          monthly_summaries: monthly_summaries
-      validation:
-        database_name: validation-dev
-        collections:
-          flags: surveys_flags
-          enumerators_stats: enumerators_stats
   pds:
     token: !expr Sys.getenv('PDS_TOKEN')
     secret: !expr Sys.getenv('PDS_SECRET')

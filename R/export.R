@@ -405,7 +405,7 @@ export_landings <- function() {
       logger::log_info(paste("Uploading", .y, "data to MongoDB"))
       mdb_collection_push(
         data = .x,
-        connection_string = conf$storage$mongodb$connection_string,
+        connection_string = conf$storage$mongodb$connection_string$main,
         collection_name = .y,
         db_name = "portal-dev"
       )
@@ -440,7 +440,7 @@ export_landings <- function() {
   # upload preprocessed landings
   mdb_collection_push(
     data = export_data,
-    connection_string = conf$storage$mongodb$connection_string,
+    connection_string = conf$storage$mongodb$connection_string$main,
     collection_name = conf$storage$mongodb$database$pipeline$collection_name$validated,
     db_name = conf$storage$mongodb$database$pipeline$name
   )

@@ -920,7 +920,7 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
     dplyr::filter(!is.na(.data$alert_flag)) %>%
     dplyr::pull(.data$submission_id) %>%
     unique() %>%
-    setdiff(manual_approved_ids)  # CRITICAL: Don't override human decisions
+    setdiff(manual_approved_ids) # CRITICAL: Don't override human decisions
 
   # STEP 4: Update flagged submissions (with rate limiting)
   if (length(flagged_submissions) > 0) {
@@ -955,7 +955,9 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
   clean_to_update <- clean_submissions %>%
     setdiff(
       current_kobo_status %>%
-        dplyr::filter(.data$validation_status == "validation_status_approved") %>%
+        dplyr::filter(
+          .data$validation_status == "validation_status_approved"
+        ) %>%
         dplyr::pull(.data$submission_id)
     )
 
@@ -983,7 +985,7 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
         )
       },
       description = "clean submissions",
-      rate_limit = 0.2  # Slightly slower for approvals
+      rate_limit = 0.2 # Slightly slower for approvals
     )
   } else {
     logger::log_info("No clean submissions need approval updates")
@@ -1024,10 +1026,10 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
 
   mdb_collection_push(
     data = validation_flags_with_kobo_status,
-    connection_string = conf$mongodb$connection_strings$validation,
-    db_name = conf$mongodb$databases$validation$database_name,
+    connection_string = conf$storage$mongodb$connection_strings$validation,
+    db_name = conf$storage$mongodb$validation$database_name,
     collection_name = paste(
-      conf$mongodb$databases$validation$collections$flags,
+      conf$storage$mongodb$databases$validation$collections$flags,
       asset_id,
       sep = "-"
     )
@@ -1035,10 +1037,10 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
 
   mdb_collection_push(
     data = validation_flags_long,
-    connection_string = conf$mongodb$connection_strings$validation,
-    db_name = conf$mongodb$databases$validation$database_name,
+    connection_string = conf$storage$mongodb$connection_strings$validation,
+    db_name = conf$storage$mongodb$validation$database_name,
     collection_name = paste(
-      conf$mongodb$databases$validation$collections$enumerators_stats,
+      conf$storage$mongodb$databases$validation$collections$enumerators_stats,
       asset_id,
       sep = "-"
     )
