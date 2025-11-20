@@ -363,7 +363,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
   # Upload validated data
   upload_parquet_to_cloud(
     data = final_validated_data,
-    prefix = conf$ingestion$`kobo-v1`$validated_surveys$file_prefix,
+    prefix = conf$ingestion$`kobo-lurio`$validated_surveys$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )
