@@ -524,6 +524,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
       alert_catch_info_incomplete = dplyr::case_when(
         !is.na(.data$catch_taxon) &
           is.na(.data$n_buckets) &
+          is.na(.data$catch_kg) &
           is.na(.data$individuals) ~
           "2",
         TRUE ~ NA_character_
