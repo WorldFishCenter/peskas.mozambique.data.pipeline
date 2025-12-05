@@ -394,7 +394,6 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
 
   trip_info <- preprocess_general_adnap(data = raw_dat)
   catch_info <- preprocess_catch(data = raw_dat)
-
   catch_df <- process_version_data(catch_info = catch_info, asfis = asfis)
 
   preprocessed_landings <-

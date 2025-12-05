@@ -135,6 +135,7 @@ preprocess_catch <- function(data = NULL) {
       "n_catch",
       count_method = "counting_method",
       catch_taxon = "species",
+      fish_group,
       "n_buckets",
       "weight_bucket",
       individuals = "count",
@@ -144,7 +145,14 @@ preprocess_catch <- function(data = NULL) {
     # fix fields
     dplyr::mutate(
       dplyr::across(c("n_buckets":"catch_weight"), ~ as.double(.x))
-    )
+    ) |>
+    dplyr::mutate(
+      catch_taxon = dplyr::case_when(
+        is.na(.data$catch_taxon) & .data$fish_group == "MZZ" ~ "MZZ",
+        TRUE ~ .data$catch_taxon
+      )
+    ) |>
+    dplyr::select(-"fish_group")
 }
 
 #' Reshape Catch Data with Length Groupings
