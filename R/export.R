@@ -173,7 +173,7 @@ export_landings <- function() {
     dplyr::summarise(
       catch_kg = sum(.data$tot_catch_kg, na.rm = T),
       catch_price = sum(.data$catch_price, na.rm = T),
-      mean_length = mean(.data$lenght, na.rm = T),
+      mean_length = mean(.data$length, na.rm = T),
       .groups = "drop"
     ) |>
     #dplyr::rename(interagency_code = "catch_taxon") |>

@@ -395,6 +395,7 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
   trip_info <- preprocess_general_adnap(data = raw_dat)
   catch_info <- preprocess_catch(data = raw_dat)
 
+  catch_info <- catch_info |> dplyr::filter(submission_id == "715168609")
   catch_df <- process_version_data(catch_info = catch_info, asfis = asfis)
 
   preprocessed_landings <-
@@ -1208,7 +1209,15 @@ process_version_data <- function(catch_info = NULL, asfis = NULL) {
   catch_df <-
     calculate_catch_adnap(catch_data = catch_info, lwcoeffs = lwcoeffs$lw) |>
     dplyr::left_join(lwcoeffs$ml, by = "catch_taxon") |>
-    dplyr::select(-"max_weightkg_75")
+    dplyr::select(-"max_weightkg_75") |>
+    dplyr::mutate(
+      catch_kg = dplyr::if_else(
+        .data$count_method == "3",
+        .data$catch_weight,
+        .data$catch_kg
+      )
+    ) |>
+    dplyr::select(-c("catch_weight", "count_method"))
 
   return(catch_df)
 }

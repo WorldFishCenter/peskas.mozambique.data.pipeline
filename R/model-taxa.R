@@ -104,12 +104,14 @@ calculate_catch_adnap <- function(catch_data = NULL, lwcoeffs = NULL) {
     dplyr::select(
       "submission_id",
       "n_catch",
+      "count_method",
       "catch_taxon",
       "individuals",
       "length",
       "n_buckets",
       "weight_bucket",
-      "catch_kg"
+      "catch_kg",
+      "catch_weight"
     )
 }
 
