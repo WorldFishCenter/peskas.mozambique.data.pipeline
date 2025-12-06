@@ -17,6 +17,7 @@
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/df_to_airtable.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/download_cloud_file.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/download_parquet_from_cloud.html</loc></url>
+<url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/expand_length_frequency.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_landings.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/extract_trip_ids_from_filenames.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/fetch_asset.html</loc></url>
@@ -57,6 +58,8 @@
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_lurio.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_pds_tracks.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_track_data.html</loc></url>
+<url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_over100_length_groups.html</loc></url>
+<url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_regular_length_groups_old.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_single_track.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_species_group.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_species_list.html</loc></url>
@@ -67,7 +70,6 @@
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/reshape_catch_data.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/reshape_species_groups.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/summarize_data.html</loc></url>
-<url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_device_users.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/update_airtable_record.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/update_validation_status.html</loc></url>

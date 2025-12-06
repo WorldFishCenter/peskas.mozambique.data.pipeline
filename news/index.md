@@ -1,5 +1,73 @@
 # Changelog
 
+## peskas.mozambique.data.pipeline 2.2.0
+
+### Major Changes
+
+- **Redesigned Length Frequency Processing**: Complete rebuild of catch
+  data reshaping with simplified, row-by-row processing architecture.
+  - Introduced
+    [`expand_length_frequency()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/expand_length_frequency.md)
+    for processing individual species rows
+  - Refactored
+    [`reshape_catch_data()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/reshape_catch_data.md)
+    to use row-wise expansion instead of complex joins
+  - Eliminated data loss issues caused by multiple join operations
+  - Preserves all metadata (counting_method, species, n_buckets, etc.)
+    throughout transformation
+  - Simpler and more maintainable code with clear step-by-step logic
+
+### Improvements
+
+- **Enhanced Catch Data Processing**:
+  - Fixed critical bug where `counting_method` was being lost during
+    length frequency expansion
+  - Improved handling of NA values in `separate_wider_delim()` with
+    `too_few = "align_start"`
+  - Better support for length frequency data (fish under 100cm) with
+    proper regex pattern matching
+  - Clearer inline documentation explaining each processing step
+  - More robust error handling for empty length bins
+- **Code Architecture**:
+  - New
+    [`expand_length_frequency()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/expand_length_frequency.md)
+    function processes one species row at a time
+  - Deprecated `process_regular_length_groups()` in favor of simpler
+    row-by-row approach
+  - Retained
+    [`process_over100_length_groups()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_over100_length_groups.md)
+    for backwards compatibility with large fish data
+  - Eliminated complex join logic that was prone to losing metadata
+  - Uses `rowwise() |> group_split() |> map_dfr()` pattern for cleaner
+    row processing
+- **Documentation Quality**:
+  - Updated all function documentation to reflect new implementation
+  - Added detailed @details sections explaining the row-by-row approach
+  - Improved @keywords for better pkgdown organization
+  - Clear documentation of deprecated functions
+  - Enhanced examples showing length frequency analysis
+
+### Bug Fixes
+
+- Fixed `counting_method = NA` issue where metadata was lost during
+  length data expansion (#issue)
+- Corrected regex pattern to match `no_individuals_5_10` format (was
+  looking for `5_10` only)
+- Fixed `separate_wider_delim()` failure on NA length ranges
+- Eliminated extra length group columns appearing in final output
+- Resolved data preservation issues in complex join operations
+
+### Technical Details
+
+- **Length Frequency Data Flow**:
+  - Old approach: Extract all length data → Join back → Lose metadata
+  - New approach: Process each row → Expand in place → Keep everything
+  - Result: 100% metadata preservation with simpler logic
+- **Performance**: Row-by-row processing with
+  [`purrr::map_dfr()`](https://purrr.tidyverse.org/reference/map_dfr.html)
+  provides clean, functional approach while maintaining good performance
+  for typical survey sizes
+
 ## peskas.mozambique.data.pipeline 2.1.0
 
 ### Major Changes
@@ -247,9 +315,8 @@
     [`device_sync()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/device_sync.md)
     for intelligent device data synchronization (updates existing,
     creates new)
-  - Created
-    [`sync_device_users()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_device_users.md)
-    to manage vessel user credentials across Airtable and MongoDB
+  - Created `sync_device_users()` to manage vessel user credentials
+    across Airtable and MongoDB
   - Developed
     [`bulk_update_airtable()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/bulk_update_airtable.md)
     and

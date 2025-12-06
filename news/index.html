@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,67 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.2.0" id="peskasmozambiquedatapipeline-220">peskas.mozambique.data.pipeline 2.2.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-220"></a></h2>
+<div class="section level3">
+<h3 id="major-changes-2-2-0">Major Changes<a class="anchor" aria-label="anchor" href="#major-changes-2-2-0"></a></h3>
+<ul><li>
+<strong>Redesigned Length Frequency Processing</strong>: Complete rebuild of catch data reshaping with simplified, row-by-row processing architecture.
+<ul><li>Introduced <code><a href="../reference/expand_length_frequency.html">expand_length_frequency()</a></code> for processing individual species rows</li>
+<li>Refactored <code><a href="../reference/reshape_catch_data.html">reshape_catch_data()</a></code> to use row-wise expansion instead of complex joins</li>
+<li>Eliminated data loss issues caused by multiple join operations</li>
+<li>Preserves all metadata (counting_method, species, n_buckets, etc.) throughout transformation</li>
+<li>Simpler and more maintainable code with clear step-by-step logic</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-2-2-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-2-0"></a></h3>
+<ul><li>
+<strong>Enhanced Catch Data Processing</strong>:
+<ul><li>Fixed critical bug where <code>counting_method</code> was being lost during length frequency expansion</li>
+<li>Improved handling of NA values in <code>separate_wider_delim()</code> with <code>too_few = "align_start"</code>
+</li>
+<li>Better support for length frequency data (fish under 100cm) with proper regex pattern matching</li>
+<li>Clearer inline documentation explaining each processing step</li>
+<li>More robust error handling for empty length bins</li>
+</ul></li>
+<li>
+<strong>Code Architecture</strong>:
+<ul><li>New <code><a href="../reference/expand_length_frequency.html">expand_length_frequency()</a></code> function processes one species row at a time</li>
+<li>Deprecated <code>process_regular_length_groups()</code> in favor of simpler row-by-row approach</li>
+<li>Retained <code><a href="../reference/process_over100_length_groups.html">process_over100_length_groups()</a></code> for backwards compatibility with large fish data</li>
+<li>Eliminated complex join logic that was prone to losing metadata</li>
+<li>Uses <code>rowwise() |&gt; group_split() |&gt; map_dfr()</code> pattern for cleaner row processing</li>
+</ul></li>
+<li>
+<strong>Documentation Quality</strong>:
+<ul><li>Updated all function documentation to reflect new implementation</li>
+<li>Added detailed @details sections explaining the row-by-row approach</li>
+<li>Improved @keywords for better pkgdown organization</li>
+<li>Clear documentation of deprecated functions</li>
+<li>Enhanced examples showing length frequency analysis</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-2-2-0">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-2-0"></a></h3>
+<ul><li>Fixed <code>counting_method = NA</code> issue where metadata was lost during length data expansion (#issue)</li>
+<li>Corrected regex pattern to match <code>no_individuals_5_10</code> format (was looking for <code>5_10</code> only)</li>
+<li>Fixed <code>separate_wider_delim()</code> failure on NA length ranges</li>
+<li>Eliminated extra length group columns appearing in final output</li>
+<li>Resolved data preservation issues in complex join operations</li>
+</ul></div>
+<div class="section level3">
+<h3 id="technical-details-2-2-0">Technical Details<a class="anchor" aria-label="anchor" href="#technical-details-2-2-0"></a></h3>
+<ul><li>
+<strong>Length Frequency Data Flow</strong>:
+<ul><li>Old approach: Extract all length data → Join back → Lose metadata</li>
+<li>New approach: Process each row → Expand in place → Keep everything</li>
+<li>Result: 100% metadata preservation with simpler logic</li>
+</ul></li>
+<li>
+<strong>Performance</strong>: Row-by-row processing with <code><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">purrr::map_dfr()</a></code> provides clean, functional approach while maintaining good performance for typical survey sizes</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.1.0" id="peskasmozambiquedatapipeline-210">peskas.mozambique.data.pipeline 2.1.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-210"></a></h2>
 <div class="section level3">
@@ -217,7 +278,7 @@
 <strong>Airtable Integration Module</strong>: Complete suite of functions for two-way synchronization with Airtable.
 <ul><li>Implemented <code><a href="../reference/airtable_to_df.html">airtable_to_df()</a></code> with automatic pagination for full table retrieval</li>
 <li>Added <code><a href="../reference/device_sync.html">device_sync()</a></code> for intelligent device data synchronization (updates existing, creates new)</li>
-<li>Created <code><a href="../reference/sync_device_users.html">sync_device_users()</a></code> to manage vessel user credentials across Airtable and MongoDB</li>
+<li>Created <code>sync_device_users()</code> to manage vessel user credentials across Airtable and MongoDB</li>
 <li>Developed <code><a href="../reference/bulk_update_airtable.html">bulk_update_airtable()</a></code> and <code><a href="../reference/df_to_airtable.html">df_to_airtable()</a></code> for batch operations</li>
 <li>Added <code><a href="../reference/get_writable_fields.html">get_writable_fields()</a></code> to identify editable fields and prevent computed field errors</li>
 </ul></li>

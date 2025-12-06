@@ -2,8 +2,8 @@
 
 This function takes KoBoToolbox survey data with species catch
 information and reshapes it into long format while properly handling
-nested length group information. It supports survey forms where fish
-over 100cm are stored in separate repeated group structures.
+nested length group information. It supports both regular length groups
+(under 100cm) and separate structures for fish over 100cm.
 
 ## Usage
 
@@ -23,7 +23,10 @@ reshape_catch_data(df = NULL)
   - Multiple species fields within each group (species_TL, species_RF,
     species_SH, etc.)
 
-  - Optional length group columns
+  - Optional regular length group columns
+    (species_group.X.species_group/no_fish_by_length_group/no_individuals_Y_Z)
+
+  - Optional over-100cm length group columns
     (species_group/no_fish_by_length_group_100/)
 
 ## Value
@@ -54,16 +57,25 @@ The function performs the following steps:
     sharks, species_MZZ for miscellaneous) into a single 'species'
     column
 
-3.  Processes separate length group data for fish over 100cm when
-    available
+3.  Processes each species row individually using
+    [`expand_length_frequency()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/expand_length_frequency.md)
+    to:
 
-4.  Combines length data with species metadata
+    - Check if length frequency data exists for that row
 
-5.  Handles submissions with and without length data appropriately
+    - If yes: expand to multiple rows (one per length bin)
 
-For fish over 100cm, the function extracts both the specific length
-measurement and the count, properly associating them with the
-corresponding species group.
+    - If no: keep single row with NA for length fields
+
+    - Always preserve all metadata (counting_method, species, etc.)
+
+4.  Removes length group columns after pivoting
+
+5.  Sorts by submission_id and n_catch
+
+This approach is simpler and more robust than the old extract-and-join
+method, as it processes each species row individually and preserves all
+metadata throughout.
 
 ## Examples
 

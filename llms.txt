@@ -305,6 +305,4 @@ Functions for interacting with Airtable API.
   : Create New Airtable Records
 - [`device_sync()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/device_sync.md)
   : Sync Data with Airtable (Update + Create)
-- [`sync_device_users()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_device_users.md)
-  : Sync Device Users to MongoDB and Update Airtable
 

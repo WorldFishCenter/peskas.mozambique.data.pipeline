@@ -11,7 +11,7 @@ field variations and processes length group data."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,6 +64,7 @@ individuals, length, catch_weight</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The function uses <code><a href="reshape_catch_data.html">reshape_catch_data()</a></code> internally which automatically handles:</p><ul><li><p>Multiple species field formats (species_TL, species_RF, species_SH, etc.)</p></li>
+<li><p>Regular length group data for fish under 100cm (e.g., 5_10, 10_15, etc.)</p></li>
 <li><p>Separate length group structures for fish over 100cm</p></li>
 <li><p>Length range conversion to midpoint values</p></li>
 <li><p>Species code standardization (e.g., TUN→TUS, SKH→CVX)</p></li>

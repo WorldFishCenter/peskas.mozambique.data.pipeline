@@ -32,6 +32,9 @@ internally which automatically handles:
 - Multiple species field formats (species_TL, species_RF, species_SH,
   etc.)
 
+- Regular length group data for fish under 100cm (e.g., 5_10, 10_15,
+  etc.)
+
 - Separate length group structures for fish over 100cm
 
 - Length range conversion to midpoint values
