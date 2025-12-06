@@ -1108,7 +1108,7 @@ preprocess_general_adnap <- function(data = NULL) {
       submitted_by = "_submitted_by",
       submission_date = "today",
       "landing_date",
-      district = "District",
+      district = "provincia",
       dplyr::contains("landing_site"),
       "collect_data_today",
       "survey_activity",
