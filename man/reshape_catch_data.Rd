@@ -12,7 +12,8 @@ Expected to have columns following the pattern:
 \itemize{
 \item species_group.X columns (where X is a position number)
 \item Multiple species fields within each group (species_TL, species_RF, species_SH, etc.)
-\item Optional length group columns (species_group/no_fish_by_length_group_100/)
+\item Optional regular length group columns (species_group.X.species_group/no_fish_by_length_group/no_individuals_Y_Z)
+\item Optional over-100cm length group columns (species_group/no_fish_by_length_group_100/)
 }}
 }
 \value{
@@ -30,7 +31,7 @@ The output includes columns:
 \description{
 This function takes KoBoToolbox survey data with species catch information and reshapes
 it into long format while properly handling nested length group information. It supports
-survey forms where fish over 100cm are stored in separate repeated group structures.
+both regular length groups (under 100cm) and separate structures for fish over 100cm.
 }
 \details{
 The function performs the following steps:
@@ -41,13 +42,19 @@ species_SH for sharks, species_FSH for finfish, species_CRB for crabs, species_C
 cephalopods, species_LO for lobster, species_CR for crustacea, species_MA for marine animals,
 species_OY for oysters, species_FI for fish, species_FFI for flatfish, species_RA for rays,
 species_SHK for sharks, species_MZZ for miscellaneous) into a single 'species' column
-\item Processes separate length group data for fish over 100cm when available
-\item Combines length data with species metadata
-\item Handles submissions with and without length data appropriately
+\item Processes each species row individually using \code{expand_length_frequency()} to:
+\itemize{
+\item Check if length frequency data exists for that row
+\item If yes: expand to multiple rows (one per length bin)
+\item If no: keep single row with NA for length fields
+\item Always preserve all metadata (counting_method, species, etc.)
+}
+\item Removes length group columns after pivoting
+\item Sorts by submission_id and n_catch
 }
 
-For fish over 100cm, the function extracts both the specific length measurement
-and the count, properly associating them with the corresponding species group.
+This approach is simpler and more robust than the old extract-and-join method,
+as it processes each species row individually and preserves all metadata throughout.
 }
 \examples{
 \dontrun{

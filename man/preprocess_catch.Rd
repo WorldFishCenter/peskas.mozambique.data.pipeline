@@ -23,6 +23,7 @@ field variations and processes length group data.
 The function uses \code{reshape_catch_data()} internally which automatically handles:
 \itemize{
 \item Multiple species field formats (species_TL, species_RF, species_SH, etc.)
+\item Regular length group data for fish under 100cm (e.g., 5_10, 10_15, etc.)
 \item Separate length group structures for fish over 100cm
 \item Length range conversion to midpoint values
 \item Species code standardization (e.g., TUN→TUS, SKH→CVX)

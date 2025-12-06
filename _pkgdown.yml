@@ -61,4 +61,3 @@ reference:
   - bulk_update_airtable
   - df_to_airtable
   - device_sync
-  - sync_device_users

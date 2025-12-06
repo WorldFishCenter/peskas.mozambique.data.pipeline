@@ -695,6 +695,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
     dplyr::transmute(
       submission_id = .data$submission_id,
       catch_outcome = .data$catch_outcome,
+      n_fishers = .data$n_fishers,
       price_kg = .data$catch_price / .data$catch_kg,
       price_kg_USD = .data$price_kg * 0.016,
       cpue = .data$catch_kg / .data$n_fishers / .data$trip_duration,
@@ -710,11 +711,16 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
         TRUE ~ NA_character_
       ),
       alert_cpue = dplyr::case_when(
-        .data$cpue > cpue_max ~ "9",
+        !.data$cpue == Inf & .data$cpue > cpue_max ~ "9",
         TRUE ~ NA_character_
       ),
       alert_rpue = dplyr::case_when(
-        .data$rpue > rpue_max ~ "10",
+        !.data$rpue == Inf & .data$rpue > rpue_max ~ "10",
+        TRUE ~ NA_character_
+      ),
+      ,
+      alert_fishers = dplyr::case_when(
+        .data$n_fishers == 0 & .data$catch_outcome == "1" ~ "11",
         TRUE ~ NA_character_
       )
     ) |>
@@ -723,6 +729,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
         .data$alert_price_kg,
         .data$alert_cpue,
         .data$alert_rpue,
+        .data$alert_fishers,
         sep = ","
       ) |>
         stringr::str_remove_all("NA,") |>
