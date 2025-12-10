@@ -129,6 +129,8 @@ Functions dedicated to the preprocessing module
   : Reshape Catch Data with Length Groupings
 - [`reshape_species_groups()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/reshape_species_groups.md)
   : Reshape Species Groups from Wide to Long Format
+- [`standardize_enumerator_names()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/standardize_enumerator_names.md)
+  : Standardize Enumerator Names
 
 ## Validation
 
@@ -187,6 +189,8 @@ Functions dedicated to data processing.
   : Map Survey Labels to Standardized Taxa, Gear, and Vessel Names
 - [`read_config()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/read_config.md)
   : Read configuration file
+- [`standardize_enumerator_names()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/standardize_enumerator_names.md)
+  : Standardize Enumerator Names
 
 ## Airtable Integration
 

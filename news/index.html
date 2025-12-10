@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,72 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.0" id="peskasmozambiquedatapipeline-230">peskas.mozambique.data.pipeline 2.3.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-230"></a></h2>
+<div class="section level3">
+<h3 id="major-changes-2-3-0">Major Changes<a class="anchor" aria-label="anchor" href="#major-changes-2-3-0"></a></h3>
+<ul><li>
+<strong>Enumerator Name Standardization</strong>: New intelligent name cleaning and matching system to handle data entry inconsistencies.
+<ul><li>Introduced <code><a href="../reference/standardize_enumerator_names.html">standardize_enumerator_names()</a></code> function with fuzzy string matching using Levenshtein distance</li>
+<li>Automatically removes special characters, numbers, and extra whitespace from enumerator names</li>
+<li>Matches similar names with typos (e.g., “john smith” and “jhon smith”) and consolidates to a standard form</li>
+<li>Integrated into Lurio preprocessing pipeline with configurable distance threshold</li>
+<li>Marks single-word entries as “undefined” to ensure quality control</li>
+<li>Returns cleaner, more consistent enumerator tracking for performance analysis</li>
+</ul></li>
+<li>
+<strong>Enhanced Validation System</strong>: Improved validation logic with manual approval tracking and new quality checks.
+<ul><li>Added manual approval tracking from KoboToolbox to distinguish human-reviewed approvals from system approvals</li>
+<li>Manual approvals by human reviewers now properly bypass automatic validation flags</li>
+<li>New validation flag 20: Detects landing date after submission date inconsistencies</li>
+<li>New validation flag 11: Flags zero fishers with positive catch outcome</li>
+<li>Parallel processing for KoboToolbox validation status queries using <code>furrr</code> for faster bulk validation</li>
+<li>Improved handling of infinite CPUE/RPUE values in composite indicator validation</li>
+<li>Enhanced price per kg threshold from 1,875 to 2,500 MZN (~30 EUR) for more realistic outlier detection</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-2-3-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-3-0"></a></h3>
+<ul><li>
+<strong>Data Structure Enhancements</strong>:
+<ul><li>Added <code>scientific_name</code> field to catch data for better species traceability and validation</li>
+<li>Renamed <code>tot_fishers</code> to <code>n_fishers</code> throughout codebase for naming consistency</li>
+<li>Fixed column name inconsistency where <code>survey_label</code> and <code>catch_taxon</code> were swapped in some contexts</li>
+<li>Improved data pipeline clarity with consistent field naming across preprocessing and validation stages</li>
+</ul></li>
+<li>
+<strong>Validation Pipeline Improvements</strong>:
+<ul><li>Enhanced validation logic to handle edge cases (infinite values, zero denominators)</li>
+<li>Better separation of basic quality checks (flags 1-7, 20) from composite indicators (flags 8-11)</li>
+<li>Improved flag consolidation logic to properly aggregate multiple validation issues per submission</li>
+<li>More robust handling of submissions with missing or invalid fishers count</li>
+<li>Enhanced logging for validation status queries with submission counts</li>
+</ul></li>
+<li>
+<strong>Code Quality</strong>:
+<ul><li>Fixed assignment operators (<code>=</code> → <code>&lt;-</code>) for R style consistency</li>
+<li>Improved function parameter formatting throughout codebase</li>
+<li>Added proper roxygen2 documentation for new <code><a href="../reference/standardize_enumerator_names.html">standardize_enumerator_names()</a></code> function</li>
+<li>Enhanced inline comments explaining validation thresholds and logic</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-2-3-0">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-3-0"></a></h3>
+<ul><li>Fixed infinite CPUE/RPUE calculations when fishers count or trip duration is zero</li>
+<li>Corrected validation flag order to properly prioritize data quality issues</li>
+<li>Fixed column mapping issue in Lurio validation where survey labels were misaligned</li>
+<li>Resolved issue where submission date validation was not being performed</li>
+<li>Fixed enumerator name column selection to use correct nested field path</li>
+</ul></div>
+<div class="section level3">
+<h3 id="infrastructure--dependencies-2-3-0">Infrastructure &amp; Dependencies<a class="anchor" aria-label="anchor" href="#infrastructure--dependencies-2-3-0"></a></h3>
+<ul><li>Added <code>stringdist</code> package dependency for fuzzy name matching capabilities</li>
+<li>Enhanced parallel processing configuration for validation status queries</li>
+<li>Updated NAMESPACE with new exported function <code><a href="../reference/standardize_enumerator_names.html">standardize_enumerator_names()</a></code>
+</li>
+<li>Added man page documentation for enumerator name standardization function</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.2.0" id="peskasmozambiquedatapipeline-220">peskas.mozambique.data.pipeline 2.2.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-220"></a></h2>
 <div class="section level3">

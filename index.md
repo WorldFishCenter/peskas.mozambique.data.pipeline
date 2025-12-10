@@ -69,14 +69,11 @@ directory where the main functions are located.
 Each function typically reads the configuration using
 [`read_config()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/read_config.md)
 to access necessary parameters. To work on this package locally, you’ll
-need to copy `.env.example` to `.env` and fill in your authentication
-credentials. The
-[`read_config()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/read_config.md)
-function automatically loads these environment variables from the `.env`
-file. Remember to run `devtools::load_all()` when testing changes
-locally. If you’re new to R package development, consider reviewing the
-[*R packages*](https://r-pkgs.org) book by Hadley Wickham and Jenny
-Brian.
+need to set up the required authentication files in the `auth/`
+directory and ensure your environment variables are properly set.
+Remember to run `devtools::load_all()` when testing changes locally. If
+you’re new to R package development, consider reviewing the [*R
+packages*](https://r-pkgs.org) book by Hadley Wickham and Jenny Brian.
 
 ## Quick Guide for Contributors
 

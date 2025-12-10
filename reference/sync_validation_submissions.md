@@ -8,15 +8,17 @@ with rate limiting, manual approval respect, and optimized API usage.
 ## Usage
 
 ``` r
-sync_validation_submissions(log_threshold = logger::DEBUG)
+sync_validation_submissions(asset_id = c("adnap", "lurio"))
 ```
 
 ## Arguments
 
-- log_threshold:
+- asset_id:
 
-  The logging level threshold for the logger package (e.g., DEBUG,
-  INFO). Default is logger::DEBUG.
+  Character string specifying which survey to process. Must be one of
+  "adnap" or "lurio". The function will use the corresponding
+  configuration from `conf$ingestion$kobo-{asset_id}`. Default is
+  "adnap".#'
 
 ## Value
 
@@ -63,8 +65,8 @@ including:
 
 - MongoDB connection parameters
 
-- KoboToolbox asset ID and token (configured under
-  ingestion\$kobo-adnap)
+- KoboToolbox asset ID and token (configured under ingestion\$kobo-adnap
+  or ingestion\$kobo-lurio)
 
 - KoboToolbox username (to identify system approvals)
 
@@ -92,10 +94,10 @@ respect API constraints.
 
 ``` r
 if (FALSE) { # \dontrun{
-# Run with default DEBUG logging
-sync_validation_submissions()
+# Run for ADNAP survey
+sync_validation_submissions(asset_id = "adnap")
 
-# Run with INFO level logging
-sync_validation_submissions(log_threshold = logger::INFO)
+# Run for Lurio survey
+sync_validation_submissions(asset_id = "lurio")
 } # }
 ```
