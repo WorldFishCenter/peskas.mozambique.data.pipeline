@@ -165,13 +165,12 @@ ingest_landings_adnap <- function() {
 #' )
 #' }
 get_kobo_data <- function(
-  assetid,
-  url = "eu.kobotoolbox.org",
-  uname = NULL,
-  pwd = NULL,
-  encoding = "UTF-8",
-  format = "json"
-) {
+    assetid,
+    url = "eu.kobotoolbox.org",
+    uname = NULL,
+    pwd = NULL,
+    encoding = "UTF-8",
+    format = "json") {
   if (!is.character(url)) {
     stop("URL entered is not a string")
   }
@@ -503,9 +502,8 @@ ingest_pds_trips <- function(log_threshold = logger::DEBUG) {
 #' @keywords workflow ingestion
 #' @export
 ingest_pds_tracks <- function(
-  log_threshold = logger::DEBUG,
-  batch_size = NULL
-) {
+    log_threshold = logger::DEBUG,
+    batch_size = NULL) {
   logger::log_threshold(log_threshold)
   conf <- read_config()
 

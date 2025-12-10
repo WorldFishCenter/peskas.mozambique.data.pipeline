@@ -77,7 +77,7 @@ export_landings <- function() {
       "habitat",
       "gear",
       "propulsion_gear",
-      #"fuel_L",
+      # "fuel_L",
       "trip_duration",
       "vessel_type",
       n_fishers = "tot_fishers",
@@ -96,7 +96,7 @@ export_landings <- function() {
           "gear",
           "vessel_type",
           "propulsion_gear",
-          #"fuel_L",
+          # "fuel_L",
           "trip_duration",
           "n_fishers",
           "catch_price"
@@ -126,7 +126,7 @@ export_landings <- function() {
       "gear",
       "vessel_type",
       "propulsion_gear",
-      #"fuel_L",
+      # "fuel_L",
       "trip_duration",
       "vessel_type",
       n_fishers = "tot_fishers",
@@ -152,7 +152,7 @@ export_landings <- function() {
           "gear",
           "vessel_type",
           "propulsion_gear",
-          #"fuel_L",
+          # "fuel_L",
           "trip_duration",
           "vessel_type",
           "n_fishers",
@@ -176,8 +176,8 @@ export_landings <- function() {
       mean_length = mean(.data$length, na.rm = T),
       .groups = "drop"
     ) |>
-    #dplyr::rename(interagency_code = "catch_taxon") |>
-    #dplyr::left_join(metadata_tables$catch_groups, by = "alpha3_code") |>
+    # dplyr::rename(interagency_code = "catch_taxon") |>
+    # dplyr::left_join(metadata_tables$catch_groups, by = "alpha3_code") |>
     dplyr::select(
       "district",
       "date",
@@ -208,7 +208,7 @@ export_landings <- function() {
       district = stringr::str_to_title(.data$district),
       district = stringr::str_replace(.data$district, "_", " ")
     ) |>
-    #TODO: add common names
+    # TODO: add common names
     dplyr::rename(common_name = "catch_taxon")
 
   districts_summaries <-
@@ -416,7 +416,7 @@ export_landings <- function() {
 
   export_data <-
     validated_data %>%
-    #dplyr::filter(.data$survey_activity == 1) %>%
+    # dplyr::filter(.data$survey_activity == 1) %>%
     dplyr::select(
       "submission_id",
       "landing_date",

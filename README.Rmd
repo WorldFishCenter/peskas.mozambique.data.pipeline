@@ -19,6 +19,7 @@ knitr::opts_chunk$set(
 
 [![R-CMD-check](https://github.com/WorldFishCenter/peskas.mozambique.data.pipeline/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/WorldFishCenter/peskas.mozambique.data.pipeline/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/WorldFishCenter/peskas.mozambique.data.pipeline/graph/badge.svg)](https://app.codecov.io/gh/WorldFishCenter/peskas.mozambique.data.pipeline)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 <!-- badges: end -->
 
 The goal of peskas.mozambique.data.pipeline is to implement, deploy, and execute the data and modelling pipelines that underpin Peskas in Mozambique.

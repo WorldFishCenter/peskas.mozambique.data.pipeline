@@ -1,3 +1,60 @@
+# peskas.mozambique.data.pipeline 2.3.0
+
+## Major Changes
+
+* **Enumerator Name Standardization**: New intelligent name cleaning and matching system to handle data entry inconsistencies.
+  * Introduced `standardize_enumerator_names()` function with fuzzy string matching using Levenshtein distance
+  * Automatically removes special characters, numbers, and extra whitespace from enumerator names
+  * Matches similar names with typos (e.g., "john smith" and "jhon smith") and consolidates to a standard form
+  * Integrated into Lurio preprocessing pipeline with configurable distance threshold
+  * Marks single-word entries as "undefined" to ensure quality control
+  * Returns cleaner, more consistent enumerator tracking for performance analysis
+
+* **Enhanced Validation System**: Improved validation logic with manual approval tracking and new quality checks.
+  * Added manual approval tracking from KoboToolbox to distinguish human-reviewed approvals from system approvals
+  * Manual approvals by human reviewers now properly bypass automatic validation flags
+  * New validation flag 20: Detects landing date after submission date inconsistencies
+  * New validation flag 11: Flags zero fishers with positive catch outcome
+  * Parallel processing for KoboToolbox validation status queries using `furrr` for faster bulk validation
+  * Improved handling of infinite CPUE/RPUE values in composite indicator validation
+  * Enhanced price per kg threshold from 1,875 to 2,500 MZN (~30 EUR) for more realistic outlier detection
+
+## Improvements
+
+* **Data Structure Enhancements**:
+  * Added `scientific_name` field to catch data for better species traceability and validation
+  * Renamed `tot_fishers` to `n_fishers` throughout codebase for naming consistency
+  * Fixed column name inconsistency where `survey_label` and `catch_taxon` were swapped in some contexts
+  * Improved data pipeline clarity with consistent field naming across preprocessing and validation stages
+
+* **Validation Pipeline Improvements**:
+  * Enhanced validation logic to handle edge cases (infinite values, zero denominators)
+  * Better separation of basic quality checks (flags 1-7, 20) from composite indicators (flags 8-11)
+  * Improved flag consolidation logic to properly aggregate multiple validation issues per submission
+  * More robust handling of submissions with missing or invalid fishers count
+  * Enhanced logging for validation status queries with submission counts
+
+* **Code Quality**:
+  * Fixed assignment operators (`=` → `<-`) for R style consistency
+  * Improved function parameter formatting throughout codebase
+  * Added proper roxygen2 documentation for new `standardize_enumerator_names()` function
+  * Enhanced inline comments explaining validation thresholds and logic
+
+## Bug Fixes
+
+* Fixed infinite CPUE/RPUE calculations when fishers count or trip duration is zero
+* Corrected validation flag order to properly prioritize data quality issues
+* Fixed column mapping issue in Lurio validation where survey labels were misaligned
+* Resolved issue where submission date validation was not being performed
+* Fixed enumerator name column selection to use correct nested field path
+
+## Infrastructure & Dependencies
+
+* Added `stringdist` package dependency for fuzzy name matching capabilities
+* Enhanced parallel processing configuration for validation status queries
+* Updated NAMESPACE with new exported function `standardize_enumerator_names()`
+* Added man page documentation for enumerator name standardization function
+
 # peskas.mozambique.data.pipeline 2.2.0
 
 ## Major Changes

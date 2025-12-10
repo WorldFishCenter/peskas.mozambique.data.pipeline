@@ -47,48 +47,80 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
   conf <- read_config()
 
   # Load preprocessed surveys data
-  preprocessed_landings <-
+  preprocessed_surveys <-
     download_parquet_from_cloud(
       prefix = conf$ingestion$`kobo-lurio`$preprocessed_surveys$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
     )
 
+  future::plan(
+    strategy = future::multisession,
+    workers = future::availableCores() - 2
+  )
+
+  # Get validation status from KoboToolbox for existing submissions
+  submission_ids <- unique(preprocessed_surveys$submission_id)
+
+  # Query validation status from ADNAP asset
+  logger::log_info(
+    "Querying validation status from Lurio asset for {length(submission_ids)} submissions"
+  )
+
+  validation_results <- submission_ids %>%
+    furrr::future_map_dfr(
+      get_validation_status,
+      asset_id = conf$ingestion$`kobo-lurio`$asset_id,
+      token = conf$ingestion$`kobo-lurio`$token,
+      .options = furrr::furrr_options(seed = TRUE)
+    )
+
+  # Extract manually approved IDs (exclude system-approved)
+  # Only human-reviewed approvals should override automatic validation flags
+  manual_approved_ids <- validation_results %>%
+    dplyr::filter(
+      .data$validation_status == "validation_status_approved" &
+        !is.na(.data$validated_by) &
+        .data$validated_by != "" &
+        .data$validated_by != conf$ingestion$`kobo-lurio`$username # Exclude system approvals
+    ) %>%
+    dplyr::pull(.data$submission_id) %>%
+    unique()
+
+  logger::log_info(
+    "Found {length(manual_approved_ids)} manually approved submissions in KoboToolbox"
+  )
+
   # Validation thresholds
   max_bucket_weight_kg <- 50 # Maximum weight per bucket
   max_n_buckets <- 300 # Maximum number of buckets
   max_n_individuals <- 200 # Maximum individuals per record
-  price_kg_max <- 1875 # 30 EUR converted to MZN (81420 TZS * 0.023 MZN/TZS)
+  price_kg_max <- 2500 # 30 EUR converted to MZN (81420 TZS * 0.023 MZN/TZS)
   cpue_max <- 30 # Max CPUE kg/fisher/day
-  rpue_max <- 1875 # 30 EUR converted to MZN
+  rpue_max <- 2500 # 30 EUR converted to MZN
 
   # Prepare catch data for validation - adapt to Mozambique structure
+
   catch_df <-
-    preprocessed_landings |>
+    preprocessed_surveys |>
+    dplyr::filter(
+      .data$survey_activity == "1"
+    ) |>
     dplyr::select(
       "submission_id",
+      "n_catch",
       "landing_date",
       "submission_date",
-      "district",
-      "landing_site",
       "catch_outcome",
-      "gear",
-      "vessel_type",
-      "propulsion_gear",
-      "trip_duration",
-      "tot_fishers",
+      "catch_price",
       catch_taxon = "alpha3_code",
-      "individuals",
       "length",
       "min_length",
       "max_length_75",
+      "individuals",
       "n_buckets",
       "weight_bucket",
       "catch_kg",
-      "catch_price",
-      "habitat",
-      "lat",
-      "lon"
     )
 
   # Apply basic validation flags to catch data
@@ -141,6 +173,11 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
         !is.na(.data$individuals) & .data$individuals > max_n_individuals ~ "7",
         TRUE ~ NA_character_
       ),
+      # Flag 20: Landing date after submission
+      alert_date = dplyr::case_when(
+        .data$landing_date > .data$submission_date ~ "20",
+        TRUE ~ NA_character_
+      ),
     )
 
   # Create flags summary per submission (following Zanzibar approach)
@@ -153,13 +190,14 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
     ) |>
     dplyr::mutate(
       alert_flag = paste(
-        .data$alert_form_incomplete,
-        .data$alert_catch_info_incomplete,
         .data$alert_min_length,
         .data$alert_max_length,
         .data$alert_bucket_weight,
         .data$alert_n_buckets,
         .data$alert_n_individuals,
+        .data$alert_form_incomplete,
+        .data$alert_catch_info_incomplete,
+        .data$alert_date,
         sep = ","
       ) |>
         stringr::str_remove_all("NA,") |>
@@ -171,7 +209,8 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
         .data$alert_flag == "",
         NA_character_,
         .data$alert_flag
-      )
+      ),
+      submission_date = lubridate::as_datetime(.data$submission_date)
     ) |>
     dplyr::select(
       "submission_id",
@@ -185,9 +224,8 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
         NA_character_
       } else {
         paste(.data$alert_flag[!is.na(.data$alert_flag)], collapse = ", ")
-      },
-      .groups = "drop"
-    ) |>
+      }
+    ) %>%
     dplyr::mutate(
       alert_flag = ifelse(
         .data$alert_flag == "",
@@ -217,13 +255,13 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
     dplyr::ungroup() |>
     dplyr::filter(is.na(.data$submission_alerts))
 
-  # Create initial validated dataset
-  validated_data <-
-    catch_df_validated |>
+  surveys_basic_validated <-
+    preprocessed_surveys |>
+    dplyr::left_join(catch_df_validated) |>
     dplyr::select(
-      -c("alert_flag", "submission_alerts", "min_length", "max_length_75")
+      -c("alert_flag", "submission_alerts", "min_length", "max_length_75", "n")
     ) |>
-    # If catch outcome is 0, catch kg and price must be 0
+    # if catch outcome is 0 catch kg must be set to 0
     dplyr::mutate(
       catch_kg = dplyr::if_else(.data$catch_outcome == "0", 0, .data$catch_kg),
       catch_price = dplyr::if_else(
@@ -233,16 +271,15 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
       )
     )
 
-  ### Composite indicator validation (following Zanzibar approach) ###
+  ### get flags for composite indicators ###
   no_flag_ids <-
     flags_id |>
     dplyr::filter(is.na(.data$alert_flag)) |>
     dplyr::select("submission_id") |>
     dplyr::distinct()
 
-  # Calculate indicators for composite validation
   indicators <-
-    validated_data |>
+    surveys_basic_validated |>
     dplyr::filter(.data$submission_id %in% no_flag_ids$submission_id) |>
     dplyr::select(
       "submission_id",
@@ -252,7 +289,8 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
       "landing_site",
       "gear",
       "trip_duration",
-      "tot_fishers",
+      "vessel_type",
+      "n_fishers",
       "catch_taxon",
       "catch_price",
       "catch_kg"
@@ -267,27 +305,25 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
           "landing_site",
           "gear",
           "trip_duration",
-          "tot_fishers"
+          "vessel_type",
+          "n_fishers",
+          "catch_price"
         ),
         ~ dplyr::first(.x)
       ),
-      total_catch_price = sum(.data$catch_price, na.rm = TRUE),
-      total_catch_kg = sum(.data$catch_kg, na.rm = TRUE),
-      .groups = "drop"
+      catch_kg = sum(.data$catch_kg)
     ) |>
-    dplyr::mutate(
-      price_kg = ifelse(
-        .data$total_catch_kg > 0,
-        .data$total_catch_price / .data$total_catch_kg,
-        0
-      ),
-      price_kg_USD = .data$price_kg * 0.016, # MZN to USD conversion (~0.016)
-      cpue = .data$total_catch_kg / .data$tot_fishers / .data$trip_duration,
-      rpue = .data$total_catch_price / .data$tot_fishers / .data$trip_duration,
+    dplyr::transmute(
+      submission_id = .data$submission_id,
+      catch_outcome = .data$catch_outcome,
+      n_fishers = .data$n_fishers,
+      price_kg = .data$catch_price / .data$catch_kg,
+      price_kg_USD = .data$price_kg * 0.016,
+      cpue = .data$catch_kg / .data$n_fishers / .data$trip_duration,
+      rpue = .data$catch_price / .data$n_fishers / .data$trip_duration,
       rpue_USD = .data$rpue * 0.016
     )
 
-  # Apply composite validation flags
   composite_flags <-
     indicators |>
     dplyr::mutate(
@@ -296,11 +332,15 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
         TRUE ~ NA_character_
       ),
       alert_cpue = dplyr::case_when(
-        .data$cpue > cpue_max ~ "9",
+        !.data$cpue == Inf & .data$cpue > cpue_max ~ "9",
         TRUE ~ NA_character_
       ),
       alert_rpue = dplyr::case_when(
-        .data$rpue > rpue_max ~ "10",
+        !.data$rpue == Inf & .data$rpue > rpue_max ~ "10",
+        TRUE ~ NA_character_
+      ), ,
+      alert_fishers = dplyr::case_when(
+        .data$n_fishers == 0 & .data$catch_outcome == "1" ~ "11",
         TRUE ~ NA_character_
       )
     ) |>
@@ -309,6 +349,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
         .data$alert_price_kg,
         .data$alert_cpue,
         .data$alert_rpue,
+        .data$alert_fishers,
         sep = ","
       ) |>
         stringr::str_remove_all("NA,") |>
@@ -324,57 +365,59 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
     ) |>
     dplyr::select("submission_id", "alert_flag_composite")
 
-  # Combine all flags
+  # bind new flags to flags dataframe
   flags_combined <-
     flags_id |>
     dplyr::full_join(composite_flags, by = "submission_id") |>
     dplyr::mutate(
       alert_flag = dplyr::case_when(
+        # If both are non-NA, combine them
         !is.na(.data$alert_flag) & !is.na(.data$alert_flag_composite) ~
           paste(.data$alert_flag, .data$alert_flag_composite, sep = ", "),
+        # If only one is non-NA, use that one
         is.na(.data$alert_flag) ~ .data$alert_flag_composite,
         is.na(.data$alert_flag_composite) ~ .data$alert_flag,
+        # If both are NA, keep it NA
         TRUE ~ NA_character_
       )
     ) |>
+    # Remove the now redundant alert_flag_composite column
     dplyr::select(-"alert_flag_composite") |>
-    dplyr::distinct()
-
-  final_validated_data <-
-    validated_data |>
-    dplyr::semi_join(
-      flags_combined |>
-        dplyr::filter(is.na(.data$alert_flag)) |>
-        dplyr::distinct(.data$submission_id),
+    dplyr::left_join(
+      surveys_basic_validated |>
+        dplyr::select(
+          "submission_id",
+          submitted_by = "enumerator_name_clean"
+        ) |>
+        dplyr::distinct(),
       by = "submission_id"
+    ) |>
+    dplyr::relocate("submitted_by", .after = "submission_id") |>
+    dplyr::distinct() |>
+    # Preserve manual approvals by human reviewers, but re-validate system approvals
+    dplyr::mutate(
+      alert_flag = dplyr::if_else(
+        .data$submission_id %in% manual_approved_ids,
+        NA_character_,
+        .data$alert_flag
+      )
     )
 
-  # Upload validation flags
-  # upload_parquet_to_cloud(
-  #   data = flags_combined,
-  #   prefix = paste0(
-  #     conf$ingestion$`kobo-v1`$validated_surveys$file_prefix,
-  #     "-flags"
-  #   ),
-  #   provider = conf$storage$google$key,
-  #   options = conf$storage$google$options
-  # )
-
-  # Upload validated data
   upload_parquet_to_cloud(
-    data = final_validated_data,
-    prefix = conf$ingestion$`kobo-lurio`$validated_surveys$file_prefix,
+    data = flags_combined,
+    prefix = conf$ingestion$`kobo-lurio`$validation$flags$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )
 
-  logger::log_info(
-    "Validation completed. {nrow(final_validated_data)} records validated, {sum(!is.na(flags_combined$alert_flag))} submissions flagged"
+  upload_parquet_to_cloud(
+    data = surveys_basic_validated,
+    prefix = conf$ingestion$`kobo-lurio`$validated_surveys$file_prefix,
+    provider = conf$storage$google$key,
+    options = conf$storage$google$options
   )
-
   invisible(NULL)
 }
-
 #' Validate ADNAP Survey Data
 #'
 #' @description
@@ -471,7 +514,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
       .data$validation_status == "validation_status_approved" &
         !is.na(.data$validated_by) &
         .data$validated_by != "" &
-        .data$validated_by != conf$ingestion$`kobo-lurio`$username # Exclude system approvals
+        .data$validated_by != conf$ingestion$`kobo-adnap`$username # Exclude system approvals
     ) %>%
     dplyr::pull(.data$submission_id) %>%
     unique()
@@ -717,8 +760,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
       alert_rpue = dplyr::case_when(
         !.data$rpue == Inf & .data$rpue > rpue_max ~ "10",
         TRUE ~ NA_character_
-      ),
-      ,
+      ), ,
       alert_fishers = dplyr::case_when(
         .data$n_fishers == 0 & .data$catch_outcome == "1" ~ "11",
         TRUE ~ NA_character_
@@ -820,9 +862,9 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
 #' - Already-approved submissions are skipped to minimize API calls
 #' - Better error tracking and logging
 #'
-#' @param log_threshold The logging level threshold for the logger package (e.g., DEBUG, INFO).
-#'        Default is logger::DEBUG.
-#'
+#' @param asset_id Character string specifying which survey to process. Must be one of
+#'        "adnap" or "lurio". The function will use the corresponding configuration
+#'        from `conf$ingestion$kobo-{asset_id}`. Default is "adnap".#'
 #' @return None. The function performs status updates and database operations as side effects.
 #'
 #' @section Parallel Processing:
@@ -833,17 +875,17 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
 #' @note
 #' This function requires proper configuration in the config file, including:
 #' - MongoDB connection parameters
-#' - KoboToolbox asset ID and token (configured under ingestion$kobo-adnap)
+#' - KoboToolbox asset ID and token (configured under ingestion$kobo-adnap or ingestion$kobo-lurio)
 #' - KoboToolbox username (to identify system approvals)
 #' - Google cloud storage parameters
 #'
 #' @examples
 #' \dontrun{
-#' # Run with default DEBUG logging
-#' sync_validation_submissions()
+#' # Run for ADNAP survey
+#' sync_validation_submissions(asset_id = "adnap")
 #'
-#' # Run with INFO level logging
-#' sync_validation_submissions(log_threshold = logger::INFO)
+#' # Run for Lurio survey
+#' sync_validation_submissions(asset_id = "lurio")
 #' }
 #'
 #' @seealso
@@ -858,15 +900,17 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
 #'
 #' @keywords workflow validation
 #' @export
-sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
-  logger::log_threshold(log_threshold)
-
+sync_validation_submissions <- function(asset_id = c("adnap", "lurio")) {
+  asset_id <- match.arg(asset_id)
+  config_key <- paste0("kobo-", asset_id)
   conf <- read_config()
+  # Get the survey-specific config
+  survey_conf <- conf$ingestion[[config_key]]
 
   # Download validation flags for ADNAP
   validation_flags <-
     download_parquet_from_cloud(
-      prefix = conf$ingestion$`kobo-adnap`$validation$flags$file_prefix,
+      prefix = survey_conf$validation$flags$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
     )
@@ -894,8 +938,8 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
     process_fn = function(id) {
       get_validation_status(
         submission_id = id,
-        asset_id = conf$ingestion$`kobo-adnap`$asset_id,
-        token = conf$ingestion$`kobo-adnap`$token
+        asset_id = survey_conf$asset_id,
+        token = survey_conf$token
       )
     },
     description = "current validation statuses",
@@ -908,14 +952,14 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
   # Filter criteria:
   #   - validation_status is "approved"
   #   - validated_by is not empty/NA
-  #   - validated_by is NOT the system username (conf$ingestion$`kobo-adnap`$username)
+  #   - validated_by is NOT the system username (survey_conf$username)
   # Result: Any approval by a human reviewer (e.g., enumerators, supervisors, data managers)
   manual_approved_ids <- current_kobo_status %>%
     dplyr::filter(
       .data$validation_status == "validation_status_approved" &
         !is.na(.data$validated_by) &
         .data$validated_by != "" &
-        .data$validated_by != conf$ingestion$`kobo-adnap`$username
+        .data$validated_by != survey_conf$username
     ) %>%
     dplyr::pull(.data$submission_id)
 
@@ -942,8 +986,8 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
         update_validation_status(
           submission_id = id,
           status = "validation_status_not_approved",
-          asset_id = conf$ingestion$`kobo-adnap`$asset_id,
-          token = conf$ingestion$`kobo-adnap`$token
+          asset_id = survey_conf$asset_id,
+          token = survey_conf$token
         )
       },
       description = "flagged submissions",
@@ -988,8 +1032,8 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
         update_validation_status(
           submission_id = id,
           status = "validation_status_approved",
-          asset_id = conf$ingestion$`kobo-adnap`$asset_id,
-          token = conf$ingestion$`kobo-adnap`$token
+          asset_id = survey_conf$asset_id,
+          token = survey_conf$token
         )
       },
       description = "clean submissions",
@@ -1007,8 +1051,8 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
     process_fn = function(id) {
       get_validation_status(
         submission_id = id,
-        asset_id = conf$ingestion$`kobo-adnap`$asset_id,
-        token = conf$ingestion$`kobo-adnap`$token
+        asset_id = survey_conf$asset_id,
+        token = survey_conf$token
       )
     },
     description = "final validation statuses",
@@ -1030,7 +1074,7 @@ sync_validation_submissions <- function(log_threshold = logger::DEBUG) {
     dplyr::select(-c(dplyr::starts_with("valid")))
 
   # STEP 10: Push to MongoDB
-  asset_id <- conf$ingestion$`kobo-adnap`$asset_id
+  asset_id <- survey_conf$asset_id
 
   mdb_collection_push(
     data = validation_flags_with_kobo_status,

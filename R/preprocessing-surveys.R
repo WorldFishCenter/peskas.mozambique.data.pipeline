@@ -36,7 +36,7 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
     options = conf$storage$google$options
   )
 
-  target_form_id = get_airtable_form_id(
+  target_form_id <- get_airtable_form_id(
     kobo_asset_id = conf$ingestion$`kobo-lurio`$asset_id,
     conf = conf
   )
@@ -79,6 +79,7 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
     dplyr::select(
       "submission_id",
       "landing_date",
+      enumerator_name = "NOME_DO_AMOSTRADOR",
       "district",
       landing_site_palma = "group_station/district_palma",
       landing_site_mocimboa = "group_station/district_mocimboa",
@@ -120,7 +121,19 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
         "landing_site_palma",
         "landing_site_mocimboa"
       )
-    )
+    ) |>
+    dplyr::left_join(
+      standardize_enumerator_names(
+        data = raw_dat,
+        max_distance = 2
+      ),
+      by = "submission_id"
+    ) |>
+    dplyr::relocate(
+      "enumerator_name_clean",
+      .after = "submission_id"
+    ) |>
+    dplyr::select(-"enumerator_name")
 
   trip_info <-
     raw_dat %>%
@@ -158,16 +171,16 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
         ),
         as.numeric
       ),
-      tot_fishers = rowSums(
+      n_fishers = rowSums(
         dplyr::across(dplyr::ends_with("fishers")),
         na.rm = TRUE
       ),
-      #propulsion_gear = dplyr::case_when(
+      # propulsion_gear = dplyr::case_when(
       #  .data$propulsion_gear == "1" ~ "Engine",
       #  .data$propulsion_gear == "2" ~ "Sail",
       #  .data$propulsion_gear == "3" ~ "Oar",
       #  TRUE ~ NA_character_
-      #),
+      # ),
       hook_size = dplyr::coalesce(.data$hook_size, .data$hook_size_other)
     ) %>%
     dplyr::select(
@@ -213,15 +226,11 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
     ) %>%
     dplyr::select(
       "submission_id",
-      "n",
-      catch_taxon = "alpha3_code",
-      "length_class":"catch_estimate"
-    ) %>%
-    dplyr::select(
-      "submission_id",
       n_catch = "n",
       count_method = "collection_type",
-      "catch_taxon",
+      survey_label = "catch_number",
+      catch_taxon = "alpha3_code",
+      "scientific_name",
       "catch_estimate",
       "n_buckets",
       "weight_bucket",
@@ -284,8 +293,9 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
     ) |>
     dplyr::filter(.data$survey_activity == "1") |>
     dplyr::select(
-      -c("survey_activity", "survey_activity_whynot", "tracker_imei")
-    )
+      -c("survey_activity_whynot", "tracker_imei")
+    ) |>
+    dplyr::rename(survey_label = "catch_taxon", catch_taxon = "survey_label")
 
   preprocessed_data <-
     map_surveys(
@@ -305,7 +315,8 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
         .data$habitat == "7" ~ "Seagrass",
         TRUE ~ .data$habitat
       )
-    )
+    ) |>
+    dplyr::select(-"survey_label")
 
   logger::log_info("Uploading preprocessed data to cloud storage")
   # upload preprocessed landings
@@ -355,7 +366,7 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
     options = conf$storage$google$options
   )
 
-  target_form_id = get_airtable_form_id(
+  target_form_id <- get_airtable_form_id(
     kobo_asset_id = conf$ingestion$`kobo-adnap`$asset_id,
     conf = conf
   )
@@ -707,6 +718,7 @@ calculate_catch_lurio <- function(catch_data = NULL, lwcoeffs = NULL) {
     dplyr::select(
       "submission_id",
       "n_catch",
+      "survey_label",
       "catch_taxon",
       "individuals",
       "length",
@@ -954,12 +966,11 @@ get_airtable_form_id <- function(kobo_asset_id = NULL, conf = NULL) {
 #' @keywords preprocessing helper
 #' @export
 map_surveys <- function(
-  data = NULL,
-  taxa_mapping = NULL,
-  gear_mapping = NULL,
-  vessels_mapping = NULL,
-  sites_mapping = NULL
-) {
+    data = NULL,
+    taxa_mapping = NULL,
+    gear_mapping = NULL,
+    vessels_mapping = NULL,
+    sites_mapping = NULL) {
   data |>
     dplyr::left_join(taxa_mapping, by = c("catch_taxon" = "survey_label")) |>
     dplyr::select(-c("catch_taxon", "form_id", "english_name")) |>
@@ -1007,11 +1018,10 @@ map_surveys <- function(
 #' @keywords preprocessing helper
 #' @export
 fetch_asset <- function(
-  table_name = NULL,
-  select_cols = NULL,
-  form = NULL,
-  conf = NULL
-) {
+    table_name = NULL,
+    select_cols = NULL,
+    form = NULL,
+    conf = NULL) {
   airtable_to_df(
     base_id = conf$airtable$frame$base_id,
     table_name = table_name,
@@ -1218,4 +1228,119 @@ process_version_data <- function(catch_info = NULL, asfis = NULL) {
     dplyr::select(-c("catch_weight", "count_method"))
 
   return(catch_df)
+}
+
+
+#' Standardize Enumerator Names
+#'
+#' Cleans and standardizes enumerator names by removing special characters,
+#' fixing typos, and matching similar names using string distance.
+#'
+#' @param data A data frame with columns 'submission_id' and 'enumerator_name'
+#' @param max_distance Maximum Levenshtein distance for matching similar names.
+#'   Lower values are stricter. Default is 3.
+#'
+#' @return A data frame with two columns: 'submission_id' and 'enumerator_name_clean'
+#'
+#' @details
+#' The function:
+#' - Removes numbers and special characters
+#' - Converts to lowercase
+#' - Removes extra whitespace
+#' - Marks single-word entries as "undefined"
+#' - Matches similar names (e.g., "john smith" and "jhon smith")
+#' - Returns the shorter/alphabetically first variant as the standard name
+#'
+#' @keywords preprocessing helper
+#' @examples
+#' \dontrun{
+#' clean_names <- standardize_enumerator_names(raw_dat, max_distance = 2)
+#' }
+#'
+#' @export
+standardize_enumerator_names <- function(data = NULL, max_distance = 3) {
+  # Step 1: Clean the names
+  cleaned_data <- data |>
+    dplyr::select(
+      "submission_id",
+      enumerator_name = "group_general/NOME_DO_AMOSTRADOR"
+    ) |>
+    dplyr::mutate(
+      cleaned_name = stringr::str_replace_all(
+        .data$enumerator_name,
+        "[^a-zA-Z ]",
+        ""
+      ),
+      cleaned_name = stringr::str_squish(.data$cleaned_name),
+      cleaned_name = stringr::str_trim(.data$cleaned_name),
+      cleaned_name = tolower(.data$cleaned_name),
+      cleaned_name = dplyr::if_else(
+        stringr::str_detect(.data$cleaned_name, "\\s"),
+        .data$cleaned_name,
+        "undefined"
+      ),
+      cleaned_name = stringr::str_replace_all(.data$cleaned_name, "\\s+", "")
+    )
+
+  # Step 2: Get unique names for matching
+  unique_names <- cleaned_data |>
+    dplyr::filter(.data$cleaned_name != "undefined") |>
+    dplyr::distinct(.data$cleaned_name) |>
+    dplyr::pull(.data$cleaned_name)
+
+  # Step 3: Find similar names and create mapping
+  dist_matrix <- stringdist::stringdistmatrix(unique_names, method = "lv")
+  dist_matrix <- as.matrix(dist_matrix)
+  similar_idx <- which(
+    dist_matrix <= max_distance & dist_matrix > 0,
+    arr.ind = TRUE
+  )
+  similar_idx <- similar_idx[
+    similar_idx[, 1] < similar_idx[, 2], ,
+    drop = FALSE
+  ]
+
+  # Create name mapping
+  name_mapping <- data.frame(
+    cleaned_name = unique_names,
+    standardized_name = unique_names,
+    stringsAsFactors = FALSE
+  )
+
+  # Standardize to shorter/earlier name
+  if (nrow(similar_idx) > 0) {
+    for (i in 1:nrow(similar_idx)) {
+      idx1 <- similar_idx[i, 1]
+      idx2 <- similar_idx[i, 2]
+
+      name1 <- unique_names[idx1]
+      name2 <- unique_names[idx2]
+
+      if (
+        nchar(name1) < nchar(name2) ||
+          (nchar(name1) == nchar(name2) && name1 < name2)
+      ) {
+        name_mapping$standardized_name[
+          name_mapping$cleaned_name == name2
+        ] <- name1
+      } else {
+        name_mapping$standardized_name[
+          name_mapping$cleaned_name == name1
+        ] <- name2
+      }
+    }
+  }
+
+  # Step 4: Apply mapping and return final result
+  final_data <- cleaned_data |>
+    dplyr::left_join(name_mapping, by = "cleaned_name") |>
+    dplyr::mutate(
+      enumerator_name_clean = dplyr::coalesce(
+        .data$standardized_name,
+        .data$cleaned_name
+      )
+    ) |>
+    dplyr::select("submission_id", "enumerator_name_clean")
+
+  return(final_data)
 }

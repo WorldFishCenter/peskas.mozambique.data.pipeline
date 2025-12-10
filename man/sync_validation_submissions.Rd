@@ -4,11 +4,12 @@
 \alias{sync_validation_submissions}
 \title{Synchronize Validation Statuses with KoboToolbox}
 \usage{
-sync_validation_submissions(log_threshold = logger::DEBUG)
+sync_validation_submissions(asset_id = c("adnap", "lurio"))
 }
 \arguments{
-\item{log_threshold}{The logging level threshold for the logger package (e.g., DEBUG, INFO).
-Default is logger::DEBUG.}
+\item{asset_id}{Character string specifying which survey to process. Must be one of
+"adnap" or "lurio". The function will use the corresponding configuration
+from \code{conf$ingestion$kobo-{asset_id}}. Default is "adnap".#'}
 }
 \value{
 None. The function performs status updates and database operations as side effects.
@@ -43,7 +44,7 @@ Key improvements over previous implementation:
 This function requires proper configuration in the config file, including:
 \itemize{
 \item MongoDB connection parameters
-\item KoboToolbox asset ID and token (configured under ingestion$kobo-adnap)
+\item KoboToolbox asset ID and token (configured under ingestion$kobo-adnap or ingestion$kobo-lurio)
 \item KoboToolbox username (to identify system approvals)
 \item Google cloud storage parameters
 }
@@ -57,11 +58,11 @@ implemented via Sys.sleep() to respect API constraints.
 
 \examples{
 \dontrun{
-# Run with default DEBUG logging
-sync_validation_submissions()
+# Run for ADNAP survey
+sync_validation_submissions(asset_id = "adnap")
 
-# Run with INFO level logging
-sync_validation_submissions(log_threshold = logger::INFO)
+# Run for Lurio survey
+sync_validation_submissions(asset_id = "lurio")
 }
 
 }

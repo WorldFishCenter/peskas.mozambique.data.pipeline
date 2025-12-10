@@ -11,11 +11,10 @@
 #'
 #' @export
 airtable_to_df <- function(
-  base_id,
-  table_name,
-  token,
-  list_handler = "collapse"
-) {
+    base_id,
+    table_name,
+    token,
+    list_handler = "collapse") {
   base_url <- glue::glue(
     "https://api.airtable.com/v0/{base_id}/{URLencode(table_name)}"
   )
@@ -160,12 +159,11 @@ get_writable_fields <- function(base_id, token, table_name) {
 #'
 #' @export
 update_airtable_record <- function(
-  base_id,
-  table_name,
-  token,
-  record_id,
-  updates
-) {
+    base_id,
+    table_name,
+    token,
+    record_id,
+    updates) {
   base_url <- glue::glue(
     "https://api.airtable.com/v0/{base_id}/{URLencode(table_name)}/{record_id}"
   )
@@ -324,12 +322,11 @@ df_to_airtable <- function(df, base_id, table_name, token) {
 #'
 #' @export
 device_sync <- function(
-  boats_df,
-  base_id,
-  table_name = "pds_devices",
-  token,
-  key_field = "imei"
-) {
+    boats_df,
+    base_id,
+    table_name = "pds_devices",
+    token,
+    key_field = "imei") {
   # Validation
   if (!key_field %in% names(boats_df)) {
     stop("Key field '", key_field, "' not found in data")

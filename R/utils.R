@@ -87,7 +87,7 @@ load_dotenv <- function(file = ".env") {
 read_config <- function() {
   # Load .env file first to make variables available to config.yml
   load_dotenv()
-  
+
   logger::log_info("Loading configuration file...")
 
   pars <- config::get(

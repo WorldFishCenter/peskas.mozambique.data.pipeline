@@ -8,6 +8,9 @@
 [![R-CMD-check](https://github.com/WorldFishCenter/peskas.mozambique.data.pipeline/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/WorldFishCenter/peskas.mozambique.data.pipeline/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/WorldFishCenter/peskas.mozambique.data.pipeline/graph/badge.svg)](https://app.codecov.io/gh/WorldFishCenter/peskas.mozambique.data.pipeline)
+[![Project Status: Active – The project has reached a stable, usable
+state and is being actively
+developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 <!-- badges: end -->
 
 The goal of peskas.mozambique.data.pipeline is to implement, deploy, and
@@ -75,10 +78,9 @@ familiarize yourself with the package structure, particularly the
 [`R`](R) directory where the main functions are located.
 
 Each function typically reads the configuration using `read_config()` to
-access necessary parameters. To work on this package locally, you'll
-need to copy `.env.example` to `.env` and fill in your authentication
-credentials. The `read_config()` function automatically loads these
-environment variables from the `.env` file.
+access necessary parameters. To work on this package locally, you’ll
+need to set up the required authentication files in the `auth/`
+directory and ensure your environment variables are properly set.
 Remember to run `devtools::load_all()` when testing changes locally. If
 you’re new to R package development, consider reviewing the [*R
 packages*](https://r-pkgs.org) book by Hadley Wickham and Jenny Brian.

@@ -71,13 +71,12 @@ download_parquet_from_cloud <- function(prefix, provider, options) {
 #'
 #' @export
 upload_parquet_to_cloud <- function(
-  data,
-  prefix,
-  provider,
-  options,
-  compression = "lz4",
-  compression_level = 12
-) {
+    data,
+    prefix,
+    provider,
+    options,
+    compression = "lz4",
+    compression_level = 12) {
   # Generate filename with version
   preprocessed_filename <- prefix %>%
     add_version(extension = "parquet")
@@ -305,13 +304,12 @@ download_cloud_file <- function(name, provider, options, file = name) {
 #'
 #' @keywords storage internal
 cloud_object_name <- function(
-  prefix,
-  version = "latest",
-  extension = "",
-  provider,
-  exact_match = FALSE,
-  options
-) {
+    prefix,
+    version = "latest",
+    extension = "",
+    provider,
+    exact_match = FALSE,
+    options) {
   cloud_storage_authenticate(provider, options)
 
   if ("gcs" %in% provider) {
@@ -381,10 +379,9 @@ cloud_object_name <- function(
 #'
 #' @export
 mdb_collection_pull <- function(
-  connection_string = NULL,
-  collection_name = NULL,
-  db_name = NULL
-) {
+    connection_string = NULL,
+    collection_name = NULL,
+    db_name = NULL) {
   # Connect to the MongoDB collection
   collection <- mongolite::mongo(
     collection = collection_name,
@@ -443,11 +440,10 @@ mdb_collection_pull <- function(
 #'
 #' @export
 mdb_collection_push <- function(
-  data = NULL,
-  connection_string = NULL,
-  collection_name = NULL,
-  db_name = NULL
-) {
+    data = NULL,
+    connection_string = NULL,
+    collection_name = NULL,
+    db_name = NULL) {
   # Connect to the MongoDB collection
   collection <- mongolite::mongo(
     collection = collection_name,
@@ -508,15 +504,14 @@ mdb_collection_push <- function(
 #' @export
 #'
 get_trips <- function(
-  token = NULL,
-  secret = NULL,
-  dateFrom = NULL,
-  dateTo = NULL,
-  imeis = NULL,
-  deviceInfo = FALSE,
-  withLastSeen = FALSE,
-  tags = NULL
-) {
+    token = NULL,
+    secret = NULL,
+    dateFrom = NULL,
+    dateTo = NULL,
+    imeis = NULL,
+    deviceInfo = FALSE,
+    withLastSeen = FALSE,
+    tags = NULL) {
   # Base URL
   base_url <- paste0(
     "https://analytics.pelagicdata.com/api/",
@@ -632,19 +627,18 @@ get_trips <- function(
 #'
 #' @export
 get_trip_points <- function(
-  token = NULL,
-  secret = NULL,
-  id = NULL,
-  dateFrom = NULL,
-  dateTo = NULL,
-  path = NULL,
-  imeis = NULL,
-  deviceInfo = FALSE,
-  errant = FALSE,
-  withLastSeen = FALSE,
-  tags = NULL,
-  overwrite = TRUE
-) {
+    token = NULL,
+    secret = NULL,
+    id = NULL,
+    dateFrom = NULL,
+    dateTo = NULL,
+    path = NULL,
+    imeis = NULL,
+    deviceInfo = FALSE,
+    errant = FALSE,
+    withLastSeen = FALSE,
+    tags = NULL,
+    overwrite = TRUE) {
   # Build base URL based on whether ID is provided
   if (!is.null(id)) {
     base_url <- paste0(

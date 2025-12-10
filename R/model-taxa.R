@@ -217,7 +217,7 @@ getLWCoeffs <- function(taxa_list = NULL, asfis_list = NULL) {
         .data$a3_code == "IAX" ~ 100,
         TRUE ~ .data$max_length_75
       ),
-      min_length = .data$min_length - 0.5 * .data$min_length, #(make it more permissive, we don't know the exact value from fishbase)
+      min_length = .data$min_length - 0.5 * .data$min_length, # (make it more permissive, we don't know the exact value from fishbase)
       min_length = dplyr::case_when(
         .data$a3_code %in% c("OCZ", "IAX") ~ 15,
         .data$a3_code == "PEZ" ~ 5,
@@ -408,8 +408,7 @@ match_species_from_taxa <- function(species_list, taxa_data) {
     row <- species_list[i, ]
     taxa <- taxa_data[[row$database]]
 
-    matched_species <- switch(
-      row$rank,
+    matched_species <- switch(row$rank,
       "Genus" = taxa %>% dplyr::filter(.data$Genus == row$scientific_name),
       "Family" = taxa %>% dplyr::filter(.data$Family == row$scientific_name),
       "Order" = taxa %>% dplyr::filter(.data$Order == row$scientific_name),
@@ -570,9 +569,8 @@ get_species_areas_batch <- function(matched_species) {
 #' @export
 #'
 get_length_weight_batch <- function(
-  species_areas_filtered,
-  include_morphology = FALSE
-) {
+    species_areas_filtered,
+    include_morphology = FALSE) {
   fishbase_species <- species_areas_filtered %>%
     dplyr::filter(.data$database == "fishbase") %>%
     dplyr::pull(.data$species)
