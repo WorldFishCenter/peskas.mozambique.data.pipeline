@@ -119,7 +119,7 @@ jobs:
         run: Rscript -e 'peskas.mozambique.data.pipeline::validate_surveys_adnap()'
         
   sync-validation-adnap:
-    name: Sync ADNAPsurveys validation
+    name: Sync ADNAP surveys validation
     needs: validate-adnap
     runs-on: ubuntu-24.04
     container:
@@ -135,7 +135,7 @@ jobs:
         run: Rscript --vanilla -e 'peskas.mozambique.data.pipeline::sync_validation_submissions(asset_id = "adnap")'
 
   sync-validation-lurio:
-    name: Sync ADNAPsurveys validation
+    name: Sync LURIO surveys validation
     needs: validate-lurio
     runs-on: ubuntu-24.04
     container:
