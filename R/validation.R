@@ -338,7 +338,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
       alert_rpue = dplyr::case_when(
         !.data$rpue == Inf & .data$rpue > rpue_max ~ "10",
         TRUE ~ NA_character_
-      ), ,
+      ),
       alert_fishers = dplyr::case_when(
         .data$n_fishers == 0 & .data$catch_outcome == "1" ~ "11",
         TRUE ~ NA_character_
@@ -760,7 +760,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
       alert_rpue = dplyr::case_when(
         !.data$rpue == Inf & .data$rpue > rpue_max ~ "10",
         TRUE ~ NA_character_
-      ), ,
+      ),
       alert_fishers = dplyr::case_when(
         .data$n_fishers == 0 & .data$catch_outcome == "1" ~ "11",
         TRUE ~ NA_character_
