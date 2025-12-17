@@ -41,11 +41,12 @@
 #' @export
 
 alert_outlier <- function(
-    x,
-    no_alert_value = NA_real_,
-    alert_if_larger = no_alert_value,
-    alert_if_smaller = no_alert_value,
-    ...) {
+  x,
+  no_alert_value = NA_real_,
+  alert_if_larger = no_alert_value,
+  alert_if_smaller = no_alert_value,
+  ...
+) {
   # If all values are NA or zero, we can't compute meaningful bounds
   all_na_or_zero <- function(x) {
     isTRUE(all(is.na(x) | x == 0))
@@ -499,10 +500,11 @@ validate_price <- function(data, k = 3, flag_value = 6) {
 #' @keywords workflow validation
 #' @export
 get_validation_status <- function(
-    submission_id = NULL,
-    asset_id = NULL,
-    token = NULL,
-    debug = FALSE) {
+  submission_id = NULL,
+  asset_id = NULL,
+  token = NULL,
+  debug = FALSE
+) {
   base_url <- paste0(
     "https://eu.kobotoolbox.org/api/v2/assets/",
     asset_id,
@@ -560,27 +562,30 @@ get_validation_status <- function(
           submission_id = submission_id,
           validation_status = status,
           validated_at = timestamp,
-          validated_by = validator
+          validated_by = validator,
+          fetch_error = FALSE
         )
       } else {
         dplyr::tibble(
           submission_id = submission_id,
           validation_status = "not_validated",
           validated_at = lubridate::as_datetime(NA),
-          validated_by = NA_character_
+          validated_by = NA_character_,
+          fetch_error = FALSE
         )
       }
     },
     error = function(e) {
       if (debug) {
-        cat("Error:", as.character(e), "\n")
+        cat("Error:", conditionMessage(e), "\n")
       }
 
       dplyr::tibble(
         submission_id = submission_id,
-        validation_status = "not_validated",
+        validation_status = NA_character_,
         validated_at = lubridate::as_datetime(NA),
-        validated_by = NA_character_
+        validated_by = NA_character_,
+        fetch_error = TRUE
       )
     }
   )
@@ -629,11 +634,12 @@ get_validation_status <- function(
 #' @keywords workflow validation
 #' @export
 update_validation_status <- function(
-    submission_id = NULL,
-    asset_id = NULL,
-    token = NULL,
-    status = "validation_status_approved",
-    debug = FALSE) {
+  submission_id = NULL,
+  asset_id = NULL,
+  token = NULL,
+  status = "validation_status_approved",
+  debug = FALSE
+) {
   # Validate status
   valid_statuses <- c(
     "validation_status_approved",
@@ -792,10 +798,11 @@ update_validation_status <- function(
 #' @keywords validation
 #' @export
 process_submissions_parallel <- function(
-    submission_ids,
-    process_fn,
-    description = "submissions",
-    rate_limit = 0.2) {
+  submission_ids,
+  process_fn,
+  description = "submissions",
+  rate_limit = 0.2
+) {
   logger::log_info("Processing {length(submission_ids)} {description}")
 
   progressr::with_progress({

@@ -291,7 +291,7 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
       dplyr::full_join,
       by = "submission_id"
     ) |>
-    dplyr::filter(.data$survey_activity == "1") |>
+    #dplyr::filter(.data$survey_activity == "1") |>
     dplyr::select(
       -c("survey_activity_whynot", "tracker_imei")
     ) |>
@@ -966,11 +966,12 @@ get_airtable_form_id <- function(kobo_asset_id = NULL, conf = NULL) {
 #' @keywords preprocessing helper
 #' @export
 map_surveys <- function(
-    data = NULL,
-    taxa_mapping = NULL,
-    gear_mapping = NULL,
-    vessels_mapping = NULL,
-    sites_mapping = NULL) {
+  data = NULL,
+  taxa_mapping = NULL,
+  gear_mapping = NULL,
+  vessels_mapping = NULL,
+  sites_mapping = NULL
+) {
   data |>
     dplyr::left_join(taxa_mapping, by = c("catch_taxon" = "survey_label")) |>
     dplyr::select(-c("catch_taxon", "form_id", "english_name")) |>
@@ -1018,10 +1019,11 @@ map_surveys <- function(
 #' @keywords preprocessing helper
 #' @export
 fetch_asset <- function(
-    table_name = NULL,
-    select_cols = NULL,
-    form = NULL,
-    conf = NULL) {
+  table_name = NULL,
+  select_cols = NULL,
+  form = NULL,
+  conf = NULL
+) {
   airtable_to_df(
     base_id = conf$airtable$frame$base_id,
     table_name = table_name,
@@ -1296,7 +1298,8 @@ standardize_enumerator_names <- function(data = NULL, max_distance = 3) {
     arr.ind = TRUE
   )
   similar_idx <- similar_idx[
-    similar_idx[, 1] < similar_idx[, 2], ,
+    similar_idx[, 1] < similar_idx[, 2],
+    ,
     drop = FALSE
   ]
 

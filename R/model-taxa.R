@@ -157,8 +157,11 @@ calculate_catch_adnap <- function(catch_data = NULL, lwcoeffs = NULL) {
 getLWCoeffs <- function(taxa_list = NULL, asfis_list = NULL) {
   # 1. Load both databases
   taxa_data <- list(
-    fishbase = rfishbase::load_taxa(server = "fishbase"),
-    sealifebase = rfishbase::load_taxa(server = "sealifebase")
+    fishbase = rfishbase::load_taxa(server = "fishbase", version = "latest"),
+    sealifebase = rfishbase::load_taxa(
+      server = "sealifebase",
+      version = "24.07"
+    )
   )
 
   # 2. Process species list
@@ -329,7 +332,10 @@ get_fao_groups <- function(fao_codes = NULL, asfis_list = NULL) {
 load_taxa_databases <- function() {
   list(
     fishbase = rfishbase::load_taxa(server = "fishbase"),
-    sealifebase = rfishbase::load_taxa(server = "sealifebase")
+    sealifebase = rfishbase::load_taxa(
+      server = "sealifebase",
+      version = "24.07"
+    )
   )
 }
 
@@ -408,7 +414,8 @@ match_species_from_taxa <- function(species_list, taxa_data) {
     row <- species_list[i, ]
     taxa <- taxa_data[[row$database]]
 
-    matched_species <- switch(row$rank,
+    matched_species <- switch(
+      row$rank,
       "Genus" = taxa %>% dplyr::filter(.data$Genus == row$scientific_name),
       "Family" = taxa %>% dplyr::filter(.data$Family == row$scientific_name),
       "Order" = taxa %>% dplyr::filter(.data$Order == row$scientific_name),
@@ -490,7 +497,8 @@ get_species_areas_batch <- function(matched_species) {
     rfishbase::faoareas(
       sealifebase_species,
       fields = "AreaCode",
-      server = "sealifebase"
+      server = "sealifebase",
+      version = "24.07"
     ) %>%
       dplyr::mutate(database = "sealifebase")
   } else {
@@ -569,8 +577,9 @@ get_species_areas_batch <- function(matched_species) {
 #' @export
 #'
 get_length_weight_batch <- function(
-    species_areas_filtered,
-    include_morphology = FALSE) {
+  species_areas_filtered,
+  include_morphology = FALSE
+) {
   fishbase_species <- species_areas_filtered %>%
     dplyr::filter(.data$database == "fishbase") %>%
     dplyr::pull(.data$species)
@@ -603,7 +612,8 @@ get_length_weight_batch <- function(
     rfishbase::length_weight(
       sealifebase_species,
       fields = c("Species", "SpecCode", "Type", "EsQ", "a", "b"),
-      server = "sealifebase"
+      server = "sealifebase",
+      version = "24.07"
     ) %>%
       dplyr::mutate(database = "sealifebase")
   } else {
@@ -663,7 +673,8 @@ get_length_weight_batch <- function(
       rfishbase::species(
         sealifebase_species,
         fields = c("Species", "SpecCode", "Length", "CommonLength", "Weight"),
-        server = "sealifebase"
+        server = "sealifebase",
+        version = "24.07"
       ) %>%
         dplyr::mutate(database = "sealifebase")
     } else {

@@ -1,3 +1,28 @@
+# peskas.mozambique.data.pipeline 2.3.1
+
+## Major Changes
+
+* **Streamlined Validation Workflow**: Replaced KoboToolbox API updates with direct MongoDB storage to improve performance.
+  * New `export_validation_flags()` function exports validation flags directly to MongoDB
+  * Validation status queries now only identify manually edited submissions, not update them
+  * Disabled `sync_validation_submissions()` workflow steps in GitHub Actions
+  * Significantly reduced pipeline execution time by avoiding slow KoboToolbox API calls
+
+## Improvements
+
+* **Validation System**:
+  * Validation functions now preserve manual human approvals while updating system-generated statuses
+  * Added `fetch_error` field to `get_validation_status()` for better error tracking
+  * Improved error handling in validation status queries
+
+* **Code Quality**:
+  * Fixed SeaLifeBase API calls by pinning to version 24.07 to avoid server errors
+  * Standardized function parameter formatting across validation and preprocessing modules
+  * Removed empty [R/data.R](R/data.R) file
+
+* **Pipeline Configuration**:
+  * Removed survey activity filter in Lurio preprocessing to include all submissions
+
 # peskas.mozambique.data.pipeline 2.3.0
 
 ## Major Changes
