@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,38 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.1" id="peskasmozambiquedatapipeline-231">peskas.mozambique.data.pipeline 2.3.1<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-231"></a></h2>
+<div class="section level3">
+<h3 id="major-changes-2-3-1">Major Changes<a class="anchor" aria-label="anchor" href="#major-changes-2-3-1"></a></h3>
+<ul><li>
+<strong>Streamlined Validation Workflow</strong>: Replaced KoboToolbox API updates with direct MongoDB storage to improve performance.
+<ul><li>New <code><a href="../reference/export_validation_flags.html">export_validation_flags()</a></code> function exports validation flags directly to MongoDB</li>
+<li>Validation status queries now only identify manually edited submissions, not update them</li>
+<li>Disabled <code><a href="../reference/sync_validation_submissions.html">sync_validation_submissions()</a></code> workflow steps in GitHub Actions</li>
+<li>Significantly reduced pipeline execution time by avoiding slow KoboToolbox API calls</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-2-3-1">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-3-1"></a></h3>
+<ul><li>
+<strong>Validation System</strong>:
+<ul><li>Validation functions now preserve manual human approvals while updating system-generated statuses</li>
+<li>Added <code>fetch_error</code> field to <code><a href="../reference/get_validation_status.html">get_validation_status()</a></code> for better error tracking</li>
+<li>Improved error handling in validation status queries</li>
+</ul></li>
+<li>
+<strong>Code Quality</strong>:
+<ul><li>Fixed SeaLifeBase API calls by pinning to version 24.07 to avoid server errors</li>
+<li>Standardized function parameter formatting across validation and preprocessing modules</li>
+<li>Removed empty <a href="R/data.R">R/data.R</a> file</li>
+</ul></li>
+<li>
+<strong>Pipeline Configuration</strong>:
+<ul><li>Removed survey activity filter in Lurio preprocessing to include all submissions</li>
+</ul></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.3.0" id="peskasmozambiquedatapipeline-230">peskas.mozambique.data.pipeline 2.3.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-230"></a></h2>
 <div class="section level3">

@@ -105,6 +105,8 @@ these functions executes a step in the data pipeline.
 
 - [`export_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_landings.md)
   : Export Processed Landings Data
+- [`export_validation_flags()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_validation_flags.md)
+  : Export Validation Flags to MongoDB
 - [`get_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_validation_status.md)
   : Get Validation Status from KoboToolbox
 - [`ingest_landings_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/ingest_landings_adnap.md)
@@ -236,6 +238,8 @@ Functions dedicated to the validation module
 
 - [`alert_outlier()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/alert_outlier.md)
   : Outlier Alert for Numeric Vectors
+- [`export_validation_flags()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_validation_flags.md)
+  : Export Validation Flags to MongoDB
 - [`get_catch_bounds_taxon()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_catch_bounds_taxon.md)
   : Get Catch Bounds by Gear + Taxon
 - [`get_price_bounds()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_price_bounds.md)

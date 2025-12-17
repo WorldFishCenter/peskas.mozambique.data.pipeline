@@ -1,5 +1,43 @@
 # Changelog
 
+## peskas.mozambique.data.pipeline 2.3.1
+
+### Major Changes
+
+- **Streamlined Validation Workflow**: Replaced KoboToolbox API updates
+  with direct MongoDB storage to improve performance.
+  - New
+    [`export_validation_flags()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_validation_flags.md)
+    function exports validation flags directly to MongoDB
+  - Validation status queries now only identify manually edited
+    submissions, not update them
+  - Disabled
+    [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.md)
+    workflow steps in GitHub Actions
+  - Significantly reduced pipeline execution time by avoiding slow
+    KoboToolbox API calls
+
+### Improvements
+
+- **Validation System**:
+  - Validation functions now preserve manual human approvals while
+    updating system-generated statuses
+  - Added `fetch_error` field to
+    [`get_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_validation_status.md)
+    for better error tracking
+  - Improved error handling in validation status queries
+- **Code Quality**:
+  - Fixed SeaLifeBase API calls by pinning to version 24.07 to avoid
+    server errors
+  - Standardized function parameter formatting across validation and
+    preprocessing modules
+  - Removed empty
+    [R/data.R](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/news/R/data.R)
+    file
+- **Pipeline Configuration**:
+  - Removed survey activity filter in Lurio preprocessing to include all
+    submissions
+
 ## peskas.mozambique.data.pipeline 2.3.0
 
 ### Major Changes
