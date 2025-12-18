@@ -484,6 +484,8 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
       .options = furrr::furrr_options(seed = TRUE)
     )
 
+  future::plan(strategy = future::sequential)
+
   max_bucket_weight_kg <- 50
   max_n_buckets <- 300
   max_n_individuals <- 200
