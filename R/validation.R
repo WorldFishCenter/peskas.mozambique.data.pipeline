@@ -54,26 +54,42 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
       options = conf$storage$google$options
     )
 
+  # check for manual validates submissions (only possible among not approved submissions)
+  not_approved_ids <-
+    mdb_collection_pull(
+      connection_string = conf$storage$mongodb$connection_strings$validation,
+      db_name = conf$storage$mongodb$validation$database_name,
+      collection_name = paste(
+        conf$storage$mongodb$databases$validation$collections$flags,
+        conf$ingestion$`kobo-lurio`$asset_id,
+        sep = "-"
+      )
+    ) |>
+    dplyr::filter(
+      .data$validation_status == "validation_status_not_approved"
+    ) |>
+    dplyr::pull("submission_id") |>
+    unique()
+
   future::plan(
     strategy = future::multisession,
     workers = future::availableCores() - 2
   )
 
-  # Get validation status from KoboToolbox for existing submissions
-  submission_ids <- unique(preprocessed_surveys$submission_id)
-
   # Query validation status from ADNAP asset
   logger::log_info(
-    "Querying validation status from Lurio asset for {length(submission_ids)} submissions"
+    "Querying validation status from Lurio asset for {length(not_approved_ids)} submissions"
   )
 
-  validation_statuses <- submission_ids %>%
+  validation_statuses <- not_approved_ids %>%
     furrr::future_map_dfr(
       get_validation_status,
       asset_id = conf$ingestion$`kobo-lurio`$asset_id,
       token = conf$ingestion$`kobo-lurio`$token,
       .options = furrr::furrr_options(seed = TRUE)
     )
+
+  future::plan(strategy = future::sequential)
 
   # Validation thresholds
   max_bucket_weight_kg <- 50 # Maximum weight per bucket
@@ -455,7 +471,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
   logger::log_threshold(log_threshold)
   conf <- read_config()
 
-  # 1. Load and preprocess survey data
+  # Load and preprocess survey data
   preprocessed_surveys <-
     download_parquet_from_cloud(
       prefix = conf$ingestion$`kobo-adnap`$preprocessed_surveys$file_prefix,
@@ -463,20 +479,34 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
       options = conf$storage$google$options
     )
 
+  # check for manual validates submissions (only possible among not approved submissions)
+  not_approved_ids <-
+    mdb_collection_pull(
+      connection_string = conf$storage$mongodb$connection_strings$validation,
+      db_name = conf$storage$mongodb$validation$database_name,
+      collection_name = paste(
+        conf$storage$mongodb$databases$validation$collections$flags,
+        conf$ingestion$`kobo-adnap`$asset_id,
+        sep = "-"
+      )
+    ) |>
+    dplyr::filter(
+      .data$validation_status == "validation_status_not_approved"
+    ) |>
+    dplyr::pull("submission_id") |>
+    unique()
+
   future::plan(
     strategy = future::multisession,
     workers = future::availableCores() - 2
   )
 
-  # Get validation status from KoboToolbox for existing submissions
-  submission_ids <- unique(preprocessed_surveys$submission_id)
-
   # Query validation status from ADNAP asset
   logger::log_info(
-    "Querying validation status from ADNAP asset for {length(submission_ids)} submissions"
+    "Querying validation status from ADNAP asset for {length(not_approved_ids)} submissions"
   )
 
-  validation_statuses <- submission_ids %>%
+  validation_statuses <- not_approved_ids %>%
     furrr::future_map_dfr(
       get_validation_status,
       asset_id = conf$ingestion$`kobo-adnap`$asset_id,
@@ -1160,6 +1190,13 @@ export_validation_flags <- function(
     all_flags |>
     dplyr::full_join(validation_statuses, by = "submission_id") |>
     dplyr::mutate(
+      validated_by = dplyr::if_else(
+        is.na(
+          .data$alert_flag
+        ),
+        conf$ingestion$`kobo-adnap`$username,
+        .data$validated_by
+      ),
       validation_status = dplyr::case_when(
         # Preserve existing status if validated by someone else (not pipeline account user and not NA)
         !is.na(.data$validated_by) &
@@ -1169,7 +1206,7 @@ export_validation_flags <- function(
         !is.na(.data$alert_flag) ~ "validation_status_not_approved",
         is.na(.data$alert_flag) ~ "validation_status_approved",
         TRUE ~ .data$validation_status
-      )
+      ),
     ) |>
     dplyr::filter(!is.na(.data$submitted_by))
 
