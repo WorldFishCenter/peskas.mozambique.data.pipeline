@@ -210,7 +210,7 @@ getLWCoeffs <- function(taxa_list = NULL, asfis_list = NULL) {
     dplyr::summarise(
       n = dplyr::n(),
       min_length = min(.data$CommonLength, na.rm = TRUE),
-      max_length_75 = stats::quantile(.data$Length, 0.75, na.rm = TRUE),
+      max_length_75 = stats::quantile(.data$Length, 0.95, na.rm = TRUE),
       max_weightkg_75 = stats::quantile(.data$Weight, 0.75, na.rm = TRUE) /
         1000,
       .groups = "drop"
@@ -220,7 +220,7 @@ getLWCoeffs <- function(taxa_list = NULL, asfis_list = NULL) {
         .data$a3_code == "IAX" ~ 100,
         TRUE ~ .data$max_length_75
       ),
-      min_length = .data$min_length - 0.5 * .data$min_length, # (make it more permissive, we don't know the exact value from fishbase)
+      min_length = .data$min_length - 0.75 * .data$min_length, # (make it more permissive, we don't know the exact value from fishbase)
       min_length = dplyr::case_when(
         .data$a3_code %in% c("OCZ", "IAX") ~ 15,
         .data$a3_code == "PEZ" ~ 5,
