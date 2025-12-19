@@ -41,6 +41,6 @@ RUN Rscript -e 'remotes::install_version("rfishbase", version = "5.0.1")'
 # Install local package
 COPY . /home
 WORKDIR /home
-RUN Rscript -e 'remotes::install_local(dependencies = TRUE)'
+RUN Rscript -e 'remotes::install_local(dependencies = TRUE, upgrade = "never")'
 
 ENTRYPOINT ["Rscript"]
