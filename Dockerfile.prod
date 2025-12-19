@@ -35,6 +35,9 @@ RUN install2.r --error --skipinstalled \
     git2r \
     googlesheets4
 
+# Install specific version of rfishbase
+RUN Rscript -e 'remotes::install_version("rfishbase", version = "5.0.1")'
+
 # Install local package
 COPY . /home
 WORKDIR /home
