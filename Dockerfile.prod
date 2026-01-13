@@ -1,4 +1,4 @@
-FROM rocker/r-ver
+FROM rocker/geospatial:4.5
 
 # Tidyverse system requirements
 RUN apt-get update -qq && apt-get -y --no-install-recommends install \
@@ -10,8 +10,7 @@ RUN apt-get update -qq && apt-get -y --no-install-recommends install \
     libsasl2-dev \
     libsqlite3-dev \
     libssh2-1-dev \
-    unixodbc-dev \
-    libudunits2-dev && \
+    unixodbc-dev && \
   rm -rf /var/lib/apt/lists/*
 
 # Install imports
