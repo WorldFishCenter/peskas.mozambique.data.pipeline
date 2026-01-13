@@ -24,6 +24,7 @@ auth/*
 *.csv
 *.tsv
 *.parquet
+*.geojson
 /.quarto/
 docs
 

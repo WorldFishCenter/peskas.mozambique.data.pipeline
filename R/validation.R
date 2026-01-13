@@ -259,17 +259,30 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
     preprocessed_surveys |>
     dplyr::left_join(catch_df_validated) |>
     dplyr::select(
-      -c("alert_flag", "submission_alerts", "min_length", "max_length_75", "n")
+      -c(
+        "alert_flag",
+        "submission_alerts",
+        "min_length",
+        "max_length_75",
+        "n"
+      )
     ) |>
     # if catch outcome is 0 catch kg must be set to 0
     dplyr::mutate(
-      catch_kg = dplyr::if_else(.data$catch_outcome == "0", 0, .data$catch_kg),
+      catch_kg = dplyr::if_else(
+        .data$catch_outcome == "0",
+        0,
+        .data$catch_kg
+      ),
       catch_price = dplyr::if_else(
         .data$catch_outcome == "0",
         0,
         .data$catch_price
       )
-    )
+    ) |>
+    dplyr::select(-"catch_taxon") |>
+    dplyr::rename(catch_taxon = "alpha3_code") |>
+    dplyr::distinct()
 
   ### get flags for composite indicators ###
   no_flag_ids <-
@@ -395,8 +408,18 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
     dplyr::relocate("submitted_by", .after = "submission_id") |>
     dplyr::distinct()
 
+  flagged_ids <-
+    flags_combined |>
+    dplyr::filter(!is.na(.data$alert_flag)) |>
+    dplyr::pull("submission_id") |>
+    unique()
+
+  validated_data <-
+    surveys_basic_validated |>
+    dplyr::filter(!.data$submission_id %in% flagged_ids)
+
   upload_parquet_to_cloud(
-    data = surveys_basic_validated,
+    data = validated_data,
     prefix = conf$ingestion$`kobo-lurio`$validated_surveys$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options

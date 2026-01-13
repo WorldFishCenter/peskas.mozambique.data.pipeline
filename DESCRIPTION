@@ -1,6 +1,6 @@
 Package: peskas.mozambique.data.pipeline
 Title: What the Package Does (One Line, Title Case)
-Version: 2.3.1
+Version: 2.4.0
 Authors@R: 
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
@@ -22,6 +22,7 @@ Imports:
     googlesheets4,
     httr2,
     janitor,
+    jsonlite,
     logger,
     lubridate,
     magrittr,
