@@ -13,12 +13,14 @@
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_fishery_metrics.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/cloud_object_name.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/cloud_storage_authenticate.html</loc></url>
+<url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/create_metric_structure.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/device_sync.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/df_to_airtable.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/download_cloud_file.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/download_parquet_from_cloud.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/expand_length_frequency.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_landings.html</loc></url>
+<url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_lurio_landings.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_validation_flags.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/extract_trip_ids_from_filenames.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/fetch_asset.html</loc></url>

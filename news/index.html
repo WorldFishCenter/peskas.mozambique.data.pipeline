@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,38 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.4.0" id="peskasmozambiquedatapipeline-240">peskas.mozambique.data.pipeline 2.4.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-240"></a></h2>
+<div class="section level3">
+<h3 id="major-changes-2-4-0">Major Changes<a class="anchor" aria-label="anchor" href="#major-changes-2-4-0"></a></h3>
+<ul><li>
+<strong>Lurio landings export pipeline</strong>: Added <code><a href="../reference/export_lurio_landings.html">export_lurio_landings()</a></code> to publish portal-ready collections to MongoDB after validation.
+<ul><li>Generates monthly metrics, site stats, taxa length distributions, taxa composition per site, gear/habitat CPUE-RPUE metrics, and geo indicators</li>
+<li>New <code><a href="../reference/create_metric_structure.html">create_metric_structure()</a></code> helper builds ApexCharts JSON series for gear/habitat views</li>
+<li>Added GitHub Actions job to run the Lurio export after <code>validate-lurio</code>
+</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-2-4-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-4-0"></a></h3>
+<ul><li>
+<strong>Lurio validation output</strong>:
+<ul><li>Exclude flagged submissions from validated parquet exports</li>
+<li>Map <code>catch_taxon</code> to <code>alpha3_code</code> and de-duplicate records for cleaner downstream exports</li>
+</ul></li>
+<li>
+<strong>Landings export metrics</strong>:
+<ul><li>Use medians for CPUE, RPUE, and price per kg summaries to reduce outlier sensitivity</li>
+<li>Temporarily align <code>landing_date</code> with <code>submission_date</code> in exports pending validation fixes</li>
+<li>Pause fishery metrics parquet export in <code><a href="../reference/export_landings.html">export_landings()</a></code> while outputs are reviewed</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="infrastructure--dependencies-2-4-0">Infrastructure &amp; Dependencies<a class="anchor" aria-label="anchor" href="#infrastructure--dependencies-2-4-0"></a></h3>
+<ul><li>Added <code>jsonlite</code> dependency for JSON export</li>
+<li>Ignore <code>.geojson</code> artifacts in git</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.3.1" id="peskasmozambiquedatapipeline-231">peskas.mozambique.data.pipeline 2.3.1<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-231"></a></h2>
 <div class="section level3">

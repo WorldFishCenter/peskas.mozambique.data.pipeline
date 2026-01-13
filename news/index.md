@@ -1,5 +1,41 @@
 # Changelog
 
+## peskas.mozambique.data.pipeline 2.4.0
+
+### Major Changes
+
+- **Lurio landings export pipeline**: Added
+  [`export_lurio_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_lurio_landings.md)
+  to publish portal-ready collections to MongoDB after validation.
+  - Generates monthly metrics, site stats, taxa length distributions,
+    taxa composition per site, gear/habitat CPUE-RPUE metrics, and geo
+    indicators
+  - New
+    [`create_metric_structure()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/create_metric_structure.md)
+    helper builds ApexCharts JSON series for gear/habitat views
+  - Added GitHub Actions job to run the Lurio export after
+    `validate-lurio`
+
+### Improvements
+
+- **Lurio validation output**:
+  - Exclude flagged submissions from validated parquet exports
+  - Map `catch_taxon` to `alpha3_code` and de-duplicate records for
+    cleaner downstream exports
+- **Landings export metrics**:
+  - Use medians for CPUE, RPUE, and price per kg summaries to reduce
+    outlier sensitivity
+  - Temporarily align `landing_date` with `submission_date` in exports
+    pending validation fixes
+  - Pause fishery metrics parquet export in
+    [`export_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_landings.md)
+    while outputs are reviewed
+
+### Infrastructure & Dependencies
+
+- Added `jsonlite` dependency for JSON export
+- Ignore `.geojson` artifacts in git
+
 ## peskas.mozambique.data.pipeline 2.3.1
 
 ### Major Changes

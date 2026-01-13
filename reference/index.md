@@ -7,6 +7,8 @@ these functions executes a step in the data pipeline.
 
 - [`export_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_landings.md)
   : Export Processed Landings Data
+- [`export_lurio_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_lurio_landings.md)
+  : Export Lurio landings data
 - [`export_validation_flags()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_validation_flags.md)
   : Export Validation Flags to MongoDB
 - [`get_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_validation_status.md)
@@ -172,8 +174,12 @@ Functions dedicated to the validation module
 Functions dedicated dissemination of processed and analysed fisheries
 data
 
+- [`create_metric_structure()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/create_metric_structure.md)
+  : Create metric structure for MongoDB/ApexCharts
 - [`export_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_landings.md)
   : Export Processed Landings Data
+- [`export_lurio_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_lurio_landings.md)
+  : Export Lurio landings data
 
 ## Helper functions
 
@@ -181,6 +187,8 @@ Functions dedicated to data processing.
 
 - [`add_version()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/add_version.md)
   : Add timestamp and sha string to a file name
+- [`create_metric_structure()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/create_metric_structure.md)
+  : Create metric structure for MongoDB/ApexCharts
 - [`fetch_asset()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/fetch_asset.md)
   : Fetch and Filter Asset Data from Airtable
 - [`fetch_assets()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/fetch_assets.md)
