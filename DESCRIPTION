@@ -32,6 +32,7 @@ Imports:
     readr,
     rfishbase,
     rlang,
+    sf,
     stringdist,
     stringr,
     tibble,
