@@ -806,7 +806,7 @@ create_metric_structure <- function(data, metric_col) {
     ) |>
     dplyr::group_by(.data$habitat, .data$gear) |>
     dplyr::summarise(
-      metric_value = stats::median(.data[["cpue"]], na.rm = TRUE),
+      metric_value = stats::median(.data[[metric_col]], na.rm = TRUE),
       .groups = "drop"
     ) |>
     dplyr::group_by(.data$habitat) |>
