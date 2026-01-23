@@ -510,10 +510,7 @@ export_lurio_landings <- function() {
       prefix = conf$ingestion$`kobo-lurio`$validated_surveys$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
-    ) |>
-    dplyr::filter(.data$landing_date >= "2024-01-01") |>
-    #TO DO: fix this in validation
-    dplyr::mutate(landing_date = .data$submission_date)
+    )
 
   indicators_df <-
     validated_data |>
