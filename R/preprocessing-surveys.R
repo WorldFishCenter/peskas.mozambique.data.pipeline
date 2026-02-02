@@ -384,7 +384,7 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
       options = conf$storage$google$options_coasts
     ) |>
     readr::read_rds() |>
-    purrr::keep_at(c("taxa", "gear", "vessels", "sites")) |>
+    purrr::keep_at(c("taxa", "gear", "vessels", "sites", "geo")) |>
     purrr::map(
       ~ dplyr::filter(
         .x,
@@ -418,7 +418,8 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
       taxa_mapping = assets$taxa,
       gear_mapping = assets$gear,
       vessels_mapping = assets$vessels,
-      sites_mapping = assets$sites
+      sites_mapping = assets$sites,
+      geo_mapping = assets$geo
     ) |>
     dplyr::mutate(
       habitat = dplyr::case_when(
@@ -953,6 +954,8 @@ get_airtable_form_id <- function(kobo_asset_id = NULL, conf = NULL) {
 #'   standard_name columns.
 #' @param sites_mapping A data frame from Airtable landing_sites table with site_code and
 #'   site columns.
+#' @param geo_mapping A data frame from Airtable geo table with GAUL codes and names
+#'
 #'
 #' @return A tibble with catch_taxon replaced by scientific_name and alpha3_code, gear and
 #'   vessel_type replaced by standardized names, and landing_site replaced by the full site name.
@@ -970,9 +973,21 @@ map_surveys <- function(
   taxa_mapping = NULL,
   gear_mapping = NULL,
   vessels_mapping = NULL,
-  sites_mapping = NULL
+  sites_mapping = NULL,
+  geo_mapping = NULL
 ) {
   data |>
+    dplyr::left_join(geo_mapping, by = c("district" = "survey_label")) |>
+    dplyr::select(
+      -c("form_id", "district_code", "country")
+    ) |>
+    dplyr::relocate(
+      "gaul_1_name",
+      "gaul_1_code",
+      "gaul_2_name",
+      "gaul_2_code",
+      .after = "district"
+    ) |>
     dplyr::left_join(taxa_mapping, by = c("catch_taxon" = "survey_label")) |>
     dplyr::select(-c("catch_taxon", "form_id", "english_name")) |>
     dplyr::relocate("scientific_name", .after = "n_catch") |>
@@ -1120,7 +1135,8 @@ preprocess_general_adnap <- function(data = NULL) {
       submitted_by = "_submitted_by",
       submission_date = "today",
       "landing_date",
-      district = "provincia",
+      province = "provincia",
+      dplyr::starts_with("district_"),
       dplyr::contains("landing_site"),
       "collect_data_today",
       "survey_activity",
@@ -1147,9 +1163,16 @@ preprocess_general_adnap <- function(data = NULL) {
     dplyr::mutate(
       landing_site = dplyr::coalesce(
         !!!dplyr::select(., dplyr::contains("landing_site"))
+      ),
+      district = dplyr::coalesce(
+        !!!dplyr::select(., dplyr::contains("district_"))
       )
     ) |>
-    dplyr::select(-dplyr::contains("landing_site"), "landing_site") |>
+    dplyr::select(
+      -dplyr::contains("landing_site_"),
+      -dplyr::contains("district_")
+    ) |>
+    dplyr::relocate("district", .after = "province") |>
     dplyr::relocate("landing_site", .after = "district") |>
     # dplyr::mutate(landing_code = dplyr::coalesce(.data$landing_site_palma, .data$landing_site_mocimboa)) %>%
     # tidyr::separate(.data$gps,
@@ -1176,7 +1199,8 @@ preprocess_general_adnap <- function(data = NULL) {
         ~ as.double(.x)
       )
     )
-  general_info
+
+  return(general_info)
 }
 
 #' Process Version Data Helper Function

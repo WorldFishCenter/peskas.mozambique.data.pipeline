@@ -71,12 +71,13 @@ download_parquet_from_cloud <- function(prefix, provider, options) {
 #'
 #' @export
 upload_parquet_to_cloud <- function(
-    data,
-    prefix,
-    provider,
-    options,
-    compression = "lz4",
-    compression_level = 12) {
+  data,
+  prefix,
+  provider,
+  options,
+  compression = "lz4",
+  compression_level = 12
+) {
   # Generate filename with version
   preprocessed_filename <- prefix %>%
     add_version(extension = "parquet")
@@ -201,49 +202,35 @@ get_metadata <- function(log_threshold = logger::DEBUG) {
 
 #' Authenticate to a Cloud Storage Provider
 #'
-#' This function authenticates to a cloud storage provider using the specified
-#' authentication method. Currently supports Google Cloud Storage (GCS) and
-#' Amazon Web Services (AWS).
+#' This function is primarily used internally by other functions to establish authentication
+#' with specified cloud providers such as Google Cloud Services (GCS) or Amazon Web Services (AWS).
 #'
-#' @param provider A character string specifying the cloud provider. Currently
-#'   supports "gcs" for Google Cloud Storage or "aws" for Amazon Web Services.
-#' @param options A named list of options specific to the cloud provider. For
-#'   GCS, this should include `service_account_key` with the contents of the
-#'   authentication JSON file from your Google Project.
+#' @param provider A character string specifying the cloud provider ("gcs" or "aws").
+#' @param options A named list of options specific to the cloud provider (see details).
 #'
-#' @return NULL (called for side effects)
+#' @details For GCS, the options list must include:
+#' - `service_account_key`: The contents of the authentication JSON file from your Google Project.
 #'
-#' @keywords storage
+#' This function wraps [googleCloudStorageR::gcs_auth()] to handle GCS authentication.
+#'
 #' @export
-#'
+#' @keywords storage
 #' @examples
 #' \dontrun{
-#' # Authenticate with Google Cloud Storage
 #' authentication_details <- readLines("path/to/json_file.json")
 #' cloud_storage_authenticate("gcs", list(service_account_key = authentication_details))
+#' #'
 #' }
 cloud_storage_authenticate <- function(provider, options) {
-  if (provider == "gcs") {
-    logger::log_info("Authenticating with Google Cloud Storage...")
-
-    # Create temporary file for service account key
-    temp_key_file <- tempfile(fileext = ".json")
-    writeLines(options$service_account_key, temp_key_file)
-
-    # Authenticate
-    googleCloudStorageR::gcs_auth(json_file = temp_key_file)
-
-    # Clean up temporary file
-    unlink(temp_key_file)
-
-    logger::log_info("Successfully authenticated with Google Cloud Storage")
-  } else if (provider == "aws") {
-    stop("AWS authentication not yet implemented")
-  } else {
-    stop("Unsupported cloud provider: ", provider)
+  if ("gcs" %in% provider) {
+    # Only need to authenticate if there is no token for downstream requests
+    if (isFALSE(googleAuthR::gar_has_token())) {
+      service_account_key <- options$service_account_key
+      temp_auth_file <- tempfile(fileext = "json")
+      writeLines(service_account_key, temp_auth_file)
+      googleCloudStorageR::gcs_auth(json_file = temp_auth_file)
+    }
   }
-
-  invisible(NULL)
 }
 
 #' Download File from Cloud Storage
@@ -304,12 +291,13 @@ download_cloud_file <- function(name, provider, options, file = name) {
 #'
 #' @keywords storage internal
 cloud_object_name <- function(
-    prefix,
-    version = "latest",
-    extension = "",
-    provider,
-    exact_match = FALSE,
-    options) {
+  prefix,
+  version = "latest",
+  extension = "",
+  provider,
+  exact_match = FALSE,
+  options
+) {
   cloud_storage_authenticate(provider, options)
 
   if ("gcs" %in% provider) {
@@ -379,9 +367,10 @@ cloud_object_name <- function(
 #'
 #' @export
 mdb_collection_pull <- function(
-    connection_string = NULL,
-    collection_name = NULL,
-    db_name = NULL) {
+  connection_string = NULL,
+  collection_name = NULL,
+  db_name = NULL
+) {
   # Connect to the MongoDB collection
   collection <- mongolite::mongo(
     collection = collection_name,
@@ -440,10 +429,11 @@ mdb_collection_pull <- function(
 #'
 #' @export
 mdb_collection_push <- function(
-    data = NULL,
-    connection_string = NULL,
-    collection_name = NULL,
-    db_name = NULL) {
+  data = NULL,
+  connection_string = NULL,
+  collection_name = NULL,
+  db_name = NULL
+) {
   # Connect to the MongoDB collection
   collection <- mongolite::mongo(
     collection = collection_name,
@@ -504,14 +494,15 @@ mdb_collection_push <- function(
 #' @export
 #'
 get_trips <- function(
-    token = NULL,
-    secret = NULL,
-    dateFrom = NULL,
-    dateTo = NULL,
-    imeis = NULL,
-    deviceInfo = FALSE,
-    withLastSeen = FALSE,
-    tags = NULL) {
+  token = NULL,
+  secret = NULL,
+  dateFrom = NULL,
+  dateTo = NULL,
+  imeis = NULL,
+  deviceInfo = FALSE,
+  withLastSeen = FALSE,
+  tags = NULL
+) {
   # Base URL
   base_url <- paste0(
     "https://analytics.pelagicdata.com/api/",
@@ -627,18 +618,19 @@ get_trips <- function(
 #'
 #' @export
 get_trip_points <- function(
-    token = NULL,
-    secret = NULL,
-    id = NULL,
-    dateFrom = NULL,
-    dateTo = NULL,
-    path = NULL,
-    imeis = NULL,
-    deviceInfo = FALSE,
-    errant = FALSE,
-    withLastSeen = FALSE,
-    tags = NULL,
-    overwrite = TRUE) {
+  token = NULL,
+  secret = NULL,
+  id = NULL,
+  dateFrom = NULL,
+  dateTo = NULL,
+  path = NULL,
+  imeis = NULL,
+  deviceInfo = FALSE,
+  errant = FALSE,
+  withLastSeen = FALSE,
+  tags = NULL,
+  overwrite = TRUE
+) {
   # Build base URL based on whether ID is provided
   if (!is.null(id)) {
     base_url <- paste0(

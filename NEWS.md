@@ -1,3 +1,29 @@
+# peskas.mozambique.data.pipeline 2.5.0
+
+## New Features
+
+- **API Data Export Pipeline**: Added new `export_api_raw()` function to export raw preprocessed survey data in API-friendly format
+  - Exports raw/preprocessed trip data (before validation) to cloud storage
+  - Part of a two-stage API export pipeline (raw and validated exports)
+  - Transforms nested survey data into flat structure with standardized trip-level records
+  - Generates unique trip IDs using xxhash64 algorithm
+  - Exports versioned parquet files to `mozambique/raw/` path for external API consumption
+  - Includes comprehensive output schema with 14 standardized fields (trip_id, landing_date, gear, catch metrics, etc.)
+
+## Improvements
+
+- **Configuration Enhancements**:
+  - Added `api` configuration section for trip data exports with separate raw/validated paths
+  - Configured cloud storage paths for API exports (mozambique/raw, mozambique/validated)
+  - Added Airtable base ID and token configuration for metadata management
+  - Enhanced `options_api` storage configuration for peskas-coasts bucket
+
+- **GitHub Actions Workflow**:
+  - Added new `export-api-data` job to automated pipeline workflow
+  - Integrated Airtable authentication with GitHub Secrets (AIRTABLE_TOKEN, AIRTABLE_BASE_ID_FRAME, AIRTABLE_BASE_ID_ASSETS)
+  - Configured API export job to run after survey preprocessing step
+  - Added production environment configuration for API data exports
+
 # peskas.mozambique.data.pipeline 2.4.0
 
 ## Major Changes

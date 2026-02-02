@@ -44,6 +44,8 @@ default:
         project: peskas
         bucket: peskas-coasts
         service_account_key: !expr Sys.getenv('GCP_SA_KEY')
+      options_api:
+         bucket: peskas-api-dev        
     mongodb:
       connection_strings:
         main: !expr Sys.getenv('MONGODB_CONNECTION_STRING')
@@ -78,6 +80,14 @@ default:
     pds_tracks:
       file_prefix: pds-tracks
       version: latest
+  api:
+    trips:
+      raw:
+        file_prefix: trips-raw
+        cloud_path: mozambique/raw
+      validated:
+        file_prefix: trips-validated
+        cloud_path: mozambique/validated
 
   metadata:
     google_sheets:
@@ -108,6 +118,8 @@ production:
     google:
       options:
         bucket: mozambique-prod
+      options_api:
+         bucket: peskas-api-prod       
     mongodb:
       pipeline:
         database_name: mozambique-prod

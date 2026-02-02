@@ -830,8 +830,18 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
     dplyr::relocate("submitted_by", .after = "submission_id") |>
     dplyr::distinct()
 
+  flags_ids <-
+    flags_combined |>
+    dplyr::filter(!is.na(.data$alert_flag)) |>
+    dplyr::pull(.data$submission_id) |>
+    unique()
+
+  clean_landings <-
+    surveys_basic_validated |>
+    dplyr::filter(!.data$submission_id %in% flags_ids)
+
   upload_parquet_to_cloud(
-    data = surveys_basic_validated,
+    data = clean_landings,
     prefix = conf$ingestion$`kobo-adnap`$validated_surveys$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options

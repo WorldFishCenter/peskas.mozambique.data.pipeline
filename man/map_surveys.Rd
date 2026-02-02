@@ -9,7 +9,8 @@ map_surveys(
   taxa_mapping = NULL,
   gear_mapping = NULL,
   vessels_mapping = NULL,
-  sites_mapping = NULL
+  sites_mapping = NULL,
+  geo_mapping = NULL
 )
 }
 \arguments{
@@ -27,6 +28,8 @@ standard_name columns.}
 
 \item{sites_mapping}{A data frame from Airtable landing_sites table with site_code and
 site columns.}
+
+\item{geo_mapping}{A data frame from Airtable geo table with GAUL codes and names}
 }
 \value{
 A tibble with catch_taxon replaced by scientific_name and alpha3_code, gear and

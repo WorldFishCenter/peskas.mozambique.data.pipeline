@@ -729,8 +729,8 @@ export_lurio_landings <- function() {
     dplyr::group_by(.data$district) |>
     dplyr::summarise(
       n_submissions = sum(.data$n_submissions, na.rm = TRUE),
-      n_fishers = median(.data$n_fishers, na.rm = TRUE),
-      trip_duration = median(.data$trip_duration_hrs, na.rm = TRUE),
+      n_fishers = stats::median(.data$n_fishers, na.rm = TRUE),
+      trip_duration = stats::median(.data$trip_duration_hrs, na.rm = TRUE),
       mean_catch_kg = stats::median(.data$mean_catch_kg, na.rm = TRUE),
       mean_cpue = stats::median(.data$cpue_kg_fisher_hr, na.rm = TRUE),
       mean_rpue = stats::median(.data$mean_catch_price_mzn, na.rm = TRUE),

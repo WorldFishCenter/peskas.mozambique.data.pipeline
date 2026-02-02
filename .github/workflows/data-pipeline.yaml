@@ -118,21 +118,39 @@ jobs:
       - name: Call validate_surveys_adnap()
         run: Rscript -e 'peskas.mozambique.data.pipeline::validate_surveys_adnap()'
 
-  export-landings:
+  export-api-raw:
     container:
       credentials:
         password: ${{ secrets.GITHUB_TOKEN }}
         username: ${{ github.actor }}
       image: docker.pkg.github.com/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique
-    name: Export Lurio landings
-    needs: validate-lurio
+    name: Export ADNAP raw API landings
+    needs: ingest-preprocess-adnap
     runs-on: ubuntu-latest
     steps:
       - if: endsWith(github.ref, '/main')
         name: Set env to production
         run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
-      - name: Call export_lurio_landings()
-        run: Rscript -e 'peskas.mozambique.data.pipeline::export_lurio_landings()'
+      - name: Call export_api_raw()
+        run: Rscript -e 'peskas.mozambique.data.pipeline::export_api_raw()'
+
+  export-api-validated:
+    container:
+      credentials:
+        password: ${{ secrets.GITHUB_TOKEN }}
+        username: ${{ github.actor }}
+      image: docker.pkg.github.com/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique
+    name: Export ADNAP validated API landings
+    needs: validate-adnap
+    runs-on: ubuntu-latest
+    steps:
+      - if: endsWith(github.ref, '/main')
+        name: Set env to production
+        run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
+      - name: Call export_api_validated()
+        run: Rscript -e 'peskas.mozambique.data.pipeline::export_api_validated()'
+
+
         
   # sync-validation-adnap:
   #   name: Sync ADNAP surveys validation
