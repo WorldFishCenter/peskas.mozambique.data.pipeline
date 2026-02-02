@@ -11,7 +11,7 @@ and replaces local gear and vessel names with standardized types."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,7 +49,8 @@ and replaces local gear and vessel names with standardized types.</p>
 <span>  taxa_mapping <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  gear_mapping <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  vessels_mapping <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  sites_mapping <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  sites_mapping <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  geo_mapping <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -80,6 +81,10 @@ standard_name columns.</p></dd>
 <dt id="arg-sites-mapping">sites_mapping<a class="anchor" aria-label="anchor" href="#arg-sites-mapping"></a></dt>
 <dd><p>A data frame from Airtable landing_sites table with site_code and
 site columns.</p></dd>
+
+
+<dt id="arg-geo-mapping">geo_mapping<a class="anchor" aria-label="anchor" href="#arg-geo-mapping"></a></dt>
+<dd><p>A data frame from Airtable geo table with GAUL codes and names</p></dd>
 
 </dl></div>
     <div class="section level2">

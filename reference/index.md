@@ -5,6 +5,10 @@
 These are arguably the most important functions in the package. Each of
 these functions executes a step in the data pipeline.
 
+- [`export_api_raw()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_api_raw.md)
+  : Export Raw API-Ready Trip Data
+- [`export_api_validated()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_api_validated.md)
+  : Export Validated API-Ready Trip Data
 - [`export_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_landings.md)
   : Export Processed Landings Data
 - [`export_lurio_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_lurio_landings.md)
@@ -176,6 +180,10 @@ data
 
 - [`create_metric_structure()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/create_metric_structure.md)
   : Create metric structure for MongoDB/ApexCharts
+- [`export_api_raw()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_api_raw.md)
+  : Export Raw API-Ready Trip Data
+- [`export_api_validated()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_api_validated.md)
+  : Export Validated API-Ready Trip Data
 - [`export_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_landings.md)
   : Export Processed Landings Data
 - [`export_lurio_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_lurio_landings.md)

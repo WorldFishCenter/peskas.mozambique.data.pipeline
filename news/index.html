@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,38 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.5.0" id="peskasmozambiquedatapipeline-250">peskas.mozambique.data.pipeline 2.5.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-250"></a></h2>
+<div class="section level3">
+<h3 id="new-features-2-5-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-2-5-0"></a></h3>
+<ul><li>
+<strong>API Data Export Pipeline</strong>: Added new <code><a href="../reference/export_api_raw.html">export_api_raw()</a></code> function to export raw preprocessed survey data in API-friendly format
+<ul><li>Exports raw/preprocessed trip data (before validation) to cloud storage</li>
+<li>Part of a two-stage API export pipeline (raw and validated exports)</li>
+<li>Transforms nested survey data into flat structure with standardized trip-level records</li>
+<li>Generates unique trip IDs using xxhash64 algorithm</li>
+<li>Exports versioned parquet files to <code>mozambique/raw/</code> path for external API consumption</li>
+<li>Includes comprehensive output schema with 14 standardized fields (trip_id, landing_date, gear, catch metrics, etc.)</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-2-5-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-5-0"></a></h3>
+<ul><li>
+<strong>Configuration Enhancements</strong>:
+<ul><li>Added <code>api</code> configuration section for trip data exports with separate raw/validated paths</li>
+<li>Configured cloud storage paths for API exports (mozambique/raw, mozambique/validated)</li>
+<li>Added Airtable base ID and token configuration for metadata management</li>
+<li>Enhanced <code>options_api</code> storage configuration for peskas-coasts bucket</li>
+</ul></li>
+<li>
+<strong>GitHub Actions Workflow</strong>:
+<ul><li>Added new <code>export-api-data</code> job to automated pipeline workflow</li>
+<li>Integrated Airtable authentication with GitHub Secrets (AIRTABLE_TOKEN, AIRTABLE_BASE_ID_FRAME, AIRTABLE_BASE_ID_ASSETS)</li>
+<li>Configured API export job to run after survey preprocessing step</li>
+<li>Added production environment configuration for API data exports</li>
+</ul></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.4.0" id="peskasmozambiquedatapipeline-240">peskas.mozambique.data.pipeline 2.4.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-240"></a></h2>
 <div class="section level3">

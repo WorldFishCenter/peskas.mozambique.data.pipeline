@@ -1,8 +1,8 @@
 # Authenticate to a Cloud Storage Provider
 
-This function authenticates to a cloud storage provider using the
-specified authentication method. Currently supports Google Cloud Storage
-(GCS) and Amazon Web Services (AWS).
+This function is primarily used internally by other functions to
+establish authentication with specified cloud providers such as Google
+Cloud Services (GCS) or Amazon Web Services (AWS).
 
 ## Usage
 
@@ -14,25 +14,29 @@ cloud_storage_authenticate(provider, options)
 
 - provider:
 
-  A character string specifying the cloud provider. Currently supports
-  "gcs" for Google Cloud Storage or "aws" for Amazon Web Services.
+  A character string specifying the cloud provider ("gcs" or "aws").
 
 - options:
 
-  A named list of options specific to the cloud provider. For GCS, this
-  should include `service_account_key` with the contents of the
-  authentication JSON file from your Google Project.
+  A named list of options specific to the cloud provider (see details).
 
-## Value
+## Details
 
-NULL (called for side effects)
+For GCS, the options list must include:
+
+- `service_account_key`: The contents of the authentication JSON file
+  from your Google Project.
+
+This function wraps
+[`googleCloudStorageR::gcs_auth()`](https://cloudyr.github.io/googleCloudStorageR//reference/gcs_auth.html)
+to handle GCS authentication.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-# Authenticate with Google Cloud Storage
 authentication_details <- readLines("path/to/json_file.json")
 cloud_storage_authenticate("gcs", list(service_account_key = authentication_details))
+#'
 } # }
 ```
