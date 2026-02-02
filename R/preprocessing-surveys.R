@@ -54,7 +54,7 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
       options = conf$storage$google$options_coasts
     ) |>
     readr::read_rds() |>
-    purrr::keep_at(c("taxa", "gear", "vessels", "sites")) |>
+    purrr::keep_at(c("taxa", "gear", "vessels", "sites", "geo")) |>
     purrr::map(
       ~ dplyr::filter(
         .x,
@@ -303,7 +303,8 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
       taxa_mapping = assets$taxa,
       gear_mapping = assets$gear,
       vessels_mapping = assets$vessels,
-      sites_mapping = assets$sites
+      sites_mapping = assets$sites,
+      geo_mapping = assets$geo
     ) |>
     dplyr::mutate(
       habitat = dplyr::case_when(

@@ -107,7 +107,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
       "catch_price"
     )
   logger::log_info(
-    "Processed {nrow(api_validated)} records from {length(unique(api_validated$trip_id))} unique trips"
+    "Processed {nrow(api_validated)} records from {length(unique(api_raw$trip_id))} unique trips"
   )
 
   # Write locally with just the filename
