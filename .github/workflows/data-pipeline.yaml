@@ -1,4 +1,9 @@
----
+name: Peskas Mozambique Data Pipeline
+'on':
+  push:
+  schedule:
+    - cron: 0 0 */2 * *
+
 env:
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
   GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
@@ -199,9 +204,3 @@ jobs:
   #       run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
   #     - name: Call sync_validation_submissions(asset_id = "lurio")
   #       run: Rscript --vanilla -e 'peskas.mozambique.data.pipeline::sync_validation_submissions(asset_id = "lurio")'
-
-name: Peskas mozambique Data Pipeline
-'on':
-  push: null
-  schedule:
-    - cron: 0 0 */2 * *
