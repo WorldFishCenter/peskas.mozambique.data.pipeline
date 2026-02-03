@@ -165,12 +165,13 @@ ingest_landings_adnap <- function() {
 #' )
 #' }
 get_kobo_data <- function(
-    assetid,
-    url = "eu.kobotoolbox.org",
-    uname = NULL,
-    pwd = NULL,
-    encoding = "UTF-8",
-    format = "json") {
+  assetid,
+  url = "eu.kobotoolbox.org",
+  uname = NULL,
+  pwd = NULL,
+  encoding = "UTF-8",
+  format = "json"
+) {
   if (!is.character(url)) {
     stop("URL entered is not a string")
   }
@@ -446,28 +447,32 @@ ingest_pds_trips <- function(log_threshold = logger::DEBUG) {
   logger::log_threshold(log_threshold)
   conf <- read_config()
 
-  devices <- airtable_to_df(
-    base_id = conf$airtable$frame$base_id,
-    table_name = "pds_devices",
-    token = conf$airtable$token
-  )
-
-  unique_devices <-
-    devices |>
-    dplyr::filter(stringr::str_detect(
-      .data$customer_name,
-      stringr::regex("mozambique", ignore_case = TRUE)
-    )) |>
-    dplyr::select(.data$imei) |>
-    dplyr::distinct() |>
-    dplyr::pull()
+  logger::log_info("Loading device registry...")
+  devices <- cloud_object_name(
+    prefix = conf$metadata$airtable$assets,
+    provider = conf$storage$google$key,
+    version = "latest",
+    extension = "rds",
+    options = conf$storage$google$options_coasts
+  ) |>
+    download_cloud_file(
+      provider = conf$storage$google$key,
+      options = conf$storage$google$options_coasts
+    ) |>
+    readr::read_rds() |>
+    purrr::pluck("devices") |>
+    dplyr::filter(
+      .data$customer_name %in%
+        c("WorldFish - Mozambique", "Syberintel - distributor")
+    )
 
   boats_trips <- get_trips(
     token = conf$pds$token,
     secret = conf$pds$secret,
     dateFrom = "2025-01-01",
     dateTo = Sys.Date(),
-    imeis = unique_devices
+    deviceInfo = TRUE,
+    imeis = unique(devices$imei)
   )
 
   filename <- conf$pds$pds_trips$file_prefix %>%
@@ -502,8 +507,9 @@ ingest_pds_trips <- function(log_threshold = logger::DEBUG) {
 #' @keywords workflow ingestion
 #' @export
 ingest_pds_tracks <- function(
-    log_threshold = logger::DEBUG,
-    batch_size = NULL) {
+  log_threshold = logger::DEBUG,
+  batch_size = NULL
+) {
   logger::log_threshold(log_threshold)
   conf <- read_config()
 

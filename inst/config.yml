@@ -30,6 +30,9 @@ default:
       validated_surveys:
         file_prefix: wf-adnap-surveys-validated
         version: latest
+      merged_surveys:
+        file_prefix: wf-adnap-surveys-merged
+        version: latest        
       validation:
         flags:
           file_prefix: adnap-flags

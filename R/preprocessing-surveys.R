@@ -1147,6 +1147,7 @@ preprocess_general_adnap <- function(data = NULL) {
       "propulsion_gear",
       "fuel_L",
       "has_PDS",
+      "boat_pds",
       "habitat",
       "fishing_ground",
       "gear",
