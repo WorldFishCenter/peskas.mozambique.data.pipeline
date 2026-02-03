@@ -1,5 +1,45 @@
 # Changelog
 
+## peskas.mozambique.data.pipeline 2.5.1
+
+### New Features
+
+- **Trip-Survey Merging Pipeline**: Added new
+  [`merge_trips()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/merge_trips.md)
+  function to combine GPS tracker data with survey landings
+  - Merges PDS trip data with validated survey submissions based on
+    device IMEI and landing date
+  - Smart matching logic joins only when there is exactly one trip and
+    one survey per device per day
+  - Records with multiple trips or surveys per day are preserved but not
+    joined to maintain data integrity
+  - Outputs merged dataset to cloud storage for downstream analytics
+  - New GitHub Actions job runs automatically after validation completes
+
+### Improvements
+
+- **Device Registry Optimization**: Enhanced PDS data ingestion
+  performance
+  - Changed from direct Airtable queries to cached device registry
+    stored in cloud storage
+  - Reduces API calls and improves pipeline execution speed
+  - Device metadata now loaded from versioned RDS files
+- **Survey Preprocessing Enhancement**:
+  - Added `boat_pds` field to ADNAP preprocessing pipeline for better
+    device tracking
+  - Enables linking survey data with GPS tracker information during
+    merge operations
+- **Configuration Updates**:
+  - Added `merged_surveys` configuration section with file prefix for
+    merged trip-survey data
+  - Enhanced workflow dependencies to ensure proper sequencing of merge
+    operations
+
+### Code Quality
+
+- Improved function parameter formatting for better code readability
+- Enhanced documentation for PDS ingestion functions
+
 ## peskas.mozambique.data.pipeline 2.5.0
 
 ### New Features

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,44 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.5.1" id="peskasmozambiquedatapipeline-251">peskas.mozambique.data.pipeline 2.5.1<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-251"></a></h2>
+<div class="section level3">
+<h3 id="new-features-2-5-1">New Features<a class="anchor" aria-label="anchor" href="#new-features-2-5-1"></a></h3>
+<ul><li>
+<strong>Trip-Survey Merging Pipeline</strong>: Added new <code><a href="../reference/merge_trips.html">merge_trips()</a></code> function to combine GPS tracker data with survey landings
+<ul><li>Merges PDS trip data with validated survey submissions based on device IMEI and landing date</li>
+<li>Smart matching logic joins only when there is exactly one trip and one survey per device per day</li>
+<li>Records with multiple trips or surveys per day are preserved but not joined to maintain data integrity</li>
+<li>Outputs merged dataset to cloud storage for downstream analytics</li>
+<li>New GitHub Actions job runs automatically after validation completes</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-2-5-1">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-5-1"></a></h3>
+<ul><li>
+<strong>Device Registry Optimization</strong>: Enhanced PDS data ingestion performance
+<ul><li>Changed from direct Airtable queries to cached device registry stored in cloud storage</li>
+<li>Reduces API calls and improves pipeline execution speed</li>
+<li>Device metadata now loaded from versioned RDS files</li>
+</ul></li>
+<li>
+<strong>Survey Preprocessing Enhancement</strong>:
+<ul><li>Added <code>boat_pds</code> field to ADNAP preprocessing pipeline for better device tracking</li>
+<li>Enables linking survey data with GPS tracker information during merge operations</li>
+</ul></li>
+<li>
+<strong>Configuration Updates</strong>:
+<ul><li>Added <code>merged_surveys</code> configuration section with file prefix for merged trip-survey data</li>
+<li>Enhanced workflow dependencies to ensure proper sequencing of merge operations</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="code-quality-2-5-1">Code Quality<a class="anchor" aria-label="anchor" href="#code-quality-2-5-1"></a></h3>
+<ul><li>Improved function parameter formatting for better code readability</li>
+<li>Enhanced documentation for PDS ingestion functions</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.5.0" id="peskasmozambiquedatapipeline-250">peskas.mozambique.data.pipeline 2.5.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-250"></a></h2>
 <div class="section level3">

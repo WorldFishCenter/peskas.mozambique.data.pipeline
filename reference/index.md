@@ -25,6 +25,8 @@ these functions executes a step in the data pipeline.
   : Ingest Pelagic Data Systems (PDS) Track Data
 - [`ingest_pds_trips()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/ingest_pds_trips.md)
   : Ingest Pelagic Data Systems (PDS) Trip Data
+- [`merge_trips()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/merge_trips.md)
+  : Merge GPS Tracker Trips with Validated Survey Landings
 - [`preprocess_landings_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_adnap.md)
   : Preprocess ADNAP Landings Data
 - [`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_lurio.md)
