@@ -75,7 +75,8 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
     dplyr::mutate(
       trip_id = paste0(
         "TRIP_",
-        substr(digest::digest(.data$submission_id, algo = "xxhash64"), 1, 12)
+        .data$submission_id
+        #substr(digest::digest(.data$submission_id, algo = "xxhash64"), 1, 12)
       ),
       survey_id = conf$ingestion$`kobo-adnap`$asset_id
     ) |>
@@ -218,7 +219,8 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
     dplyr::mutate(
       trip_id = paste0(
         "TRIP_",
-        substr(digest::digest(.data$submission_id, algo = "xxhash64"), 1, 12)
+        .data$submission_id
+        #substr(digest::digest(.data$submission_id, algo = "xxhash64"), 1, 12)
       ),
       survey_id = conf$ingestion$`kobo-adnap`$asset_id
     ) |>
