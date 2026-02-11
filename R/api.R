@@ -106,7 +106,9 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
       length_cm = "length",
       "catch_kg",
       "catch_price"
-    )
+    ) |>
+    dplyr::distinct()
+
   logger::log_info(
     "Processed {nrow(api_raw)} records from {length(unique(api_raw$trip_id))} unique trips"
   )
@@ -250,7 +252,9 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
       length_cm = "length",
       "catch_kg",
       "catch_price"
-    )
+    ) |>
+    dplyr::distinct()
+
   logger::log_info(
     "Processed {nrow(api_validated)} records from {length(unique(api_validated$trip_id))} unique trips"
   )
