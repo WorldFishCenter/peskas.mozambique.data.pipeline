@@ -12,7 +12,13 @@ default:
       token: !expr Sys.getenv('KOBO_TOKEN')
 
   surveys:
-    urio:
+    summaries:
+      file_prefix: mozambique-summaries
+      version: latest
+    aggregated:
+      file_prefix: mozambique-aggregated
+      version: latest
+    lurio:
       raw:
         file_prefix: wf-lurio-surveys-raw
         version: latest
