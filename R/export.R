@@ -59,7 +59,7 @@ export_landings <- function() {
 
   validated_data <-
     download_parquet_from_cloud(
-      prefix = conf$ingestion$`kobo-lurio`$validated_surveys$file_prefix,
+      prefix = conf$surveys$`lurio`$validated$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
     ) |>
@@ -407,7 +407,7 @@ export_landings <- function() {
       logger::log_info(paste("Uploading", .y, "data to MongoDB"))
       mdb_collection_push(
         data = .x,
-        connection_string = conf$storage$mongodb$connection_string$main,
+        connection_string = conf$storage$mongodb$connection_strings$main,
         collection_name = .y,
         db_name = "portal-dev"
       )
@@ -442,9 +442,9 @@ export_landings <- function() {
   # upload preprocessed landings
   mdb_collection_push(
     data = export_data,
-    connection_string = conf$storage$mongodb$connection_string$main,
-    collection_name = conf$storage$mongodb$database$pipeline$collection_name$validated,
-    db_name = conf$storage$mongodb$database$pipeline$name
+    connection_string = conf$storage$mongodb$connection_strings$main,
+    collection_name = conf$storage$mongodb$databases$pipeline$collections$export,
+    db_name = conf$storage$mongodb$databases$pipeline$database_name
   )
 }
 
@@ -477,13 +477,13 @@ export_lurio_landings <- function() {
   conf <- read_config()
 
   target_form_id <- get_airtable_form_id(
-    kobo_asset_id = conf$ingestion$`kobo-lurio`$asset_id,
+    kobo_asset_id = conf$ingestion$`lurio`$asset_id,
     conf = conf
   )
 
   assets <-
     cloud_object_name(
-      prefix = conf$airtable$assets,
+      prefix = conf$metadata$airtable$assets,
       provider = conf$storage$google$key,
       version = "latest",
       extension = "rds",
@@ -507,7 +507,7 @@ export_lurio_landings <- function() {
 
   validated_data <-
     download_parquet_from_cloud(
-      prefix = conf$ingestion$`kobo-lurio`$validated_surveys$file_prefix,
+      prefix = conf$surveys$`lurio`$validated$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
     )
@@ -774,9 +774,9 @@ export_lurio_landings <- function() {
       logger::log_info(paste("Uploading", .y, "data to MongoDB"))
       mdb_collection_push(
         data = .x,
-        connection_string = conf$storage$mongodb$connection_string$main,
+        connection_string = conf$storage$mongodb$connection_strings$main,
         collection_name = .y,
-        db_name = conf$storage$mongodb$pipeline$database_name
+        db_name = conf$storage$mongodb$databases$pipeline$database_name
       )
     }
   )

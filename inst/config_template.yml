@@ -1,0 +1,471 @@
+# =============================================================================
+# PESKAS UNIFIED CONFIGURATION TEMPLATE
+# =============================================================================
+#
+# This template standardizes the configuration structure across all country
+# deployments. Replace {PLACEHOLDERS} with country-specific values.
+#
+# STRUCTURAL DECISIONS (differences from original configs):
+#
+# 1. INGESTION separated from SURVEYS (Kenya pattern adopted)
+#    - Zanzibar: had credentials mixed into `surveys` → now in `ingestion`
+#    - Mozambique: had pipeline stages mixed into `ingestion` → now in `surveys`
+#    - Kenya: already separated → structure preserved
+#
+# 2. MONGODB standardized (Mozambique pattern adopted, refined)
+#    - connection_strings grouped at top (not repeated per database)
+#    - databases grouped under `databases` key
+#    - consistent key names: `database_name` and `collections`
+#    - Zanzibar: was flat siblings under mongodb → now nested under `databases`
+#    - Kenya: was nested under `cluster` → now under `databases`
+#
+# 3. SURVEY STAGE NAMING standardized (Kenya short-form adopted)
+#    - `raw` instead of `raw_surveys`
+#    - `preprocessed` instead of `preprocessed_surveys`
+#    - `validated` instead of `validated_surveys`
+#    - `merged` instead of `merged_surveys`
+#
+# 4. AIRTABLE placed under METADATA (Kenya/Mozambique pattern)
+#    - Zanzibar: was top-level → now under `metadata`
+#
+# 5. VERSION field under each survey source removed
+#    - Zanzibar had `version: preprocess: latest` per source
+#    - This was redundant with per-stage `version` fields
+#    - MIGRATION: if your pipeline code reads `version$preprocess`, add it back
+#      at the source level under ingestion or surveys as:
+#        version:
+#          preprocess: latest
+#
+# 6. DASHBOARD database naming
+#    - Zanzibar/Mozambique used "portal" → template uses "dashboard" as generic key
+#    - Kenya used "app" as the database name
+#    - The {dashboard_db} placeholder should be:
+#        "portal"  for Zanzibar and Mozambique
+#        "app"     for Kenya
+#    - Adjust the database_name value accordingly (the key is always `dashboard`)
+#
+# =============================================================================
+
+default:
+
+  # ===========================================================================
+  # INGESTION — Data source credentials and authentication
+  # ===========================================================================
+  # One entry per data source (KoboToolbox form, Wildlife Foundation, etc.).
+  # Each source needs authentication credentials to pull survey data.
+  #
+  # Required fields: asset_id, username, password
+  # Optional fields: token, additional asset_ids for multi-form sources
+  #
+  # EXAMPLES from existing deployments:
+  #   Zanzibar sources: wcs, wf_v1, wf_v2, ba
+  #   Kenya sources:    wcs, wcs_kf, kefs
+  #   Mozambique:       kobo_lurio, kobo_adnap
+  #
+  # NOTE ON MULTI-FORM SOURCES (Kenya pattern):
+  #   Kenya's WCS has two KoboToolbox endpoints (koboform + koboform_kf) with
+  #   separate credentials. In this template, model these as two distinct sources
+  #   (e.g., wcs and wcs_kf) rather than nesting sub-forms under one source.
+  #
+  # NOTE ON MOZAMBIQUE MIGRATION:
+  #   Mozambique's original config mixed credentials AND pipeline stages in
+  #   `ingestion`. In this template:
+  #     - Credentials stay here in `ingestion`
+  #     - Pipeline stages (raw, preprocessed, validated, merged, flags)
+  #       move to the `surveys` section using the SAME source name.
+  #   Example: ingestion.kobo_lurio has credentials,
+  #            surveys.kobo_lurio has raw/preprocessed/validated/flags
+  # ===========================================================================
+  ingestion:
+
+    {source_name}:                                          # e.g., wcs, kefs, kobo_lurio
+      asset_id: !expr Sys.getenv('{SOURCE}_ASSET_ID')
+      username: !expr Sys.getenv('{SOURCE}_USERNAME')
+      password: !expr Sys.getenv('{SOURCE}_PASSWORD')
+      token: !expr Sys.getenv('{SOURCE}_TOKEN')             # optional — needed for WF/KEFS/Kobo sources
+
+      # Additional asset IDs for multi-form sources (optional):
+      # asset_id_v2: !expr Sys.getenv('{SOURCE}_ASSET_ID_V2')
+      # asset_id_price: !expr Sys.getenv('{SOURCE}_ASSET_ID_PRICE')
+
+      # Optional: preprocess version tracking (was in Zanzibar's original config)
+      # version:
+      #   preprocess: latest
+
+    # Repeat block for each additional source:
+    # {another_source}:
+    #   asset_id: ...
+    #   username: ...
+    #   password: ...
+
+    # --- Kenya multi-form example ---
+    # wcs:
+    #   asset_id: !expr Sys.getenv('KOBO_ASSET_ID')
+    #   asset_id_price: !expr Sys.getenv('KOBO_ASSET_ID_PRICE')
+    #   username: !expr Sys.getenv('KOBO_USERNAME')
+    #   password: !expr Sys.getenv('KOBO_PASSWORD')
+    # wcs_kf:                                                # second KoboToolbox endpoint
+    #   asset_id: !expr Sys.getenv('KOBO_ASSET_ID_KF')
+    #   asset_id_price: !expr Sys.getenv('KOBO_ASSET_ID_PRICE_KF')
+    #   username: !expr Sys.getenv('KOBO_USERNAME_KF')
+    #   password: !expr Sys.getenv('KOBO_PASSWORD_KF')
+
+  # ===========================================================================
+  # SURVEYS — Data pipeline stages for each survey source
+  # ===========================================================================
+  # Defines the file artifacts produced at each processing stage.
+  # Each source maps to one or more survey types (catch, price, etc.),
+  # optionally versioned (v1, v2, legacy).
+  #
+  # Pipeline flow: raw → preprocessed → validated → merged (optional)
+  #
+  # Every stage has:
+  #   file_prefix  (required) — prefix for cloud storage file naming
+  #   version      (optional) — artifact version tag, typically "latest"
+  #
+  # STRUCTURE OPTIONS:
+  #   Simple (single survey type, no versions):
+  #     {source}: raw / preprocessed / validated
+  #
+  #   Versioned (multiple form versions):
+  #     {source}: {version}: raw / preprocessed / validated
+  #
+  #   Multi-type (catch + price surveys, as in Kenya):
+  #     {source}: catch: {version}: raw / preprocessed / validated
+  #               price: {version}: raw / preprocessed
+  # ===========================================================================
+  surveys:
+
+    {source_name}:
+
+      # --- Option A: Simple (no versioning) ---
+      raw:
+        file_prefix: '{source}-surveys-raw'
+        version: latest
+      preprocessed:
+        file_prefix: '{source}-surveys-preprocessed'
+        version: latest
+      validated:
+        file_prefix: '{source}-surveys-validated'
+        version: latest
+
+      # --- Option B: Versioned ---
+      # {version}:                                          # e.g., v1, v2, legacy
+      #   raw:
+      #     file_prefix: '{source}-surveys-raw-{version}'
+      #   preprocessed:
+      #     file_prefix: '{source}-surveys-preprocessed-{version}'
+      #   validated:
+      #     file_prefix: '{source}-surveys-validated-{version}'
+
+      # --- Optional stages (include as needed) ---
+      # merged:                                             # combining data from multiple versions
+      #   file_prefix: '{source}-surveys-merged'
+      #   version: latest
+      # summaries:                                          # aggregated summary statistics
+      #   file_prefix: '{source}-summaries'
+      #   version: latest
+      # aggregated:                                         # final aggregated output
+      #   file_prefix: '{source}-aggregated'
+      #   version: latest
+
+      # --- Validation flags ---
+      validation:
+        flags:
+          file_prefix: '{source}-flags'
+        # Source-specific validation thresholds (optional):
+        # K_nb_elements_max: 2
+        # K_weight_max: 2
+        # K_length_max: 2
+        # K_price_max: 2
+
+    # --- Mozambique migration example ---
+    # Original Mozambique had these stages inside `ingestion`. They now go here:
+    # kobo_lurio:
+    #   raw:
+    #     file_prefix: wf-lurio-surveys-raw
+    #     version: latest
+    #   preprocessed:
+    #     file_prefix: wf-lurio-surveys-preprocessed
+    #     version: latest
+    #   validated:
+    #     file_prefix: wf-lurio-surveys-validated
+    #     version: latest
+    #   validation:
+    #     flags:
+    #       file_prefix: lurio-flags
+    # kobo_adnap:
+    #   raw:
+    #     file_prefix: wf-adnap-surveys-raw
+    #     version: latest
+    #   preprocessed:
+    #     file_prefix: wf-adnap-surveys-preprocessed
+    #     version: latest
+    #   validated:
+    #     file_prefix: wf-adnap-surveys-validated
+    #     version: latest
+    #   merged:
+    #     file_prefix: wf-adnap-surveys-merged
+    #     version: latest
+    #   validation:
+    #     flags:
+    #       file_prefix: adnap-flags
+
+    # --- Kenya multi-type example (catch + price surveys) ---
+    # Kenya WCS has both catch and price survey types, each with versions,
+    # plus source-level flags (not nested under validation).
+    # wcs:
+    #   catch:
+    #     v1:
+    #       raw:
+    #         file_prefix: wcs-surveys-raw-v1
+    #       preprocessed:
+    #         file_prefix: wcs-surveys-preprocessed-v1
+    #     v2:
+    #       raw:
+    #         file_prefix: wcs-surveys-raw-v2
+    #       preprocessed:
+    #         file_prefix: wcs-surveys-preprocessed-v2
+    #     legacy:
+    #       raw:
+    #         file_prefix: wcs-legacy-surveys-raw
+    #       preprocessed:
+    #         file_prefix: wcs-legacy-surveys-preprocessed
+    #     merged:
+    #       file_prefix: wcs-surveys-all_landings
+    #     validated:
+    #       file_prefix: wcs-surveys-validated
+    #   price:
+    #     v1:
+    #       raw:
+    #         file_prefix: wcs-price-surveys-raw-v1
+    #       preprocessed:
+    #         file_prefix: wcs-price-surveys-preprocessed-v1
+    #     v2:
+    #       raw:
+    #         file_prefix: wcs-price-surveys-raw-v2
+    #       preprocessed:
+    #         file_prefix: wcs-price-surveys-preprocessed-v2
+    #     price_table:
+    #       file_prefix: wcs-price_table
+    #   flags:                                              # NOTE: source-level flags (Kenya style)
+    #     file_prefix: wcs-alert-flags                      # alternative to nesting under validation
+
+  # ===========================================================================
+  # PDS — Pelagic Data Systems (vessel tracking)
+  # ===========================================================================
+  # Identical across all deployments. No country-specific values.
+  # ===========================================================================
+  pds:
+    token: !expr Sys.getenv('PDS_TOKEN')
+    secret: !expr Sys.getenv('PDS_SECRET')
+    pds_trips:
+      file_prefix: pds-trips
+      version: latest
+    pds_tracks:
+      file_prefix: pds-tracks
+      version: latest
+
+  # ===========================================================================
+  # API — REST API endpoints for trip data
+  # ===========================================================================
+  # Cloud paths are country-specific.
+  # ===========================================================================
+  api:
+    trips:
+      raw:
+        file_prefix: trips-raw
+        cloud_path: '{country}/raw'                         # e.g., zanzibar/raw, kenya/raw
+      validated:
+        file_prefix: trips-validated
+        cloud_path: '{country}/validated'
+
+  # ===========================================================================
+  # STORAGE — Cloud storage and database configuration
+  # ===========================================================================
+  storage:
+
+    # --- Google Cloud Storage ---
+    google:
+      key: gcs
+      options:
+        project: peskas
+        bucket: '{country}-dev'                             # e.g., zanzibar-dev, kenya-dev
+        service_account_key: !expr Sys.getenv('GCP_SA_KEY')
+      options_coasts:
+        project: peskas
+        bucket: peskas-coasts
+        service_account_key: !expr Sys.getenv('GCP_SA_KEY')
+      options_api:
+        project: peskas
+        bucket: peskas-api-dev
+        service_account_key: !expr Sys.getenv('GCP_SA_KEY')
+
+    # --- MongoDB ---
+    # Connection strings are defined once and referenced by the databases below.
+    mongodb:
+      connection_strings:
+        main: !expr Sys.getenv('MONGODB_CONNECTION_STRING')
+        validation: !expr Sys.getenv('MONGODB_CONNECTION_STRING_VALIDATION')
+
+      databases:
+        # Pipeline database — stores raw/processed survey data
+        pipeline:
+          database_name: '{country}-dev'                    # e.g., zanzibar, pipeline-dev, mozambique-dev
+          collections:
+            # Add country-specific pipeline collections here.
+            # Examples from existing deployments:
+            #
+            # Zanzibar:
+            #   monthly_metrics: monthly_metrics
+            #   gear_metrics: gear_metrics
+            #   taxa: taxa_proportions
+            #   effort_map: effort_map
+            #
+            # Kenya (versioned, with validation_flags as peer collection):
+            #   legacy:
+            #     raw: legacy-raw
+            #     preprocessed: legacy-preprocessed
+            #   v1:
+            #     raw: raw
+            #     raw_price: raw_price
+            #     preprocessed: preprocessed
+            #     preprocessed_price: preprocessed_price
+            #     merged_landings: merged-landings
+            #     price_table: price_table
+            #     validated: validated
+            #   validation_flags: validation_flags          # at same level as legacy/v1
+            #
+            # Mozambique:
+            #   export: export
+            export: export
+
+        # Validation database — stores validation flags and enumerator stats
+        validation:
+          database_name: validation-dev
+          collections:
+            flags: surveys_flags
+            enumerators_stats: enumerators_stats
+
+        # Dashboard/Portal database — stores aggregated data for the web app
+        dashboard:
+          database_name: '{dashboard_db}-dev'               # e.g., portal-dev (ZAN/MOZ), app-dev (KEN)
+          collections:
+            # Add country-specific dashboard collections here.
+            # Examples from existing deployments:
+            #
+            # Zanzibar (portal):
+            #   monthly_summaries: monthly_summaries
+            #   taxa_summaries: taxa_summaries
+            #   districts_summaries: districts_summaries
+            #   gear_summaries: gear_summaries
+            #   grid_summaries: grid_summaries
+            #
+            # Kenya (app):
+            #   legacy:
+            #     fishery_metrics: legacy-metrics
+            #     fishery_metrics_monthly: legacy-metrics_monthly
+            #   v1:
+            #     individual_stats: individual_stats
+            #     individual_gear_stats: individual_gear_stats
+            #     individual_fish_distribution: individual_fish_distribution
+            #     monthly_stats: monthly_stats
+            #     catch_monthly: catch_monthly
+            #     gear_distribution: gear_distribution
+            #     fish_distribution: fish_distribution
+            #     map_distribution: map_distribution
+            #     gear_summaries: gear_summaries
+            #
+            # Mozambique (portal):
+            #   monthly_summaries: monthly_summaries
+            monthly_summaries: monthly_summaries
+
+  # ===========================================================================
+  # PDS STORAGE — Separate bucket for PDS vessel tracking data
+  # ===========================================================================
+  pds_storage:
+    google:
+      key: gcs
+      options:
+        project: peskas
+        bucket: 'pds-{country}-dev'                         # e.g., pds-zanzibar, pds-kenya-dev
+        service_account_key: !expr Sys.getenv('GCP_SA_KEY')
+
+  # ===========================================================================
+  # METADATA — Reference data and lookup tables
+  # ===========================================================================
+  metadata:
+
+    # Optional: geographic boundary files (used in Zanzibar)
+    # map_boundaries:
+    #   prefix: '{COUNTRY_CODE}_boundaries'                 # e.g., ZAN_boundaries
+
+    google_sheets:
+      name: metadata-tables
+      sheet_id: !expr Sys.getenv("GOOGLE_SHEET_ID")
+      tables:                                               # country-specific reference tables
+        - '{table_name}'
+        # Zanzibar:   devices, sites, boats, catch_type, communities
+        # Kenya:      BMUs
+        # Mozambique: landing_sites, catch_groups, vessel_type, habitat, gear_type
+
+    airtable:
+      assets: assets
+      token: !expr Sys.getenv('AIRTABLE_TOKEN')
+      base_id: !expr Sys.getenv('AIRTABLE_BASE_ID')        # direct base ID (Kenya style)
+      # Optional: frame-specific base (Zanzibar/Mozambique style)
+      # frame:
+      #   base_id: !expr Sys.getenv('AIRTABLE_BASE_ID_FRAME')
+      #   tables:                                           # optional named tables
+      #     countries: Countries
+      #     pds_devices: pds_devices
+
+  # ===========================================================================
+  # VALIDATION — Statistical validation thresholds
+  # ===========================================================================
+  # Include only the parameters relevant to your country's pipeline.
+  # All parameters are optional; the pipeline code should handle missing ones.
+  # ===========================================================================
+  validation:
+    # k_MAD_catch: 7            # Zanzibar — MAD-based catch outlier detection
+    # k_nboats: 5               # Kenya=5, Mozambique=3 — boat count threshold
+    # k_nfishers: 3             # Kenya/Mozambique — fisher count threshold
+    # k_catch: 2.5              # Kenya/Mozambique — catch weight threshold
+    # k_pricekg: 5              # Mozambique — price per kg threshold
+    # max_kg: 300               # Kenya — absolute maximum catch weight
+
+# =============================================================================
+# PRODUCTION — Environment overrides for production deployment
+# =============================================================================
+# Only override values that differ from default. The config system merges
+# production values on top of default.
+# =============================================================================
+production:
+  storage:
+    google:
+      options:
+        bucket: '{country}-prod'
+      options_coasts:
+        bucket: peskas-coasts
+      options_api:
+        bucket: peskas-api-prod
+    mongodb:
+      databases:
+        pipeline:
+          database_name: '{country}-prod'                   # e.g., zanzibar-prod, pipeline, mozambique-prod
+        validation:
+          database_name: validation-prod
+        dashboard:
+          database_name: '{dashboard_db}-prod'              # e.g., portal-prod, app
+
+  pds_storage:
+    google:
+      options:
+        bucket: 'pds-{country}-prod'
+
+# =============================================================================
+# LOCAL — Local development overrides
+# =============================================================================
+local:
+  # Local configuration inherits everything from default.
+  # Add only local-specific overrides here if needed.

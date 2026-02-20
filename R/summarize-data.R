@@ -57,7 +57,7 @@ summarize_data <- function(log_threshold = logger::DEBUG) {
 
   validated_surveys <-
     download_parquet_from_cloud(
-      prefix = conf$ingestion$`kobo-adnap`$validated_surveys$file_prefix,
+      prefix = conf$surveys$`adnap`$validated$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
     )
@@ -82,8 +82,8 @@ summarize_data <- function(log_threshold = logger::DEBUG) {
   validation_results$v1 <- submission_ids %>%
     furrr::future_map_dfr(
       get_validation_status,
-      asset_id = conf$ingestion$`kobo-adnap`$asset_id,
-      token = conf$ingestion$`kobo-lurio`$token,
+      asset_id = conf$ingestion$`adnap`$asset_id,
+      token = conf$ingestion$`lurio`$token,
       .options = furrr::furrr_options(seed = TRUE)
     )
 

@@ -1,3 +1,18 @@
+# peskas.mozambique.data.pipeline 2.7.0
+
+## Improvements
+
+- **Standardized configuration structure**: Replaced `inst/conf.yml` with a unified
+  multi-country template harmonized across all Peskas deployments (Zanzibar, Kenya,
+  Mozambique). Key structural changes:
+  - Survey credentials moved from `surveys.*` into a new top-level `ingestion.*` section
+  - Stage keys shortened (`raw_surveys` → `raw`, `preprocessed_surveys` → `preprocessed`, etc.)
+  - Source names shortened (`wcs_surveys` → `wcs`, `wf_surveys_v1` → `wf_v1`, etc.)
+  - MongoDB structure reorganized: connection strings under `connection_strings.*`,
+    databases under `databases.*`, collections key pluralized, `portal` renamed to `dashboard`
+  - Airtable config moved from top-level `airtable.*` to `metadata.airtable.*`
+  - All R code updated to use the new config paths
+
 # peskas.mozambique.data.pipeline 2.5.1
 
 ## New Features

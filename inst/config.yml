@@ -1,41 +1,46 @@
 default:
   ingestion:
-    kobo-lurio:
+    lurio:
       asset_id: !expr Sys.getenv('KOBO_ASSET_ID_LURIO')
       username: !expr Sys.getenv('KOBO_USERNAME')
       password: !expr Sys.getenv('KOBO_PASSWORD')
       token: !expr Sys.getenv('KOBO_TOKEN')
-      raw_surveys:
+    adnap:
+      asset_id: !expr Sys.getenv('KOBO_ASSET_ID_ADNAP')
+      username: !expr Sys.getenv('KOBO_USERNAME')
+      token: !expr Sys.getenv('KOBO_TOKEN')
+
+  surveys:
+    urio:
+      raw:
         file_prefix: wf-lurio-surveys-raw
         version: latest
-      preprocessed_surveys:
+      preprocessed:
         file_prefix: wf-lurio-surveys-preprocessed
         version: latest
-      validated_surveys:
+      validated:
         file_prefix: wf-lurio-surveys-validated
         version: latest
       validation:
         flags:
           file_prefix: lurio-flags
-    kobo-adnap:
-      asset_id: !expr Sys.getenv('KOBO_ASSET_ID_ADNAP')
-      username: !expr Sys.getenv('KOBO_USERNAME')
-      token: !expr Sys.getenv('KOBO_TOKEN')
-      raw_surveys:
+    adnap:
+      raw:
         file_prefix: wf-adnap-surveys-raw
         version: latest
-      preprocessed_surveys:
+      preprocessed:
         file_prefix: wf-adnap-surveys-preprocessed
         version: latest
-      validated_surveys:
+      validated:
         file_prefix: wf-adnap-surveys-validated
         version: latest
-      merged_surveys:
+      merged:
         file_prefix: wf-adnap-surveys-merged
-        version: latest        
+        version: latest
       validation:
         flags:
           file_prefix: adnap-flags
+
   storage:
     google:
       key: gcs
@@ -45,10 +50,12 @@ default:
         service_account_key: !expr Sys.getenv('GCP_SA_KEY')
       options_coasts:
         project: peskas
-        bucket: peskas-coasts
+        bucket: peskas-coasts-dev
         service_account_key: !expr Sys.getenv('GCP_SA_KEY')
       options_api:
-         bucket: peskas-api-dev        
+        project: peskas
+        bucket: peskas-api-dev
+        service_account_key: !expr Sys.getenv('GCP_SA_KEY')
     mongodb:
       connection_strings:
         main: !expr Sys.getenv('MONGODB_CONNECTION_STRING')
@@ -58,15 +65,16 @@ default:
           database_name: mozambique-dev
           collections:
             export: export
-        portal:
-          database_name: portal-dev
-          collections:
-            monthly_summaries: monthly_summaries
         validation:
           database_name: validation-dev
           collections:
             flags: surveys_flags
             enumerators_stats: enumerators_stats
+        dashboard:
+          database_name: portal-dev
+          collections:
+            monthly_summaries: monthly_summaries
+
   pds_storage:
     google:
       key: gcs
@@ -74,6 +82,7 @@ default:
         project: peskas
         bucket: pds-mozambique-dev
         service_account_key: !expr Sys.getenv('GCP_SA_KEY')
+
   pds:
     token: !expr Sys.getenv('PDS_TOKEN')
     secret: !expr Sys.getenv('PDS_SECRET')
@@ -83,6 +92,7 @@ default:
     pds_tracks:
       file_prefix: pds-tracks
       version: latest
+
   api:
     trips:
       raw:
@@ -102,14 +112,15 @@ default:
         - vessel_type
         - habitat
         - gear_type
-  airtable:
-    assets: assets
-    token: !expr Sys.getenv('AIRTABLE_TOKEN')
-    frame:
-      base_id: !expr Sys.getenv('AIRTABLE_BASE_ID_FRAME')
-      tables:
-        countries: Countries
-        pds_devices: pds_devices
+    airtable:
+      assets: assets
+      token: !expr Sys.getenv('AIRTABLE_TOKEN')
+      frame:
+        base_id: !expr Sys.getenv('AIRTABLE_BASE_ID_FRAME')
+        tables:
+          countries: Countries
+          pds_devices: pds_devices
+
   validation:
     k_nboats: 3
     k_nfishers: 3
@@ -122,15 +133,16 @@ production:
       options:
         bucket: mozambique-prod
       options_api:
-         bucket: peskas-api-prod       
+        bucket: peskas-api-prod
     mongodb:
-      pipeline:
-        database_name: mozambique-prod
-      portal:
-        database_name: portal-prod
-      validation:
-        database_name: validation-prod
-        
+      databases:
+        pipeline:
+          database_name: mozambique-prod
+        validation:
+          database_name: validation-prod
+        dashboard:
+          database_name: portal-prod
+
   pds_storage:
     google:
       options:
