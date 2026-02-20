@@ -1,4 +1,5 @@
 default:
+  country: mozambique
   ingestion:
     lurio:
       asset_id: !expr Sys.getenv('KOBO_ASSET_ID_LURIO')
