@@ -81,6 +81,10 @@ default:
           database_name: portal-dev
           collections:
             monthly_summaries: monthly_summaries
+            taxa_summaries: taxa_summaries
+            districts_summaries: districts_summaries
+            gear_summaries: gear_summaries
+            grid_summaries: grid_summaries
 
   pds_storage:
     google:
