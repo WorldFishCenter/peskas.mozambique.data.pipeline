@@ -110,6 +110,8 @@ default:
         cloud_path: mozambique/validated
 
   metadata:
+    map_boundaries:
+      prefix: MOZ_boundaries  
     google_sheets:
       name: metadata-tables
       sheet_id: !expr Sys.getenv("GOOGLE_SHEET_ID")
