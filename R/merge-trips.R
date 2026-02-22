@@ -50,7 +50,7 @@ merge_trips <- function(log_threshold = logger::DEBUG) {
 
   logger::log_info("Loading validated surveys...")
   landings <- download_parquet_from_cloud(
-    prefix = conf$ingestion$`kobo-adnap`$validated_surveys$file_prefix,
+    prefix = conf$surveys$`adnap`$validated$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   ) |>
@@ -75,7 +75,7 @@ merge_trips <- function(log_threshold = logger::DEBUG) {
   logger::log_info("Uploading trips to cloud storage...")
   upload_parquet_to_cloud(
     data = merged_trips,
-    prefix = conf$ingestion$`kobo-adnap`$merged_surveys$file_prefix,
+    prefix = conf$surveys$`adnap`$merged$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )

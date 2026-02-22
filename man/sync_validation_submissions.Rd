@@ -44,7 +44,7 @@ Key improvements over previous implementation:
 This function requires proper configuration in the config file, including:
 \itemize{
 \item MongoDB connection parameters
-\item KoboToolbox asset ID and token (configured under ingestion$kobo-adnap or ingestion$kobo-lurio)
+\item KoboToolbox asset ID and token (configured under ingestion$adnap or ingestion$lurio)
 \item KoboToolbox username (to identify system approvals)
 \item Google cloud storage parameters
 }

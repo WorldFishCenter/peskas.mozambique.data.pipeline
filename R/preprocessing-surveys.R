@@ -37,13 +37,13 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
   )
 
   target_form_id <- get_airtable_form_id(
-    kobo_asset_id = conf$ingestion$`kobo-lurio`$asset_id,
+    kobo_asset_id = conf$ingestion$`lurio`$asset_id,
     conf = conf
   )
 
   assets <-
     cloud_object_name(
-      prefix = conf$airtable$assets,
+      prefix = conf$metadata$airtable$assets,
       provider = conf$storage$google$key,
       version = "latest",
       extension = "rds",
@@ -67,7 +67,7 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
 
   # get raw landings from cloud storage
   raw_dat <- download_parquet_from_cloud(
-    prefix = conf$ingestion$`kobo-lurio`$raw_surveys$file_prefix,
+    prefix = conf$surveys$`lurio`$raw$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   ) %>%
@@ -323,7 +323,7 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
   # upload preprocessed landings
   upload_parquet_to_cloud(
     data = preprocessed_data,
-    prefix = conf$ingestion$`kobo-lurio`$preprocessed_surveys$file_prefix,
+    prefix = conf$surveys$`lurio`$preprocessed$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )
@@ -368,13 +368,13 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
   )
 
   target_form_id <- get_airtable_form_id(
-    kobo_asset_id = conf$ingestion$`kobo-adnap`$asset_id,
+    kobo_asset_id = conf$ingestion$`adnap`$asset_id,
     conf = conf
   )
 
   assets <-
     cloud_object_name(
-      prefix = conf$airtable$assets,
+      prefix = conf$metadata$airtable$assets,
       provider = conf$storage$google$key,
       version = "latest",
       extension = "rds",
@@ -398,7 +398,7 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
 
   # get raw landings from cloud storage
   raw_dat <- download_parquet_from_cloud(
-    prefix = conf$ingestion$`kobo-adnap`$raw_surveys$file_prefix,
+    prefix = conf$surveys$`adnap`$raw$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   ) %>%
@@ -442,7 +442,7 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
   # upload preprocessed landings
   upload_parquet_to_cloud(
     data = preprocessed_data,
-    prefix = conf$ingestion$`kobo-adnap`$preprocessed_surveys$file_prefix,
+    prefix = conf$surveys$`adnap`$preprocessed$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )
@@ -929,9 +929,9 @@ calculate_fishery_metrics <- function(data = NULL) {
 #' @export
 get_airtable_form_id <- function(kobo_asset_id = NULL, conf = NULL) {
   airtable_to_df(
-    base_id = conf$airtable$frame$base_id,
+    base_id = conf$metadata$airtable$frame$base_id,
     table_name = "forms",
-    token = conf$airtable$token
+    token = conf$metadata$airtable$token
   ) |>
     janitor::clean_names() |>
     dplyr::filter(.data$form_id == kobo_asset_id) |>
@@ -1041,9 +1041,9 @@ fetch_asset <- function(
   conf = NULL
 ) {
   airtable_to_df(
-    base_id = conf$airtable$frame$base_id,
+    base_id = conf$metadata$airtable$frame$base_id,
     table_name = table_name,
-    token = conf$airtable$token
+    token = conf$metadata$airtable$token
   ) |>
     janitor::clean_names() |>
     # Filter rows where form_id contains the target ID

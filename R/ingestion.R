@@ -34,9 +34,9 @@ ingest_landings_lurio <- function() {
   data_raw <-
     get_kobo_data(
       url = "eu.kobotoolbox.org",
-      assetid = conf$ingestion$`kobo-lurio`$asset_id,
-      uname = conf$ingestion$`kobo-lurio`$username,
-      pwd = conf$ingestion$`kobo-lurio`$password,
+      assetid = conf$ingestion$`lurio`$asset_id,
+      uname = conf$ingestion$`lurio`$username,
+      pwd = conf$ingestion$`lurio`$password,
       encoding = "UTF-8",
       format = "json"
     )
@@ -59,7 +59,7 @@ ingest_landings_lurio <- function() {
   logger::log_info("Uploading raw data to cloud storage")
   upload_parquet_to_cloud(
     data = raw_survey,
-    prefix = conf$ingestion$`kobo-lurio`$raw_surveys$file_prefix,
+    prefix = conf$surveys$`lurio`$raw$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )
@@ -103,9 +103,9 @@ ingest_landings_adnap <- function() {
   data_raw <-
     get_kobo_data(
       url = "eu.kobotoolbox.org",
-      assetid = conf$ingestion$`kobo-adnap`$asset_id,
-      uname = conf$ingestion$`kobo-lurio`$username,
-      pwd = conf$ingestion$`kobo-lurio`$password,
+      assetid = conf$ingestion$`adnap`$asset_id,
+      uname = conf$ingestion$`lurio`$username,
+      pwd = conf$ingestion$`lurio`$password,
       encoding = "UTF-8",
       format = "json"
     )
@@ -128,7 +128,7 @@ ingest_landings_adnap <- function() {
   logger::log_info("Uploading raw data to cloud storage")
   upload_parquet_to_cloud(
     data = raw_survey,
-    prefix = conf$ingestion$`kobo-adnap`$raw_surveys$file_prefix,
+    prefix = conf$surveys$`adnap`$raw$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )

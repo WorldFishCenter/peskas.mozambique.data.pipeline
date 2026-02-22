@@ -49,7 +49,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
   # Load preprocessed surveys data
   preprocessed_surveys <-
     download_parquet_from_cloud(
-      prefix = conf$ingestion$`kobo-lurio`$preprocessed_surveys$file_prefix,
+      prefix = conf$surveys$`lurio`$preprocessed$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
     )
@@ -58,10 +58,10 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
   not_approved_ids <-
     mdb_collection_pull(
       connection_string = conf$storage$mongodb$connection_strings$validation,
-      db_name = conf$storage$mongodb$validation$database_name,
+      db_name = conf$storage$mongodb$databases$validation$database_name,
       collection_name = paste(
         conf$storage$mongodb$databases$validation$collections$flags,
-        conf$ingestion$`kobo-lurio`$asset_id,
+        conf$ingestion$`lurio`$asset_id,
         sep = "-"
       )
     ) |>
@@ -84,8 +84,8 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
   validation_statuses <- not_approved_ids %>%
     furrr::future_map_dfr(
       get_validation_status,
-      asset_id = conf$ingestion$`kobo-lurio`$asset_id,
-      token = conf$ingestion$`kobo-lurio`$token,
+      asset_id = conf$ingestion$`lurio`$asset_id,
+      token = conf$ingestion$`lurio`$token,
       .options = furrr::furrr_options(seed = TRUE)
     )
 
@@ -420,7 +420,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
 
   upload_parquet_to_cloud(
     data = validated_data,
-    prefix = conf$ingestion$`kobo-lurio`$validated_surveys$file_prefix,
+    prefix = conf$surveys$`lurio`$validated$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )
@@ -497,7 +497,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
   # Load and preprocess survey data
   preprocessed_surveys <-
     download_parquet_from_cloud(
-      prefix = conf$ingestion$`kobo-adnap`$preprocessed_surveys$file_prefix,
+      prefix = conf$surveys$`adnap`$preprocessed$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
     )
@@ -506,10 +506,10 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
   not_approved_ids <-
     mdb_collection_pull(
       connection_string = conf$storage$mongodb$connection_strings$validation,
-      db_name = conf$storage$mongodb$validation$database_name,
+      db_name = conf$storage$mongodb$databases$validation$database_name,
       collection_name = paste(
         conf$storage$mongodb$databases$validation$collections$flags,
-        conf$ingestion$`kobo-adnap`$asset_id,
+        conf$ingestion$`adnap`$asset_id,
         sep = "-"
       )
     ) |>
@@ -532,8 +532,8 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
   validation_statuses <- not_approved_ids %>%
     furrr::future_map_dfr(
       get_validation_status,
-      asset_id = conf$ingestion$`kobo-adnap`$asset_id,
-      token = conf$ingestion$`kobo-lurio`$token,
+      asset_id = conf$ingestion$`adnap`$asset_id,
+      token = conf$ingestion$`lurio`$token,
       .options = furrr::furrr_options(seed = TRUE)
     )
 
@@ -842,7 +842,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
 
   upload_parquet_to_cloud(
     data = clean_landings,
-    prefix = conf$ingestion$`kobo-adnap`$validated_surveys$file_prefix,
+    prefix = conf$surveys$`adnap`$validated$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )
@@ -894,7 +894,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
 #' @note
 #' This function requires proper configuration in the config file, including:
 #' - MongoDB connection parameters
-#' - KoboToolbox asset ID and token (configured under ingestion$kobo-adnap or ingestion$kobo-lurio)
+#' - KoboToolbox asset ID and token (configured under ingestion$adnap or ingestion$lurio)
 #' - KoboToolbox username (to identify system approvals)
 #' - Google cloud storage parameters
 #'
@@ -924,7 +924,7 @@ sync_validation_submissions <- function(asset_id = c("adnap", "lurio")) {
   config_key <- paste0("kobo-", "adnap")
   conf <- read_config()
   # Get the survey-specific config
-  survey_conf <- conf$ingestion[[config_key]]
+  survey_conf <- conf$surveys[[config_key]]
 
   # Download validation flags for ADNAP
   validation_flags <-
@@ -1098,7 +1098,7 @@ sync_validation_submissions <- function(asset_id = c("adnap", "lurio")) {
   mdb_collection_push(
     data = validation_flags_with_kobo_status,
     connection_string = conf$storage$mongodb$connection_strings$validation,
-    db_name = conf$storage$mongodb$validation$database_name,
+    db_name = conf$storage$mongodb$databases$validation$database_name,
     collection_name = paste(
       conf$storage$mongodb$databases$validation$collections$flags,
       asset_id,
@@ -1109,7 +1109,7 @@ sync_validation_submissions <- function(asset_id = c("adnap", "lurio")) {
   mdb_collection_push(
     data = validation_flags_long,
     connection_string = conf$storage$mongodb$connection_strings$validation,
-    db_name = conf$storage$mongodb$validation$database_name,
+    db_name = conf$storage$mongodb$databases$validation$database_name,
     collection_name = paste(
       conf$storage$mongodb$databases$validation$collections$enumerators_stats,
       asset_id,
@@ -1217,7 +1217,7 @@ export_validation_flags <- function(
   config_key <- paste0("kobo-", asset_id)
 
   # Get the survey-specific config
-  survey_conf <- conf$ingestion[[config_key]]
+  survey_conf <- conf$surveys[[config_key]]
 
   validation_flags_with_kobo_status <-
     all_flags |>
@@ -1227,14 +1227,14 @@ export_validation_flags <- function(
         is.na(
           .data$alert_flag
         ),
-        conf$ingestion$`kobo-adnap`$username,
+        conf$ingestion$`adnap`$username,
         .data$validated_by
       ),
       validation_status = dplyr::case_when(
         # Preserve existing status if validated by someone else (not pipeline account user and not NA)
         !is.na(.data$validated_by) &
           .data$validated_by !=
-            conf$ingestion$`kobo-adnap`$username ~ .data$validation_status,
+            conf$ingestion$`adnap`$username ~ .data$validation_status,
         # Apply new status only if validated_by is NA or matches kobo user
         !is.na(.data$alert_flag) ~ "validation_status_not_approved",
         is.na(.data$alert_flag) ~ "validation_status_approved",
@@ -1253,7 +1253,7 @@ export_validation_flags <- function(
   mdb_collection_push(
     data = validation_flags_with_kobo_status,
     connection_string = conf$storage$mongodb$connection_strings$validation,
-    db_name = conf$storage$mongodb$validation$database_name,
+    db_name = conf$storage$mongodb$databases$validation$database_name,
     collection_name = paste(
       conf$storage$mongodb$databases$validation$collections$flags,
       asset_id,
@@ -1264,7 +1264,7 @@ export_validation_flags <- function(
   mdb_collection_push(
     data = validation_flags_long,
     connection_string = conf$storage$mongodb$connection_strings$validation,
-    db_name = conf$storage$mongodb$validation$database_name,
+    db_name = conf$storage$mongodb$databases$validation$database_name,
     collection_name = paste(
       conf$storage$mongodb$databases$validation$collections$enumerators_stats,
       asset_id,

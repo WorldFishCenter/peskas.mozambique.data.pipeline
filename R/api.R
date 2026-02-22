@@ -64,7 +64,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
 
   logger::log_info("Downloading preprocessed survey data...")
   preprocessed_surveys <- download_parquet_from_cloud(
-    prefix = conf$ingestion$`kobo-adnap`$preprocessed_surveys$file_prefix,
+    prefix = conf$surveys$`adnap`$preprocessed$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )
@@ -78,7 +78,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
         .data$submission_id
         #substr(digest::digest(.data$submission_id, algo = "xxhash64"), 1, 12)
       ),
-      survey_id = conf$ingestion$`kobo-adnap`$asset_id
+      survey_id = conf$ingestion$`adnap`$asset_id
     ) |>
     dplyr::ungroup() |>
     dplyr::mutate(
@@ -110,7 +110,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
     dplyr::group_by(.data$trip_id) |>
     dplyr::mutate(
       catch_price = NA_real_,
-      tot_catch_kg = sum(catch_kg),
+      tot_catch_kg = sum(.data$catch_kg),
     ) |>
     dplyr::ungroup() |>
     dplyr::relocate(
@@ -220,7 +220,7 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
 
   logger::log_info("Downloading preprocessed survey data...")
   validated_surveys <- download_parquet_from_cloud(
-    prefix = conf$ingestion$`kobo-adnap`$validated_surveys$file_prefix,
+    prefix = conf$surveys$`adnap`$validated$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
   )
@@ -234,7 +234,7 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
         .data$submission_id
         #substr(digest::digest(.data$submission_id, algo = "xxhash64"), 1, 12)
       ),
-      survey_id = conf$ingestion$`kobo-adnap`$asset_id
+      survey_id = conf$ingestion$`adnap`$asset_id
     ) |>
     dplyr::ungroup() |>
     dplyr::mutate(
@@ -266,7 +266,7 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
     dplyr::group_by(.data$trip_id) |>
     dplyr::mutate(
       catch_price = NA_real_,
-      tot_catch_kg = sum(catch_kg),
+      tot_catch_kg = sum(.data$catch_kg),
     ) |>
     dplyr::ungroup() |>
     dplyr::relocate(

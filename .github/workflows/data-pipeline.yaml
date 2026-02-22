@@ -180,3 +180,37 @@ jobs:
         run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
       - name: Call export_api_validated()
         run: Rscript -e 'peskas.mozambique.data.pipeline::export_api_validated()'
+
+  summarize-model-data:
+    name: Summarize and model validated data
+    needs: [export-api-validated, ingest-preprocess-pds]
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Set env to production
+        if: endsWith(github.ref, '/main')
+        run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
+      - name: Call summarize_data()
+        run: Rscript -e 'coasts::summarize_data(package = "peskas.mozambique.data.pipeline")'
+      - name: Call generate_fleet_analysis()
+        run: Rscript -e 'coasts::generate_fleet_analysis(package = "peskas.mozambique.data.pipeline")'
+
+  export-surveys-portal:
+    name: Export aggregated data
+    needs: summarize-model-data
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Set env to production
+        if: endsWith(github.ref, '/main')
+        run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
+      - name: Call export_portal()
+        run: Rscript -e 'coasts::export_portal(package = "peskas.mozambique.data.pipeline")'
