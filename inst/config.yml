@@ -115,7 +115,8 @@ default:
 
   metadata:
     map_boundaries:
-      prefix: MOZ_boundaries  
+      gaul1: MOZ_boundaries_gaul1 
+      gaul2: MOZ_boundaries_gaul2  
     google_sheets:
       name: metadata-tables
       sheet_id: !expr Sys.getenv("GOOGLE_SHEET_ID")
