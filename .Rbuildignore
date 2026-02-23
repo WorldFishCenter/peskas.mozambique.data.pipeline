@@ -22,3 +22,5 @@
 ^\.env\.example$
 ^\.claude$
 ^CLAUDE\.md$
+^.*\.parquet$
+^.*\.rds$
