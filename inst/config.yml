@@ -97,6 +97,9 @@ default:
   pds:
     token: !expr Sys.getenv('PDS_TOKEN')
     secret: !expr Sys.getenv('PDS_SECRET')
+    customers:
+      - "WorldFish - Mozambique"
+      - "Syberintel - distributor"
     pds_trips:
       file_prefix: pds-trips
       version: latest
@@ -148,6 +151,8 @@ production:
         bucket: mozambique-prod
       options_api:
         bucket: peskas-api-prod
+      options_coasts:
+        bucket: peskas-coasts
     mongodb:
       databases:
         pipeline:
