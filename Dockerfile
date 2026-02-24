@@ -26,4 +26,4 @@ RUN install2.r --error --skipinstalled \
     googlesheets4
 
 ARG CACHEBUST=1
-RUN Rscript -e 'remotes::install_github("WorldFishCenter/peskas.coasts", ref = "main")'
+RUN Rscript -e 'remotes::install_github("WorldFishCenter/peskas.coasts", ref = "main", force = TRUE)'
