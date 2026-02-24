@@ -41,6 +41,7 @@ jobs:
           file: Dockerfile.prod
           push: true
           tags: ghcr.io/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique:latest
+          build-args: CACHEBUST=${{ github.sha }}
           cache-from: type=registry,ref=ghcr.io/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique:buildcache
           cache-to: type=registry,ref=ghcr.io/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique:buildcache,mode=max
 

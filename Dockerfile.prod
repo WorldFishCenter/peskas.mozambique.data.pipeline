@@ -36,6 +36,8 @@ RUN install2.r --error --skipinstalled \
 
 # Install specific version of rfishbase
 RUN Rscript -e 'remotes::install_version("rfishbase", version = "5.0.1")'
+
+ARG CACHEBUST=1
 RUN Rscript -e 'remotes::install_github("WorldFishCenter/peskas.coasts", ref = "main", force = TRUE)' # 2026-02-23
 
 # Install local package
