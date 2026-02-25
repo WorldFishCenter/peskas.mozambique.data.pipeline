@@ -92,7 +92,10 @@ read_config <- function() {
 
   pars <- config::get(
     config = Sys.getenv("R_CONFIG_ACTIVE", "default"),
-    file = system.file("config.yml", package = "peskas.mozambique.data.pipeline")
+    file = system.file(
+      "config.yml",
+      package = "peskas.mozambique.data.pipeline"
+    )
   )
 
   logger::log_info("Using configutation: {attr(pars, 'config')}")
@@ -100,3 +103,6 @@ read_config <- function() {
 
   pars
 }
+use_prod()
+conf <- read_config()
+conf$storage$google$options_coasts
