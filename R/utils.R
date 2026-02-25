@@ -103,6 +103,3 @@ read_config <- function() {
 
   pars
 }
-use_prod()
-conf <- read_config()
-conf$storage$google$options_coasts
