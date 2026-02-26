@@ -20,7 +20,6 @@ RUN install2.r --error --skipinstalled \
     logger \
     lubridate \
     magrittr \
-    mongolite \
     purrr \
     rlang \
     stringr \
@@ -31,12 +30,11 @@ RUN install2.r --error --skipinstalled \
 
 # Install suggests
 RUN install2.r --error --skipinstalled \
-    git2r \
-    googlesheets4
+    git2r
 
 # Install specific version of rfishbase
 RUN Rscript -e 'remotes::install_version("rfishbase", version = "5.0.1")'
-RUN Rscript -e 'remotes::install_github("WorldFishCenter/peskas.coasts", ref = "v2.1.0")'
+RUN Rscript -e 'remotes::install_github("WorldFishCenter/peskas.coasts", ref = "v2.2.1")'
 
 # Install local package
 COPY . /home

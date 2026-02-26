@@ -47,8 +47,8 @@ storage:
 
 The function processes trips sequentially:
 \itemize{
-\item Retrieves device metadata using \code{get_metadata()}
-\item Downloads trip data using the \code{get_trips()} function
+\item Retrieves device metadata from airtable`
+\item Downloads trip data using the \code{coasts::get_trips()} function
 \item Converts the data to parquet format
 \item Uploads the resulting file to configured storage provider
 }
@@ -65,9 +65,8 @@ ingest_pds_trips(logger::INFO)
 }
 \seealso{
 \itemize{
-\item \code{\link[=get_trips]{get_trips()}} for details on the PDS trip data retrieval process
-\item \code{\link[=get_metadata]{get_metadata()}} for details on the device metadata retrieval
-\item \code{\link[=upload_cloud_file]{upload_cloud_file()}} for details on the cloud upload process
+\item \code{\link[coasts:get_trips]{coasts::get_trips()}} for details on the PDS trip data retrieval process
+\item \code{\link[coasts:upload_cloud_file]{coasts::upload_cloud_file()}} for details on the cloud upload process
 }
 }
 \keyword{ingestion}

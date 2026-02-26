@@ -48,7 +48,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
 
   # Load preprocessed surveys data
   preprocessed_surveys <-
-    download_parquet_from_cloud(
+    coasts::download_parquet_from_cloud(
       prefix = conf$surveys$`lurio`$preprocessed$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
@@ -56,7 +56,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
 
   # check for manual validates submissions (only possible among not approved submissions)
   not_approved_ids <-
-    mdb_collection_pull(
+    coasts::mdb_collection_pull(
       connection_string = conf$storage$mongodb$connection_strings$validation,
       db_name = conf$storage$mongodb$databases$validation$database_name,
       collection_name = paste(
@@ -418,7 +418,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
     surveys_basic_validated |>
     dplyr::filter(!.data$submission_id %in% flagged_ids)
 
-  upload_parquet_to_cloud(
+  coasts::upload_parquet_to_cloud(
     data = validated_data,
     prefix = conf$surveys$`lurio`$validated$file_prefix,
     provider = conf$storage$google$key,
@@ -496,7 +496,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
 
   # Load and preprocess survey data
   preprocessed_surveys <-
-    download_parquet_from_cloud(
+    coasts::download_parquet_from_cloud(
       prefix = conf$surveys$`adnap`$preprocessed$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
@@ -504,7 +504,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
 
   # check for manual validates submissions (only possible among not approved submissions)
   not_approved_ids <-
-    mdb_collection_pull(
+    coasts::mdb_collection_pull(
       connection_string = conf$storage$mongodb$connection_strings$validation,
       db_name = conf$storage$mongodb$databases$validation$database_name,
       collection_name = paste(
@@ -840,7 +840,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
     surveys_basic_validated |>
     dplyr::filter(!.data$submission_id %in% flags_ids)
 
-  upload_parquet_to_cloud(
+  coasts::upload_parquet_to_cloud(
     data = clean_landings,
     prefix = conf$surveys$`adnap`$validated$file_prefix,
     provider = conf$storage$google$key,
@@ -928,7 +928,7 @@ sync_validation_submissions <- function(asset_id = c("adnap", "lurio")) {
 
   # Download validation flags for ADNAP
   validation_flags <-
-    download_parquet_from_cloud(
+    coasts::download_parquet_from_cloud(
       prefix = survey_conf$validation$flags$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
@@ -1095,7 +1095,7 @@ sync_validation_submissions <- function(asset_id = c("adnap", "lurio")) {
   # STEP 10: Push to MongoDB
   asset_id <- survey_conf$asset_id
 
-  mdb_collection_push(
+  coasts::mdb_collection_push(
     data = validation_flags_with_kobo_status,
     connection_string = conf$storage$mongodb$connection_strings$validation,
     db_name = conf$storage$mongodb$databases$validation$database_name,
@@ -1106,7 +1106,7 @@ sync_validation_submissions <- function(asset_id = c("adnap", "lurio")) {
     )
   )
 
-  mdb_collection_push(
+  coasts::mdb_collection_push(
     data = validation_flags_long,
     connection_string = conf$storage$mongodb$connection_strings$validation,
     db_name = conf$storage$mongodb$databases$validation$database_name,
@@ -1202,7 +1202,7 @@ sync_validation_submissions <- function(asset_id = c("adnap", "lurio")) {
 #'   \item \code{\link[=validate_surveys_adnap]{validate_surveys_adnap()}} for the main validation workflow
 #'   \item \code{\link[=get_validation_status]{get_validation_status()}} for fetching KoboToolbox validation status
 #'   \item \code{\link[=sync_validation_submissions]{sync_validation_submissions()}} for the deprecated approach that updates KoboToolbox
-#'   \item \code{\link[=mdb_collection_push]{mdb_collection_push()}} for MongoDB operations
+#'   \item \code{\link[coasts:mdb_collection_push]{coasts::mdb_collection_push()}} for MongoDB operations
 #' }
 #'
 #' @keywords validation workflow
@@ -1250,7 +1250,7 @@ export_validation_flags <- function(
 
   asset_id <- survey_conf$asset_id
 
-  mdb_collection_push(
+  coasts::mdb_collection_push(
     data = validation_flags_with_kobo_status,
     connection_string = conf$storage$mongodb$connection_strings$validation,
     db_name = conf$storage$mongodb$databases$validation$database_name,
@@ -1261,7 +1261,7 @@ export_validation_flags <- function(
     )
   )
 
-  mdb_collection_push(
+  coasts::mdb_collection_push(
     data = validation_flags_long,
     connection_string = conf$storage$mongodb$connection_strings$validation,
     db_name = conf$storage$mongodb$databases$validation$database_name,

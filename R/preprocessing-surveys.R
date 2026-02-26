@@ -30,7 +30,7 @@
 preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
   conf <- read_config()
 
-  asfis <- download_parquet_from_cloud(
+  asfis <- coasts::download_parquet_from_cloud(
     prefix = "asfis",
     provider = conf$storage$google$key,
     options = conf$storage$google$options
@@ -42,14 +42,14 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
   )
 
   assets <-
-    cloud_object_name(
+    coasts::cloud_object_name(
       prefix = conf$metadata$airtable$assets,
       provider = conf$storage$google$key,
       version = "latest",
       extension = "rds",
       options = conf$storage$google$options_coasts
     ) |>
-    download_cloud_file(
+    coasts::download_cloud_file(
       provider = conf$storage$google$key,
       options = conf$storage$google$options_coasts
     ) |>
@@ -66,7 +66,7 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
     )
 
   # get raw landings from cloud storage
-  raw_dat <- download_parquet_from_cloud(
+  raw_dat <- coasts::download_parquet_from_cloud(
     prefix = conf$surveys$`lurio`$raw$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
@@ -321,7 +321,7 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
 
   logger::log_info("Uploading preprocessed data to cloud storage")
   # upload preprocessed landings
-  upload_parquet_to_cloud(
+  coasts::upload_parquet_to_cloud(
     data = preprocessed_data,
     prefix = conf$surveys$`lurio`$preprocessed$file_prefix,
     provider = conf$storage$google$key,
@@ -361,7 +361,7 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
 preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
   conf <- read_config()
 
-  asfis <- download_parquet_from_cloud(
+  asfis <- coasts::download_parquet_from_cloud(
     prefix = "asfis",
     provider = conf$storage$google$key,
     options = conf$storage$google$options
@@ -373,14 +373,14 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
   )
 
   assets <-
-    cloud_object_name(
+    coasts::cloud_object_name(
       prefix = conf$metadata$airtable$assets,
       provider = conf$storage$google$key,
       version = "latest",
       extension = "rds",
       options = conf$storage$google$options_coasts
     ) |>
-    download_cloud_file(
+    coasts::download_cloud_file(
       provider = conf$storage$google$key,
       options = conf$storage$google$options_coasts
     ) |>
@@ -397,7 +397,7 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
     )
 
   # get raw landings from cloud storage
-  raw_dat <- download_parquet_from_cloud(
+  raw_dat <- coasts::download_parquet_from_cloud(
     prefix = conf$surveys$`adnap`$raw$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
@@ -440,7 +440,7 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
 
   logger::log_info("Uploading preprocessed data to cloud storage")
   # upload preprocessed landings
-  upload_parquet_to_cloud(
+  coasts::upload_parquet_to_cloud(
     data = preprocessed_data,
     prefix = conf$surveys$`adnap`$preprocessed$file_prefix,
     provider = conf$storage$google$key,

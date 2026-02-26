@@ -58,7 +58,7 @@ ingest_landings_lurio <- function() {
     dplyr::rename("submission_id" = .data$`_id`)
 
   logger::log_info("Uploading raw data to cloud storage")
-  upload_parquet_to_cloud(
+  coasts::upload_parquet_to_cloud(
     data = raw_survey,
     prefix = conf$surveys$`lurio`$raw$file_prefix,
     provider = conf$storage$google$key,
@@ -127,7 +127,7 @@ ingest_landings_adnap <- function() {
     dplyr::rename("submission_id" = .data$`_id`)
 
   logger::log_info("Uploading raw data to cloud storage")
-  upload_parquet_to_cloud(
+  coasts::upload_parquet_to_cloud(
     data = raw_survey,
     prefix = conf$surveys$`adnap`$raw$file_prefix,
     provider = conf$storage$google$key,
@@ -246,8 +246,8 @@ rename_child <- function(x, i, p) {
 #' ```
 #'
 #' The function processes trips sequentially:
-#' - Retrieves device metadata using `get_metadata()`
-#' - Downloads trip data using the `get_trips()` function
+#' - Retrieves device metadata from airtable`
+#' - Downloads trip data using the `coasts::get_trips()` function
 #' - Converts the data to parquet format
 #' - Uploads the resulting file to configured storage provider
 #'
@@ -269,9 +269,8 @@ rename_child <- function(x, i, p) {
 #' }
 #'
 #' @seealso
-#' * [get_trips()] for details on the PDS trip data retrieval process
-#' * [get_metadata()] for details on the device metadata retrieval
-#' * [upload_cloud_file()] for details on the cloud upload process
+#' * [coasts::get_trips()] for details on the PDS trip data retrieval process
+#' * [coasts::upload_cloud_file()] for details on the cloud upload process
 #'
 #' @keywords workflow ingestion
 #' @export
@@ -280,14 +279,14 @@ ingest_pds_trips <- function(log_threshold = logger::DEBUG) {
   conf <- read_config()
 
   logger::log_info("Loading device registry...")
-  devices <- cloud_object_name(
+  devices <- coasts::cloud_object_name(
     prefix = conf$metadata$airtable$assets,
     provider = conf$storage$google$key,
     version = "latest",
     extension = "rds",
     options = conf$storage$google$options_coasts
   ) |>
-    download_cloud_file(
+    coasts::download_cloud_file(
       provider = conf$storage$google$key,
       options = conf$storage$google$options_coasts
     ) |>
@@ -298,7 +297,7 @@ ingest_pds_trips <- function(log_threshold = logger::DEBUG) {
         c("WorldFish - Mozambique", "Syberintel - distributor")
     )
 
-  boats_trips <- get_trips(
+  boats_trips <- coasts::get_trips(
     token = conf$pds$token,
     secret = conf$pds$secret,
     dateFrom = "2025-01-01",
@@ -318,7 +317,7 @@ ingest_pds_trips <- function(log_threshold = logger::DEBUG) {
   )
 
   logger::log_info("Uploading {filename} to cloud storage")
-  upload_cloud_file(
+  coasts::upload_cloud_file(
     file = filename,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
@@ -347,7 +346,7 @@ ingest_pds_tracks <- function(
 
   # Get trips file from cloud storage
   logger::log_info("Getting trips file from cloud storage...")
-  pds_trips_parquet <- cloud_object_name(
+  pds_trips_parquet <- coasts::cloud_object_name(
     prefix = conf$pds$pds_trips$file_prefix,
     provider = conf$storage$google$key,
     extension = "parquet",
@@ -356,7 +355,7 @@ ingest_pds_tracks <- function(
   )
 
   logger::log_info("Downloading {pds_trips_parquet}")
-  download_cloud_file(
+  coasts::download_cloud_file(
     name = pds_trips_parquet,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
@@ -415,7 +414,7 @@ ingest_pds_tracks <- function(
           )
 
           # Get track data
-          track_data <- get_trip_points(
+          track_data <- coasts::get_trip_points(
             token = conf$pds$token,
             secret = conf$pds$secret,
             id = as.character(trip_id),
@@ -432,7 +431,7 @@ ingest_pds_tracks <- function(
 
           # Upload to cloud
           logger::log_info("Uploading track for trip {trip_id}")
-          upload_cloud_file(
+          coasts::upload_cloud_file(
             file = track_filename,
             provider = conf$pds_storage$google$key,
             options = conf$pds_storage$google$options
@@ -515,7 +514,7 @@ process_single_track <- function(trip_id, conf) {
       )
 
       # Get track data
-      track_data <- get_trip_points(
+      track_data <- coasts::get_trip_points(
         token = conf$pds$token,
         secret = conf$pds$secret,
         id = trip_id,
@@ -532,7 +531,7 @@ process_single_track <- function(trip_id, conf) {
 
       # Upload to cloud
       logger::log_info("Uploading track for trip {trip_id}")
-      upload_cloud_file(
+      coasts::upload_cloud_file(
         file = track_filename,
         provider = conf$pds_storage$google$key,
         options = conf$pds_storage$google$options

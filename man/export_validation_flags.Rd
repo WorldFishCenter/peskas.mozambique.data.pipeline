@@ -97,7 +97,7 @@ export_validation_flags(
 \item \code{\link[=validate_surveys_adnap]{validate_surveys_adnap()}} for the main validation workflow
 \item \code{\link[=get_validation_status]{get_validation_status()}} for fetching KoboToolbox validation status
 \item \code{\link[=sync_validation_submissions]{sync_validation_submissions()}} for the deprecated approach that updates KoboToolbox
-\item \code{\link[=mdb_collection_push]{mdb_collection_push()}} for MongoDB operations
+\item \code{\link[coasts:mdb_collection_push]{coasts::mdb_collection_push()}} for MongoDB operations
 }
 }
 \keyword{validation}

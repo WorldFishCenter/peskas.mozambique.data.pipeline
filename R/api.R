@@ -63,7 +63,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
   conf <- read_config()
 
   logger::log_info("Downloading preprocessed survey data...")
-  preprocessed_surveys <- download_parquet_from_cloud(
+  preprocessed_surveys <- coasts::download_parquet_from_cloud(
     prefix = conf$surveys$`adnap`$preprocessed$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
@@ -141,7 +141,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
   )
 
   logger::log_info("Uploading to cloud storage: {cloud_path}")
-  upload_cloud_file(
+  coasts::upload_cloud_file(
     file = filename,
     provider = conf$storage$google$key,
     options = conf$storage$google$options_api,
@@ -219,7 +219,7 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
   conf <- read_config()
 
   logger::log_info("Downloading preprocessed survey data...")
-  validated_surveys <- download_parquet_from_cloud(
+  validated_surveys <- coasts::download_parquet_from_cloud(
     prefix = conf$surveys$`adnap`$validated$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
@@ -299,7 +299,7 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
   )
 
   logger::log_info("Uploading to cloud storage: {cloud_path}")
-  upload_cloud_file(
+  coasts::upload_cloud_file(
     file = filename,
     provider = conf$storage$google$key,
     options = conf$storage$google$options_api,

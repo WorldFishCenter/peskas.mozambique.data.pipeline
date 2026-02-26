@@ -21,7 +21,7 @@ merge_trips <- function(log_threshold = logger::DEBUG) {
   conf <- read_config()
 
   logger::log_info("Getting trips file from cloud storage...")
-  pds_trips_parquet <- cloud_object_name(
+  pds_trips_parquet <- coasts::cloud_object_name(
     prefix = conf$pds$pds_trips$file_prefix,
     provider = conf$storage$google$key,
     extension = "parquet",
@@ -31,7 +31,7 @@ merge_trips <- function(log_threshold = logger::DEBUG) {
   logger::log_info("Downloading {pds_trips_parquet}")
 
   pds <-
-    download_cloud_file(
+    coasts::download_cloud_file(
       name = pds_trips_parquet,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
@@ -49,7 +49,7 @@ merge_trips <- function(log_threshold = logger::DEBUG) {
     split(.$unique_trip_per_day)
 
   logger::log_info("Loading validated surveys...")
-  landings <- download_parquet_from_cloud(
+  landings <- coasts::download_parquet_from_cloud(
     prefix = conf$surveys$`adnap`$validated$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
@@ -73,7 +73,7 @@ merge_trips <- function(log_threshold = logger::DEBUG) {
     dplyr::select(-"unique_trip_per_day")
 
   logger::log_info("Uploading trips to cloud storage...")
-  upload_parquet_to_cloud(
+  coasts::upload_parquet_to_cloud(
     data = merged_trips,
     prefix = conf$surveys$`adnap`$merged$file_prefix,
     provider = conf$storage$google$key,

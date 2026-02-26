@@ -55,10 +55,8 @@
 export_landings <- function() {
   conf <- read_config()
 
-  #metadata_tables <- get_metadata()
-
   validated_data <-
-    download_parquet_from_cloud(
+    coasts::download_parquet_from_cloud(
       prefix = conf$surveys$`lurio`$validated$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
@@ -339,7 +337,7 @@ export_landings <- function() {
     ) |>
     dplyr::relocate("country", .before = "region")
 
-  upload_parquet_to_cloud(
+  coasts::upload_parquet_to_cloud(
     data = region_monthly_summaries,
     prefix = "mozambique_monthly_summaries_map",
     provider = conf$storage$google$key,
@@ -348,7 +346,7 @@ export_landings <- function() {
 
   # filename <- add_version("mozambique_fishery_metrics", extension = "parquet")
 
-  # upload_parquet_to_cloud(
+  # coasts::upload_parquet_to_cloud(
   #   data = f_metrics,
   #   prefix = filename,
   #   provider = conf$storage$google$key,
@@ -356,7 +354,7 @@ export_landings <- function() {
   # )
 
   grid_summaries <-
-    download_parquet_from_cloud(
+    coasts::download_parquet_from_cloud(
       prefix = "pds-tracks-grid_summaries",
       provider = conf$storage$google$key,
       options = conf$storage$google$options
@@ -405,7 +403,7 @@ export_landings <- function() {
     .y = collection_names,
     .f = ~ {
       logger::log_info(paste("Uploading", .y, "data to MongoDB"))
-      mdb_collection_push(
+      coasts::mdb_collection_push(
         data = .x,
         connection_string = conf$storage$mongodb$connection_strings$main,
         collection_name = .y,
@@ -440,7 +438,7 @@ export_landings <- function() {
 
   logger::log_info("Uploading landings data to mongodb")
   # upload preprocessed landings
-  mdb_collection_push(
+  coasts::mdb_collection_push(
     data = export_data,
     connection_string = conf$storage$mongodb$connection_strings$main,
     collection_name = conf$storage$mongodb$databases$pipeline$collections$export,
@@ -482,14 +480,14 @@ export_lurio_landings <- function() {
   )
 
   assets <-
-    cloud_object_name(
+    coasts::cloud_object_name(
       prefix = conf$metadata$airtable$assets,
       provider = conf$storage$google$key,
       version = "latest",
       extension = "rds",
       options = conf$storage$google$options_coasts
     ) |>
-    download_cloud_file(
+    coasts::download_cloud_file(
       provider = conf$storage$google$key,
       options = conf$storage$google$options_coasts
     ) |>
@@ -506,7 +504,7 @@ export_lurio_landings <- function() {
     )
 
   validated_data <-
-    download_parquet_from_cloud(
+    coasts::download_parquet_from_cloud(
       prefix = conf$surveys$`lurio`$validated$file_prefix,
       provider = conf$storage$google$key,
       options = conf$storage$google$options
@@ -711,14 +709,14 @@ export_lurio_landings <- function() {
   # get gps from preprocessed surveys
 
   moz_geo <-
-    cloud_object_name(
+    coasts::cloud_object_name(
       prefix = "MOZ_regions",
       provider = conf$storage$google$key,
       options = conf$storage$google$options_coasts,
       extension = "geojson",
       version = "latest"
     ) |>
-    download_cloud_file(
+    coasts::download_cloud_file(
       provider = conf$storage$google$key,
       options = conf$storage$google$options_coasts,
     ) |>
@@ -772,7 +770,7 @@ export_lurio_landings <- function() {
     .y = collection_names,
     .f = ~ {
       logger::log_info(paste("Uploading", .y, "data to MongoDB"))
-      mdb_collection_push(
+      coasts::mdb_collection_push(
         data = .x,
         connection_string = conf$storage$mongodb$connection_strings$main,
         collection_name = .y,

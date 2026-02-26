@@ -1,6 +1,6 @@
 Package: peskas.mozambique.data.pipeline
 Title: What the Package Does (One Line, Title Case)
-Version: 2.7.0
+Version: 2.8.0
 Authors@R: 
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
@@ -18,16 +18,13 @@ Imports:
     future,
     git2r,
     glue,
-    googleAuthR,
     googleCloudStorageR,
-    googlesheets4,
     httr2,
     janitor,
     jsonlite,
     logger,
     lubridate,
     magrittr,
-    mongolite,
     progressr,
     purrr,
     readr,
