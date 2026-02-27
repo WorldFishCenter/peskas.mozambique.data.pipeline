@@ -18,7 +18,6 @@ Imports:
     future,
     git2r,
     glue,
-    googleCloudStorageR,
     httr2,
     janitor,
     jsonlite,

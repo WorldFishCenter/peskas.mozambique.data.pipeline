@@ -96,11 +96,11 @@ jobs:
         name: Set env to production
         run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
       - name: Call ingest_pds_trips()
-        run: Rscript --vanilla -e 'peskas.mozambique.data.pipeline::ingest_pds_trips()'
+        run: Rscript --vanilla -e 'coasts::ingest_pds_trips(package = "peskas.mozambique.data.pipeline")'
       - name: Call ingest_pds_tracks()
-        run: Rscript --vanilla -e 'peskas.mozambique.data.pipeline::ingest_pds_tracks()'
+        run: Rscript --vanilla -e 'coasts::ingest_pds_tracks(package = "peskas.mozambique.data.pipeline")'
       - name: Call preprocess_pds_tracks()
-        run: Rscript --vanilla -e 'peskas.mozambique.data.pipeline::preprocess_pds_tracks()'
+        run: Rscript --vanilla -e 'coasts::preprocess_pds_tracks(package = "peskas.mozambique.data.pipeline")'
 
   validate-lurio:
     container:
