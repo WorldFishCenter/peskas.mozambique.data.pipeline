@@ -1006,7 +1006,7 @@ map_surveys <- function(
     dplyr::rename(vessel_type = "standard_name") |>
     dplyr::left_join(
       sites_mapping,
-      by = c("landing_site" = "site_code")
+      by = c("landing_site" = "site_code", "gaul_2_code")
     ) |>
     dplyr::select(-c("landing_site", "form_id")) |>
     dplyr::relocate("site", .after = "district") |>
