@@ -170,24 +170,44 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
       ),
       # Flag 7: Number of individuals exceeds maximum (following Zanzibar exactly)
       alert_n_individuals = dplyr::case_when(
-        !is.na(.data$individuals) & .data$individuals > max_n_individuals ~ "7",
+        !is.na(.data$individuals) &
+          .data$individuals > max_n_individuals ~ "7",
         TRUE ~ NA_character_
       ),
-      # Flag 20: Landing date after submission
-      alert_date = dplyr::case_when(
-        .data$landing_date > .data$submission_date ~ "20",
-        TRUE ~ NA_character_
-      ),
+    ) |>
+    dplyr::select(
+      "submission_id",
+      "submission_date",
+      dplyr::contains("alert_")
     )
 
-  # Create flags summary per submission (following Zanzibar approach)
-  flags_id <-
-    catch_flags |>
+  general_flags <-
+    preprocessed_surveys |>
+    dplyr::mutate(
+      alert_duration = dplyr::case_when(
+        .data$trip_duration <= 0 | .data$trip_duration >= 60 ~ "12",
+        TRUE ~ NA_character_
+      ),
+      alert_date = dplyr::case_when(
+        .data$submission_date < .data$landing_date ~ "13",
+        TRUE ~ NA_character_
+      )
+    ) |>
     dplyr::select(
       "submission_id",
       "submission_date",
       dplyr::contains("alert_")
     ) |>
+    dplyr::distinct()
+
+  # Create flags summary per submission (following Zanzibar approach)
+  flags_id <-
+    catch_flags |>
+    dplyr::full_join(
+      general_flags,
+      by = c("submission_id", "submission_date")
+    ) |>
+    dplyr::distinct() |>
     dplyr::mutate(
       alert_flag = paste(
         .data$alert_min_length,
@@ -198,6 +218,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
         .data$alert_form_incomplete,
         .data$alert_catch_info_incomplete,
         .data$alert_date,
+        .data$alert_duration,
         sep = ","
       ) |>
         stringr::str_remove_all("NA,") |>
@@ -610,16 +631,40 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
         !is.na(.data$individuals) & .data$individuals > max_n_individuals ~ "7",
         TRUE ~ NA_character_
       )
-    )
-
-  flags_id <-
-    catch_flags |>
+    ) |>
     dplyr::select(
       "submission_id",
       "n_catch",
       "submission_date",
       dplyr::contains("alert_")
+    )
+
+  general_flags <-
+    preprocessed_surveys |>
+    dplyr::mutate(
+      alert_duration = dplyr::case_when(
+        .data$trip_duration <= 0 | .data$trip_duration >= 60 ~ "12",
+        TRUE ~ NA_character_
+      ),
+      alert_date = dplyr::case_when(
+        .data$submission_date < .data$landing_date ~ "13",
+        TRUE ~ NA_character_
+      )
     ) |>
+    dplyr::select(
+      "submission_id",
+      "n_catch",
+      "submission_date",
+      dplyr::contains("alert_")
+    )
+
+  flags_id <-
+    catch_flags |>
+    dplyr::full_join(
+      general_flags,
+      by = c("submission_id", "n_catch", "submission_date")
+    ) |>
+    dplyr::distinct() |>
     dplyr::mutate(
       alert_flag = paste(
         .data$alert_min_length,
@@ -628,7 +673,8 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
         .data$alert_n_buckets,
         .data$alert_n_individuals,
         .data$alert_form_incomplete,
-        .data$alert_catch_info_incomplete,
+        .data$alert_date,
+        .data$alert_duration,
         sep = ","
       ) |>
         stringr::str_remove_all("NA,") |>
@@ -670,7 +716,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
 
   catch_df_validated <-
     catch_df |>
-    dplyr::left_join(flags_id, by = c("submission_id", "submission_date")) |>
+    dplyr::full_join(flags_id, by = c("submission_id", "submission_date")) |>
     dplyr::group_by(.data$submission_id) |>
     dplyr::mutate(
       submission_alerts = paste(

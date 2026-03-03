@@ -223,9 +223,7 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
     prefix = conf$surveys$`adnap`$validated$file_prefix,
     provider = conf$storage$google$key,
     options = conf$storage$google$options
-  ) |>
-    # TODO: Temporary filter out negative trip duration
-    dplyr::filter(.data$trip_duration >= 0)
+  )
 
   logger::log_info("Transforming surveys to API format...")
   api_validated <- validated_surveys |>

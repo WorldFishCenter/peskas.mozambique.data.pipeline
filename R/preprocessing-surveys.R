@@ -317,7 +317,7 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
         TRUE ~ .data$habitat
       )
     ) |>
-    dplyr::select(-"survey_label")
+    dplyr::select(-c("survey_label", "airtable_id"))
 
   logger::log_info("Uploading preprocessed data to cloud storage")
   # upload preprocessed landings
@@ -436,7 +436,8 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
         .data$habitat == "mud" ~ "Mud / Algae / Sand",
         TRUE ~ .data$habitat
       )
-    )
+    ) |>
+    dplyr::select(-"airtable_id")
 
   logger::log_info("Uploading preprocessed data to cloud storage")
   # upload preprocessed landings
