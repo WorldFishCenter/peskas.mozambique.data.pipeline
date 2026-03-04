@@ -437,6 +437,7 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
         TRUE ~ .data$habitat
       )
     ) |>
+    dplyr::distinct() |>
     dplyr::select(-"airtable_id")
 
   logger::log_info("Uploading preprocessed data to cloud storage")
