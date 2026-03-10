@@ -1260,8 +1260,7 @@ export_validation_flags <- function(
   validation_statuses = NULL
 ) {
   asset_id <- match.arg(asset_id)
-  config_key <- paste0("kobo-", asset_id)
-
+  config_key <- asset_id
   # Get the survey-specific config
   survey_conf <- conf$surveys[[config_key]]
 
@@ -1294,7 +1293,7 @@ export_validation_flags <- function(
     tidyr::separate_rows("alert_flag", sep = ",\\s*") |>
     dplyr::select(-c(dplyr::starts_with("valid")))
 
-  asset_id <- survey_conf$asset_id
+  asset_id <- conf$ingestion[[config_key]]$asset_id
 
   coasts::mdb_collection_push(
     data = validation_flags_with_kobo_status,
