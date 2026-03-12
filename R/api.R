@@ -32,6 +32,7 @@
 #' - `catch_outcome`: Outcome of catch (landed, sold, etc.)
 #' - `n_catch`: Number of individual catch items
 #' - `catch_taxon`: Species or taxonomic group
+#' - `scientific_name`: Scientific name
 #' - `length_cm`: Length measurement in centimeters
 #' - `catch_kg`: Weight in kilograms
 #' - `catch_price`: Price in local currency
@@ -103,6 +104,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
       "catch_outcome",
       "n_catch",
       catch_taxon = "alpha3_code",
+      "scientific_name",
       length_cm = "length",
       "catch_kg",
       tot_catch_price = "catch_price"
@@ -188,6 +190,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
 #' - `catch_outcome`: Outcome of catch (landed, sold, etc.)
 #' - `n_catch`: Number of individual catch items
 #' - `catch_taxon`: Species or taxonomic group
+#' - `scientific_name`: Scientific name
 #' - `length_cm`: Length measurement in centimeters
 #' - `catch_kg`: Weight in kilograms
 #' - `catch_price`: Price in local currency
@@ -259,6 +262,7 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
       "catch_outcome",
       "n_catch",
       "catch_taxon",
+      "scientific_name",
       length_cm = "length",
       "catch_kg",
       tot_catch_price = "catch_price"
