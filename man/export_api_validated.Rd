@@ -49,6 +49,7 @@ The exported dataset includes the following fields:
 \item \code{catch_outcome}: Outcome of catch (landed, sold, etc.)
 \item \code{n_catch}: Number of individual catch items
 \item \code{catch_taxon}: Species or taxonomic group
+\item \code{scientific_name}: Scientific name
 \item \code{length_cm}: Length measurement in centimeters
 \item \code{catch_kg}: Weight in kilograms
 \item \code{catch_price}: Price in local currency

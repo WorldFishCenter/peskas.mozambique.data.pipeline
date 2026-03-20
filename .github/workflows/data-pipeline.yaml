@@ -215,3 +215,19 @@ jobs:
         run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
       - name: Call export_portal()
         run: Rscript -e 'coasts::export_portal(package = "peskas.mozambique.data.pipeline")'
+
+  export-lurio-data:
+    name: Export Lurio data
+    needs: validate-lurio
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Set env to production
+        if: endsWith(github.ref, '/main')
+        run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
+      - name: Call export_lurio_landings()
+        run: Rscript -e 'peskas.mozambique.data.pipeline::export_lurio_landings()'
