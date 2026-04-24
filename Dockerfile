@@ -23,4 +23,7 @@ RUN install2.r --error --skipinstalled \
 RUN install2.r --error --skipinstalled \
     git2r
 
-RUN Rscript -e 'remotes::install_github("WorldFishCenter/peskas.coasts", ref = "v3.0.1")'
+# Install GitHub packages
+ARG COASTS_REF
+RUN test -n "$COASTS_REF" && \
+    Rscript -e "remotes::install_github('WorldFishCenter/peskas.coasts', ref = '${COASTS_REF}')"
