@@ -53,6 +53,8 @@ jobs:
           context: .
           file: Dockerfile.prod
           push: true
+          build-args: |
+            COASTS_REF=${{ steps.coasts.outputs.ref }}
           tags: ghcr.io/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique:latest
           build-args: CACHEBUST=${{ github.sha }}
           cache-from: type=registry,ref=ghcr.io/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique:buildcache

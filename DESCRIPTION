@@ -37,6 +37,8 @@ Imports:
     tidyselect,
     univOutl,
     coasts
+Remotes:
+    WorldFishCenter/peskas.coasts
 URL: https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/
 Depends: 
     R (>= 2.10)
