@@ -75,6 +75,8 @@ and is part of a two-stage API export pipeline:
 
 - `catch_taxon`: Species or taxonomic group
 
+- `scientific_name`: Scientific name
+
 - `length_cm`: Length measurement in centimeters
 
 - `catch_kg`: Weight in kilograms

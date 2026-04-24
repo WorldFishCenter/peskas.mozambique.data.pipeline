@@ -1,5 +1,34 @@
 # Changelog
 
+## peskas.mozambique.data.pipeline 2.8.0
+
+#### Infrastructure & Workflow
+
+- **Delegating to `coasts` most of the core storage and databse-related
+  functions**: Now core and other countries shared storage functions are
+  delagated to central and upgraded features of the `coasts`pacakge for
+  improved standardization and maintainability
+
+## peskas.mozambique.data.pipeline 2.7.0
+
+### Improvements
+
+- **Standardized configuration structure**: Replaced `inst/conf.yml`
+  with a unified multi-country template harmonized across all Peskas
+  deployments (Zanzibar, Kenya, Mozambique). Key structural changes:
+  - Survey credentials moved from `surveys.*` into a new top-level
+    `ingestion.*` section
+  - Stage keys shortened (`raw_surveys` → `raw`, `preprocessed_surveys`
+    → `preprocessed`, etc.)
+  - Source names shortened (`wcs_surveys` → `wcs`, `wf_surveys_v1` →
+    `wf_v1`, etc.)
+  - MongoDB structure reorganized: connection strings under
+    `connection_strings.*`, databases under `databases.*`, collections
+    key pluralized, `portal` renamed to `dashboard`
+  - Airtable config moved from top-level `airtable.*` to
+    `metadata.airtable.*`
+  - All R code updated to use the new config paths
+
 ## peskas.mozambique.data.pipeline 2.5.1
 
 ### New Features
@@ -371,8 +400,7 @@
   - Cleaner job naming for better CI/CD monitoring
   - Maintained robust error handling with granular validation stages
 - **Code Quality**:
-  - Added new exported functions:
-    [`summarize_data()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/summarize_data.md),
+  - Added new exported functions: `summarize_data()`,
     [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.md),
     [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_submissions_parallel.md)
   - Enhanced function documentation with proper importFrom declarations
@@ -524,27 +552,18 @@
 
 - **GPS Tracking Integration with Pelagic Data Systems (PDS)**: Full
   support for vessel tracking data ingestion and preprocessing.
-  - Added
-    [`ingest_pds_trips()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/ingest_pds_trips.md)
-    to retrieve and store GPS trip metadata from PDS API
-  - Added
-    [`ingest_pds_tracks()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/ingest_pds_tracks.md)
-    to download individual trip point data with parallel processing
-    support
-  - Implemented
-    [`get_trips()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_trips.md)
-    and
-    [`get_trip_points()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_trip_points.md)
-    functions for PDS API interaction
-  - Added
-    [`preprocess_pds_tracks()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_pds_tracks.md)
-    for track data cleaning and feature extraction
-  - Introduced
-    [`preprocess_track_data()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_track_data.md)
-    with configurable track processing pipelines
-  - Created
-    [`generate_track_summaries()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/generate_track_summaries.md)
-    for trip-level metrics calculation
+  - Added `ingest_pds_trips()` to retrieve and store GPS trip metadata
+    from PDS API
+  - Added `ingest_pds_tracks()` to download individual trip point data
+    with parallel processing support
+  - Implemented `get_trips()` and `get_trip_points()` functions for PDS
+    API interaction
+  - Added `preprocess_pds_tracks()` for track data cleaning and feature
+    extraction
+  - Introduced `preprocess_track_data()` with configurable track
+    processing pipelines
+  - Created `generate_track_summaries()` for trip-level metrics
+    calculation
 - **Airtable Integration Module**: Complete suite of functions for
   two-way synchronization with Airtable.
   - Implemented
@@ -603,17 +622,11 @@
 
 - **Storage System Enhancements**:
   - Migrated primary storage to Google Cloud Storage with Parquet format
-  - Added
-    [`upload_parquet_to_cloud()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/upload_parquet_to_cloud.md)
-    and
-    [`download_parquet_from_cloud()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/download_parquet_from_cloud.md)
-    with versioning support
-  - Implemented
-    [`cloud_storage_authenticate()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/cloud_storage_authenticate.md)
-    with temporary credential file handling
-  - Created
-    [`cloud_object_name()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/cloud_object_name.md)
-    for version-aware object retrieval
+  - Added `upload_parquet_to_cloud()` and
+    `download_parquet_from_cloud()` with versioning support
+  - Implemented `cloud_storage_authenticate()` with temporary credential
+    file handling
+  - Created `cloud_object_name()` for version-aware object retrieval
   - MongoDB maintained as secondary storage for legacy compatibility
   - Moved length-weight coefficients from `data/` to `inst/` directory
     for better package structure
@@ -664,9 +677,8 @@
   entries (#PR/issue reference if applicable)
 - Corrected global variable bindings in validation functions to prevent
   R CMD check warnings
-- Removed invalid `geo` parameter from
-  [`mdb_collection_push()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/mdb_collection_push.md)
-  function call
+- Removed invalid `geo` parameter from `mdb_collection_push()` function
+  call
 - Fixed `customer_name` and `submission_id` variable scoping issues
   using `.data$` notation
 

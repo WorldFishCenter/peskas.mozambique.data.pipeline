@@ -119,20 +119,12 @@ these functions executes a step in the data pipeline.
   : Download and Process ADNAP Surveys from Kobotoolbox
 - [`ingest_landings_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/ingest_landings_lurio.md)
   : Download and Process Lurio Surveys from Kobotoolbox
-- [`ingest_pds_tracks()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/ingest_pds_tracks.md)
-  : Ingest Pelagic Data Systems (PDS) Track Data
-- [`ingest_pds_trips()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/ingest_pds_trips.md)
-  : Ingest Pelagic Data Systems (PDS) Trip Data
 - [`merge_trips()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/merge_trips.md)
   : Merge GPS Tracker Trips with Validated Survey Landings
 - [`preprocess_landings_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_adnap.md)
   : Preprocess ADNAP Landings Data
 - [`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_lurio.md)
   : Preprocess Lurio Landings Data
-- [`preprocess_pds_tracks()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_pds_tracks.md)
-  : Preprocess Pelagic Data Systems (PDS) Track Data
-- [`summarize_data()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/summarize_data.md)
-  : Summarize WorldFish Survey Data
 - [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.md)
   : Synchronize Validation Statuses with KoboToolbox
 - [`update_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/update_validation_status.md)
@@ -146,43 +138,14 @@ these functions executes a step in the data pipeline.
 
 Functions that interact with cloud storage providers.
 
-- [`cloud_object_name()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/cloud_object_name.md)
-  : Generate Cloud Object Name
-- [`cloud_storage_authenticate()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/cloud_storage_authenticate.md)
-  : Authenticate to a Cloud Storage Provider
-- [`download_cloud_file()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/download_cloud_file.md)
-  : Download File from Cloud Storage
-- [`download_parquet_from_cloud()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/download_parquet_from_cloud.md)
-  : Download Parquet File from Cloud Storage
-- [`get_metadata()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_metadata.md)
-  : Get metadata tables
-- [`mdb_collection_pull()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/mdb_collection_pull.md)
-  : Retrieve Data from MongoDB
-- [`mdb_collection_push()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/mdb_collection_push.md)
-  : Upload Data to MongoDB and Overwrite Existing Content
-- [`upload_cloud_file()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/upload_cloud_file.md)
-  : Upload File to Cloud Storage
-- [`upload_parquet_to_cloud()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/upload_parquet_to_cloud.md)
-  : Upload Data as Parquet File to Cloud Storage
-
 ## Ingestion
 
 Functions dedicated to the ingestion module
 
-- [`get_kobo_data()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_kobo_data.md)
-  : Retrieve Data from Kobotoolbox API
-- [`get_trip_points()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_trip_points.md)
-  : Get Trip Points from Pelagic Data Systems API
-- [`get_trips()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_trips.md)
-  : Retrieve Trip Details from Pelagic Data API
 - [`ingest_landings_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/ingest_landings_adnap.md)
   : Download and Process ADNAP Surveys from Kobotoolbox
 - [`ingest_landings_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/ingest_landings_lurio.md)
   : Download and Process Lurio Surveys from Kobotoolbox
-- [`ingest_pds_tracks()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/ingest_pds_tracks.md)
-  : Ingest Pelagic Data Systems (PDS) Track Data
-- [`ingest_pds_trips()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/ingest_pds_trips.md)
-  : Ingest Pelagic Data Systems (PDS) Trip Data
 
 ## Preprocessing
 
@@ -200,8 +163,6 @@ Functions dedicated to the preprocessing module
   : Fetch and Filter Asset Data from Airtable
 - [`fetch_assets()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/fetch_assets.md)
   : Fetch Multiple Asset Tables from Airtable
-- [`generate_track_summaries()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/generate_track_summaries.md)
-  : Generate Grid Summaries for Track Data
 - [`getLWCoeffs()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/getLWCoeffs.md)
   : Get Length-Weight Coefficients and Morphological Data for Species
 - [`get_airtable_form_id()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_airtable_form_id.md)
@@ -225,10 +186,6 @@ Functions dedicated to the preprocessing module
   : Preprocess ADNAP Landings Data
 - [`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_lurio.md)
   : Preprocess Lurio Landings Data
-- [`preprocess_pds_tracks()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_pds_tracks.md)
-  : Preprocess Pelagic Data Systems (PDS) Track Data
-- [`preprocess_track_data()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_track_data.md)
-  : Preprocess Track Data into Spatial Grid Summary
 - [`process_species_group()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_species_group.md)
   : Process Species Length and Catch Data
 - [`process_species_list()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_species_list.md)

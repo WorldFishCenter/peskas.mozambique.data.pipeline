@@ -65,8 +65,8 @@ including:
 
 - MongoDB connection parameters
 
-- KoboToolbox asset ID and token (configured under ingestion\$kobo-adnap
-  or ingestion\$kobo-lurio)
+- KoboToolbox asset ID and token (configured under ingestion\$adnap or
+  ingestion\$lurio)
 
 - KoboToolbox username (to identify system approvals)
 

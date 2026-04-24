@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,31 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.8.0" id="peskasmozambiquedatapipeline-280">peskas.mozambique.data.pipeline 2.8.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-280"></a></h2>
+<div class="section level4">
+<h4 id="infrastructure--workflow-2-8-0">Infrastructure &amp; Workflow<a class="anchor" aria-label="anchor" href="#infrastructure--workflow-2-8-0"></a></h4>
+<ul><li>
+<strong>Delegating to <code>coasts</code> most of the core storage and databse-related functions</strong>: Now core and other countries shared storage functions are delagated to central and upgraded features of the <code>coasts</code>pacakge for improved standardization and maintainability</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.0" id="peskasmozambiquedatapipeline-270">peskas.mozambique.data.pipeline 2.7.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-270"></a></h2>
+<div class="section level3">
+<h3 id="improvements-2-7-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-7-0"></a></h3>
+<ul><li>
+<strong>Standardized configuration structure</strong>: Replaced <code>inst/conf.yml</code> with a unified multi-country template harmonized across all Peskas deployments (Zanzibar, Kenya, Mozambique). Key structural changes:
+<ul><li>Survey credentials moved from <code>surveys.*</code> into a new top-level <code>ingestion.*</code> section</li>
+<li>Stage keys shortened (<code>raw_surveys</code> → <code>raw</code>, <code>preprocessed_surveys</code> → <code>preprocessed</code>, etc.)</li>
+<li>Source names shortened (<code>wcs_surveys</code> → <code>wcs</code>, <code>wf_surveys_v1</code> → <code>wf_v1</code>, etc.)</li>
+<li>MongoDB structure reorganized: connection strings under <code>connection_strings.*</code>, databases under <code>databases.*</code>, collections key pluralized, <code>portal</code> renamed to <code>dashboard</code>
+</li>
+<li>Airtable config moved from top-level <code>airtable.*</code> to <code>metadata.airtable.*</code>
+</li>
+<li>All R code updated to use the new config paths</li>
+</ul></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.5.1" id="peskasmozambiquedatapipeline-251">peskas.mozambique.data.pipeline 2.5.1<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-251"></a></h2>
 <div class="section level3">
@@ -353,7 +378,7 @@
 </ul></li>
 <li>
 <strong>Code Quality</strong>:
-<ul><li>Added new exported functions: <code><a href="../reference/summarize_data.html">summarize_data()</a></code>, <code><a href="../reference/sync_validation_submissions.html">sync_validation_submissions()</a></code>, <code><a href="../reference/process_submissions_parallel.html">process_submissions_parallel()</a></code>
+<ul><li>Added new exported functions: <code>summarize_data()</code>, <code><a href="../reference/sync_validation_submissions.html">sync_validation_submissions()</a></code>, <code><a href="../reference/process_submissions_parallel.html">process_submissions_parallel()</a></code>
 </li>
 <li>Enhanced function documentation with proper importFrom declarations</li>
 <li>Improved variable scoping and data pipeline clarity</li>
@@ -467,12 +492,12 @@
 <h3 id="major-changes-1-0-0">Major Changes<a class="anchor" aria-label="anchor" href="#major-changes-1-0-0"></a></h3>
 <ul><li>
 <strong>GPS Tracking Integration with Pelagic Data Systems (PDS)</strong>: Full support for vessel tracking data ingestion and preprocessing.
-<ul><li>Added <code><a href="../reference/ingest_pds_trips.html">ingest_pds_trips()</a></code> to retrieve and store GPS trip metadata from PDS API</li>
-<li>Added <code><a href="../reference/ingest_pds_tracks.html">ingest_pds_tracks()</a></code> to download individual trip point data with parallel processing support</li>
-<li>Implemented <code><a href="../reference/get_trips.html">get_trips()</a></code> and <code><a href="../reference/get_trip_points.html">get_trip_points()</a></code> functions for PDS API interaction</li>
-<li>Added <code><a href="../reference/preprocess_pds_tracks.html">preprocess_pds_tracks()</a></code> for track data cleaning and feature extraction</li>
-<li>Introduced <code><a href="../reference/preprocess_track_data.html">preprocess_track_data()</a></code> with configurable track processing pipelines</li>
-<li>Created <code><a href="../reference/generate_track_summaries.html">generate_track_summaries()</a></code> for trip-level metrics calculation</li>
+<ul><li>Added <code>ingest_pds_trips()</code> to retrieve and store GPS trip metadata from PDS API</li>
+<li>Added <code>ingest_pds_tracks()</code> to download individual trip point data with parallel processing support</li>
+<li>Implemented <code>get_trips()</code> and <code>get_trip_points()</code> functions for PDS API interaction</li>
+<li>Added <code>preprocess_pds_tracks()</code> for track data cleaning and feature extraction</li>
+<li>Introduced <code>preprocess_track_data()</code> with configurable track processing pipelines</li>
+<li>Created <code>generate_track_summaries()</code> for trip-level metrics calculation</li>
 </ul></li>
 <li>
 <strong>Airtable Integration Module</strong>: Complete suite of functions for two-way synchronization with Airtable.
@@ -506,9 +531,9 @@
 <ul><li>
 <strong>Storage System Enhancements</strong>:
 <ul><li>Migrated primary storage to Google Cloud Storage with Parquet format</li>
-<li>Added <code><a href="../reference/upload_parquet_to_cloud.html">upload_parquet_to_cloud()</a></code> and <code><a href="../reference/download_parquet_from_cloud.html">download_parquet_from_cloud()</a></code> with versioning support</li>
-<li>Implemented <code><a href="../reference/cloud_storage_authenticate.html">cloud_storage_authenticate()</a></code> with temporary credential file handling</li>
-<li>Created <code><a href="../reference/cloud_object_name.html">cloud_object_name()</a></code> for version-aware object retrieval</li>
+<li>Added <code>upload_parquet_to_cloud()</code> and <code>download_parquet_from_cloud()</code> with versioning support</li>
+<li>Implemented <code>cloud_storage_authenticate()</code> with temporary credential file handling</li>
+<li>Created <code>cloud_object_name()</code> for version-aware object retrieval</li>
 <li>MongoDB maintained as secondary storage for legacy compatibility</li>
 <li>Moved length-weight coefficients from <code>data/</code> to <code>inst/</code> directory for better package structure</li>
 </ul></li>
@@ -549,7 +574,7 @@
 <h3 id="bug-fixes-1-0-0">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-0-0"></a></h3>
 <ul><li>Fixed price validation logic that was incorrectly flagging valid entries (#PR/issue reference if applicable)</li>
 <li>Corrected global variable bindings in validation functions to prevent R CMD check warnings</li>
-<li>Removed invalid <code>geo</code> parameter from <code><a href="../reference/mdb_collection_push.html">mdb_collection_push()</a></code> function call</li>
+<li>Removed invalid <code>geo</code> parameter from <code>mdb_collection_push()</code> function call</li>
 <li>Fixed <code>customer_name</code> and <code>submission_id</code> variable scoping issues using <code>.data$</code> notation</li>
 </ul></div>
 <div class="section level3">

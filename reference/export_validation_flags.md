@@ -127,7 +127,7 @@ The function pushes to two MongoDB collections:
 - [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.md)
   for the deprecated approach that updates KoboToolbox
 
-- [`mdb_collection_push()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/mdb_collection_push.md)
+- [`coasts::mdb_collection_push()`](https://rdrr.io/pkg/coasts/man/mdb_collection_push.html)
   for MongoDB operations
 
 ## Examples
