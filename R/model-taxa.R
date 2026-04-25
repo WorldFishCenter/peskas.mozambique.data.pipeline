@@ -157,7 +157,7 @@ calculate_catch_adnap <- function(catch_data = NULL, lwcoeffs = NULL) {
 getLWCoeffs <- function(taxa_list = NULL, asfis_list = NULL) {
   # 1. Load both databases
   taxa_data <- list(
-    fishbase = rfishbase::load_taxa(server = "fishbase", version = "24.07"),
+    fishbase = rfishbase::load_taxa(server = "fishbase"),
     sealifebase = rfishbase::load_taxa(
       server = "sealifebase",
       version = "24.07"
