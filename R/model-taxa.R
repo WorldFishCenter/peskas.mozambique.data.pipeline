@@ -158,10 +158,7 @@ getLWCoeffs <- function(taxa_list = NULL, asfis_list = NULL) {
   # 1. Load both databases
   taxa_data <- list(
     fishbase = rfishbase::load_taxa(server = "fishbase"),
-    sealifebase = rfishbase::load_taxa(
-      server = "sealifebase",
-      version = "24.07"
-    )
+    sealifebase = rfishbase::load_taxa(server = "sealifebase")
   )
 
   # 2. Process species list
@@ -332,10 +329,7 @@ get_fao_groups <- function(fao_codes = NULL, asfis_list = NULL) {
 load_taxa_databases <- function() {
   list(
     fishbase = rfishbase::load_taxa(server = "fishbase"),
-    sealifebase = rfishbase::load_taxa(
-      server = "sealifebase",
-      version = "24.07"
-    )
+    sealifebase = rfishbase::load_taxa(server = "sealifebase")
   )
 }
 
@@ -497,8 +491,7 @@ get_species_areas_batch <- function(matched_species) {
     rfishbase::faoareas(
       sealifebase_species,
       fields = "AreaCode",
-      server = "sealifebase",
-      version = "24.07"
+      server = "sealifebase"
     ) %>%
       dplyr::mutate(database = "sealifebase")
   } else {
@@ -612,8 +605,7 @@ get_length_weight_batch <- function(
     rfishbase::length_weight(
       sealifebase_species,
       fields = c("Species", "SpecCode", "Type", "EsQ", "a", "b"),
-      server = "sealifebase",
-      version = "24.07"
+      server = "sealifebase"
     ) %>%
       dplyr::mutate(database = "sealifebase")
   } else {
@@ -673,8 +665,7 @@ get_length_weight_batch <- function(
       rfishbase::species(
         sealifebase_species,
         fields = c("Species", "SpecCode", "Length", "CommonLength", "Weight"),
-        server = "sealifebase",
-        version = "24.07"
+        server = "sealifebase"
       ) %>%
         dplyr::mutate(database = "sealifebase")
     } else {
