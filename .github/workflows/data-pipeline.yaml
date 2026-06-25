@@ -13,6 +13,7 @@ env:
   KOBO_ASSET_ID_ADNAP: ${{ secrets.KOBO_ASSET_ID_ADNAP }}
   KOBO_PASSWORD: ${{ secrets.KOBO_PASSWORD }}
   KOBO_USERNAME: ${{ secrets.KOBO_USERNAME }}
+  WF_GLEANING_ID: ${{ secrets.WF_GLEANING_ID }}
   MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
   MONGODB_CONNECTION_STRING_VALIDATION: ${{ secrets.MONGODB_CONNECTION_STRING_VALIDATION }}
   AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
@@ -245,3 +246,42 @@ jobs:
         run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
       - name: Call export_lurio_landings()
         run: Rscript -e 'peskas.mozambique.data.pipeline::export_lurio_landings()'
+
+
+  # ============================================================================
+  # WF gleaning
+  # ============================================================================
+
+  ingest-preprocess-wf-gleaning-surveys:
+    name: Ingest and preprocess WF gleaning surveys
+    needs: build-container
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Set env to production
+        if: endsWith(github.ref, '/main')
+        run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
+      - name: Call ingest_wf_surveys()
+        run: Rscript -e 'peskas.mozambique.data.pipeline::ingest_wf_surveys()'
+      - name: Call preprocess_wf_gleaning()
+        run: Rscript -e 'peskas.mozambique.data.pipeline::preprocess_wf_gleaning()'
+
+  validate-wf-gleaning-surveys:
+    name: Validate and sync WF gleaning surveys
+    needs: ingest-preprocess-wf-gleaning-surveys
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/worldfishcenter/peskas.mozambique.data.pipeline/r-runner-peskas-mozambique:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Set env to production
+        if: endsWith(github.ref, '/main')
+        run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
+      - name: Call validate_gleaning_surveys()
+        run: Rscript -e 'peskas.mozambique.data.pipeline::validate_gleaning_surveys()'

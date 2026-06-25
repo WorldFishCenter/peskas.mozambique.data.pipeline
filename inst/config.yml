@@ -10,7 +10,10 @@ default:
       asset_id: !expr Sys.getenv('KOBO_ASSET_ID_ADNAP')
       username: !expr Sys.getenv('KOBO_USERNAME')
       token: !expr Sys.getenv('KOBO_TOKEN')
-
+    wf_gleaning:
+      asset_id: !expr Sys.getenv('WF_GLEANING_ID')
+      username: !expr Sys.getenv('KOBO_USERNAME')
+      password: !expr Sys.getenv('KOBO_PASSWORD')
   surveys:
     summaries:
       file_prefix: mozambique-summaries
@@ -47,6 +50,16 @@ default:
       validation:
         flags:
           file_prefix: adnap-flags
+    wf_gleaning:
+      raw:
+        file_prefix: wf-surveys_gleaning-raw
+        version: latest
+      preprocessed:
+        file_prefix: wf-surveys_gleaning-preprocessed
+        version: latest
+      validated:
+        file_prefix: wf-surveys_gleaning-validated
+        version: latest
 
   storage:
     google:

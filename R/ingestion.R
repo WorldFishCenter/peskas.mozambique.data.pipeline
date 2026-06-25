@@ -137,6 +137,68 @@ ingest_landings_adnap <- function() {
   invisible(NULL)
 }
 
+#' Download and Process WF Catch Surveys from Kobotoolbox
+#'
+#' This function retrieves WF survey data from Kobotoolbox,
+#' processes it, and uploads the raw data as Parquet files to Google Cloud Storage.
+#' This function retrieves WCS survey data  from Kobotoolbox,
+#' processes it, and uploads the raw data as Parquet files to Google Cloud Storage.
+#'
+#' @param log_threshold Logging threshold level (default: logger::DEBUG)
+#'
+#' @return No return value. Function downloads data, processes it, and uploads to Google Cloud Storage.
+#'
+#' @details
+#' The function performs the following steps:
+#' 1. Reads configuration settings.
+#' 2. Downloads survey data from Kobotoolbox using `get_kobo_data`.
+#' 3. Checks for uniqueness of submissions.
+#' 4. Converts data to tabular format.
+#' 5. Uploads raw data as Parquet files to Google Cloud Storage.
+#' 5. Uploads raw data as Parquet files to Google Cloud Storage.
+#'
+#' This function processes WF surveys.
+#'
+#' @keywords workflow ingestion
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ingest_wf_surveys()
+#' }
+ingest_wf_surveys <- function(log_threshold = logger::DEBUG) {
+  conf <- read_config()
+
+  # Define WCS version configurations
+  version_configs <- list(
+    v1 = list(
+      kobo = list(
+        url = "eu.kobotoolbox.org",
+        asset_id = conf$ingestion$wf_gleaning$asset_id,
+        username = conf$ingestion$wf_gleaning$username,
+        password = conf$ingestion$wf_gleaning$password
+      ),
+      storage = list(
+        file_prefix = conf$surveys$wf_gleaning$raw$file_prefix,
+        provider = conf$storage$google$key,
+        options = conf$storage$google$options
+      )
+    )
+  )
+
+  # Process each WF version
+  purrr::iwalk(
+    version_configs,
+    ~ {
+      ingest_catch_survey_version(
+        version = .y,
+        kobo_config = .x$kobo,
+        storage_config = .x$storage
+      )
+    }
+  )
+}
+
 
 #' Flatten Survey Data Rows
 #'
@@ -215,4 +277,62 @@ rename_child <- function(x, i, p) {
     }
   }
   x
+}
+
+#' Core ingestion logic for catch survey data
+#'
+#' @param version Version identifier (e.g., "v1", "v2")
+#' @param kobo_config Configuration object containing Kobo connection details
+#' @param storage_config Configuration object containing storage details
+#' @return No return value. Processes and uploads data.
+#' @keywords internal
+ingest_catch_survey_version <- function(version, kobo_config, storage_config) {
+  logger::log_info(glue::glue(
+    "Downloading Survey Kobo data ({version})..."
+  ))
+
+  data_raw <- coasts::get_kobo_data(
+    url = kobo_config$url,
+    assetid = kobo_config$asset_id,
+    uname = kobo_config$username,
+    pwd = kobo_config$password,
+    encoding = "UTF-8",
+    format = "json"
+  )
+
+  logger::log_info(glue::glue(
+    "Checking uniqueness of {length(data_raw)} submissions for {version}..."
+  ))
+
+  # Check that submissions are unique in case there is overlap in the pagination
+  unique_ids <- dplyr::n_distinct(purrr::map_dbl(data_raw, ~ .$`_id`))
+  if (unique_ids != length(data_raw)) {
+    stop(glue::glue(
+      "Number of submission ids ({unique_ids}) not the same as number of records ({length(data_raw)}) in {version} data"
+    ))
+  }
+
+  logger::log_info(glue::glue(
+    "Converting {version} Kobo data to tabular format..."
+  ))
+
+  raw_survey <- data_raw %>%
+    purrr::map(flatten_row) %>%
+    dplyr::bind_rows() %>%
+    dplyr::rename(submission_id = "_id")
+
+  logger::log_info(glue::glue(
+    "Converted {nrow(raw_survey)} rows with {ncol(raw_survey)} columns for {version}"
+  ))
+
+  coasts::upload_parquet_to_cloud(
+    data = raw_survey,
+    prefix = storage_config$file_prefix,
+    provider = storage_config$provider,
+    options = storage_config$options
+  )
+
+  logger::log_info(glue::glue(
+    "Successfully completed ingestion for {version}"
+  ))
 }
