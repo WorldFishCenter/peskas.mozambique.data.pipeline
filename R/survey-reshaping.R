@@ -86,55 +86,6 @@ reshape_species_groups <- function(df = NULL) {
 }
 
 
-#' Sanitize physical catch inputs
-#'
-#' Drops (sets to NA) values for `length`, `weight_bucket`, `n_buckets`, and
-#' `individuals` that fall outside physically plausible bounds. Defensive
-#' against unit errors (length in metres instead of cm, weight_bucket in
-#' grams instead of kg), decimal-separator confusion ("25.000" parsed as
-#' 25000 instead of 25.0), and obvious data-entry slips.
-#'
-#' Bounds are conservative - they remove only the unambiguously impossible.
-#' Downstream validation applies stricter, taxon-aware checks; sanitization
-#' here protects the preprocessed parquet against extreme outliers
-#' (e.g. a length of 195000 cm collapsing a trip total to billions of kg
-#' via W proportional to L^b with b near 3).
-#'
-#' Bounds:
-#' \itemize{
-#'   \item `length` in (0, 300] cm
-#'   \item `weight_bucket` in (0, 100] kg
-#'   \item `n_buckets` in (0, 200]
-#'   \item `individuals` in (0, 10000]
-#' }
-#'
-#' Columns absent from the input are left untouched.
-#'
-#' @param df A data frame containing any subset of the columns above.
-#' @return The input with out-of-range values replaced by NA.
-#' @keywords internal
-sanitize_catch_inputs <- function(df) {
-  df |>
-    dplyr::mutate(
-      dplyr::across(
-        dplyr::any_of("length"),
-        ~ dplyr::if_else(.x > 0 & .x <= 300, .x, NA_real_)
-      ),
-      dplyr::across(
-        dplyr::any_of("weight_bucket"),
-        ~ dplyr::if_else(.x > 0 & .x <= 100, .x, NA_real_)
-      ),
-      dplyr::across(
-        dplyr::any_of("n_buckets"),
-        ~ dplyr::if_else(.x > 0 & .x <= 200, .x, NA_real_)
-      ),
-      dplyr::across(
-        dplyr::any_of("individuals"),
-        ~ dplyr::if_else(.x > 0 & .x <= 10000, .x, NA_real_)
-      )
-    )
-}
-
 #' Preprocess Catch Data from Survey Forms
 #'
 #' Processes catch data from KoBoToolbox survey forms, handling different field structures
@@ -203,8 +154,7 @@ preprocess_catch <- function(data = NULL) {
         TRUE ~ .data$catch_taxon
       )
     ) |>
-    dplyr::select(-"fish_group") |>
-    sanitize_catch_inputs()
+    dplyr::select(-"fish_group")
 }
 
 #' Expand Length Frequency Data for a Single Species Row
