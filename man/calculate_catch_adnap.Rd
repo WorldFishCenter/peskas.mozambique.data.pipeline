@@ -21,8 +21,8 @@ calculate_catch_adnap(catch_data = NULL, lwcoeffs = NULL)
 \item{lwcoeffs}{A data frame containing length-weight coefficients with columns:
 \itemize{
 \item catch_taxon - FAO 3-alpha code
-\item a_6 - 60th percentile of parameter 'a'
-\item b_6 - 60th percentile of parameter 'b'
+\item lw_a - geometric mean of parameter 'a' across studies
+\item lw_b - arithmetic mean of parameter 'b' across studies
 }}
 }
 \value{

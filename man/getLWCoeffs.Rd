@@ -18,8 +18,8 @@ A list with two elements:
 \itemize{
 \item catch_taxon - FAO 3-alpha code
 \item n - Number of measurements
-\item a_6 - 60th percentile of parameter 'a'
-\item b_6 - 60th percentile of parameter 'b'
+\item lw_a - Geometric mean of parameter 'a' across studies
+\item lw_b - Arithmetic mean of parameter 'b' across studies
 }
 \item ml - A data frame with morphological data:
 \itemize{

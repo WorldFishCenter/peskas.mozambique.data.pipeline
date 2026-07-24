@@ -20,8 +20,8 @@
 #' @param lwcoeffs A data frame containing length-weight coefficients with columns:
 #'   \itemize{
 #'     \item catch_taxon - FAO 3-alpha code
-#'     \item a_6 - 60th percentile of parameter 'a'
-#'     \item b_6 - 60th percentile of parameter 'b'
+#'     \item lw_a - geometric mean of parameter 'a' across studies
+#'     \item lw_b - arithmetic mean of parameter 'b' across studies
 #'   }
 #'
 #' @return A tibble with the following columns:
@@ -78,13 +78,13 @@ calculate_catch_adnap <- function(catch_data = NULL, lwcoeffs = NULL) {
       catch_length_gr = dplyr::case_when(
         # Specific case for Octopus cyanea (OCZ) - using length conversion
         !is.na(.data$length) &
-          !is.na(.data$a_6) &
-          !is.na(.data$b_6) &
+          !is.na(.data$lw_a) &
+          !is.na(.data$lw_b) &
           .data$catch_taxon == "OCZ" ~
-          .data$a_6 * ((.data$length / 5.5)^.data$b_6),
+          .data$lw_a * ((.data$length / 5.5)^.data$lw_b),
         # General case for other species - direct calculation
-        !is.na(.data$length) & !is.na(.data$a_6) & !is.na(.data$b_6) ~
-          .data$a_6 * (.data$length^.data$b_6),
+        !is.na(.data$length) & !is.na(.data$lw_a) & !is.na(.data$lw_b) ~
+          .data$lw_a * (.data$length^.data$lw_b),
         # Otherwise NA
         TRUE ~ NA_real_
       ),
@@ -129,8 +129,8 @@ calculate_catch_adnap <- function(catch_data = NULL, lwcoeffs = NULL) {
 #'       \itemize{
 #'         \item catch_taxon - FAO 3-alpha code
 #'         \item n - Number of measurements
-#'         \item a_6 - 60th percentile of parameter 'a'
-#'         \item b_6 - 60th percentile of parameter 'b'
+#'         \item lw_a - Geometric mean of parameter 'a' across studies
+#'         \item lw_b - Arithmetic mean of parameter 'b' across studies
 #'       }
 #'     \item ml - A data frame with morphological data:
 #'       \itemize{
@@ -186,19 +186,19 @@ getLWCoeffs <- function(taxa_list = NULL, asfis_list = NULL) {
     lw_data$length_weight %>%
     dplyr::filter(!(.data$a3_code == "PEZ" & .data$type != "TL")) %>%
     dplyr::filter(!(.data$a3_code == "OCZ" & !.data$type == "ML")) %>%
-    dplyr::filter(!(.data$a3_code == "IAX" & !.data$type == "TL")) %>%
+    dplyr::filter(.data$a > 0, !is.na(.data$a), !is.na(.data$b)) %>%
     dplyr::group_by(.data$a3_code) %>%
     dplyr::summarise(
       n = dplyr::n(),
-      a_6 = stats::quantile(.data$a, 0.6, na.rm = TRUE),
-      b_6 = stats::quantile(.data$b, 0.6, na.rm = TRUE),
+      lw_a = exp(mean(log(.data$a))),
+      lw_b = mean(.data$b),
       .groups = "drop"
     ) %>%
     dplyr::select(
       catch_taxon = "a3_code",
       "n",
-      "a_6",
-      "b_6"
+      "lw_a",
+      "lw_b"
     )
 
   ml <-

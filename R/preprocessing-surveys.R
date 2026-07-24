@@ -256,8 +256,8 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
   fly_lwcoeffs <- dplyr::tibble(
     catch_taxon = "FLY",
     n = 0,
-    a_6 = 0.00631,
-    b_6 = 3.05
+    lw_a = 0.00631,
+    lw_b = 3.05
   )
   lwcoeffs$lw <- dplyr::bind_rows(lwcoeffs$lw, fly_lwcoeffs)
 
@@ -638,8 +638,8 @@ process_species_group <- function(data = NULL) {
 #' @param lwcoeffs A data frame containing length-weight coefficients with columns:
 #'   \itemize{
 #'     \item catch_taxon - FAO 3-alpha code
-#'     \item a_6 - 60th percentile of parameter 'a'
-#'     \item b_6 - 60th percentile of parameter 'b'
+#'     \item lw_a - geometric mean of parameter 'a' across studies
+#'     \item lw_b - arithmetic mean of parameter 'b' across studies
 #'   }
 #'
 #' @return A tibble with the following columns:
@@ -696,13 +696,13 @@ calculate_catch_lurio <- function(catch_data = NULL, lwcoeffs = NULL) {
       catch_length_gr = dplyr::case_when(
         # Specific case for Octopus cyanea (OCZ) - using length conversion
         !is.na(.data$length) &
-          !is.na(.data$a_6) &
-          !is.na(.data$b_6) &
+          !is.na(.data$lw_a) &
+          !is.na(.data$lw_b) &
           .data$catch_taxon == "OCZ" ~
-          .data$a_6 * ((.data$length / 5.5)^.data$b_6),
+          .data$lw_a * ((.data$length / 5.5)^.data$lw_b),
         # General case for other species - direct calculation
-        !is.na(.data$length) & !is.na(.data$a_6) & !is.na(.data$b_6) ~
-          .data$a_6 * (.data$length^.data$b_6),
+        !is.na(.data$length) & !is.na(.data$lw_a) & !is.na(.data$lw_b) ~
+          .data$lw_a * (.data$length^.data$lw_b),
         # Otherwise NA
         TRUE ~ NA_real_
       ),
@@ -1239,8 +1239,8 @@ process_version_data <- function(catch_info = NULL, asfis = NULL) {
   fly_lwcoeffs <- dplyr::tibble(
     catch_taxon = "FLY",
     n = 0,
-    a_6 = 0.00631,
-    b_6 = 3.05
+    lw_a = 0.00631,
+    lw_b = 3.05
   )
   lwcoeffs$lw <- dplyr::bind_rows(lwcoeffs$lw, fly_lwcoeffs)
 
