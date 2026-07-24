@@ -576,6 +576,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
     dplyr::select(
       "submission_id",
       "n_catch",
+      "landing_date",
       "submission_date",
       # dplyr::ends_with("fishers"),
       "catch_outcome",
