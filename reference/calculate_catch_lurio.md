@@ -40,9 +40,9 @@ calculate_catch_lurio(catch_data = NULL, lwcoeffs = NULL)
 
   - catch_taxon - FAO 3-alpha code
 
-  - a_6 - 60th percentile of parameter 'a'
+  - lw_a - geometric mean of parameter 'a' across studies
 
-  - b_6 - 60th percentile of parameter 'b'
+  - lw_b - arithmetic mean of parameter 'b' across studies
 
 ## Value
 

@@ -30,9 +30,9 @@ A list with two elements:
 
   - n - Number of measurements
 
-  - a_6 - 60th percentile of parameter 'a'
+  - lw_a - Geometric mean of parameter 'a' across studies
 
-  - b_6 - 60th percentile of parameter 'b'
+  - lw_b - Arithmetic mean of parameter 'b' across studies
 
 - ml - A data frame with morphological data:
 
