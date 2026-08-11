@@ -99,7 +99,14 @@ read_config <- function() {
   )
 
   logger::log_info("Using configutation: {attr(pars, 'config')}")
-  logger::log_debug("Running with parameters {pars}")
+  # Never log the resolved config: it carries the GCP service-account key,
+  # MongoDB connection strings, Kobo passwords and API tokens in plaintext.
+  # Log only the non-sensitive storage targets actually in use.
+  logger::log_debug(
+    "Buckets -> main: {pars$storage$google$options$bucket}, ",
+    "coasts: {pars$storage$google$options_coasts$bucket}, ",
+    "api: {pars$storage$google$options_api$bucket}"
+  )
 
   pars
 }
