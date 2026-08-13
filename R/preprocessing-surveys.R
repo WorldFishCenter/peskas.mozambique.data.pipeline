@@ -56,13 +56,10 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
     readr::read_rds() |>
     purrr::keep_at(c("taxa", "gear", "vessels", "sites", "geo")) |>
     purrr::map(
-      ~ dplyr::filter(
-        .x,
-        stringr::str_detect(
-          .data$form_id,
-          paste0("(^|,\\s*)", !!target_form_id, "(\\s*,|$)")
-        )
-      )
+      ~ dplyr::filter(.x, stringr::str_detect(.data$form_id, ...))
+    ) |>
+    purrr::map(
+      ~ dplyr::select(.x, -dplyr::any_of(c("country", "latitude", "longitude")))
     )
 
   # get raw landings from cloud storage
@@ -387,13 +384,10 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
     readr::read_rds() |>
     purrr::keep_at(c("taxa", "gear", "vessels", "sites", "geo")) |>
     purrr::map(
-      ~ dplyr::filter(
-        .x,
-        stringr::str_detect(
-          .data$form_id,
-          paste0("(^|,\\s*)", !!target_form_id, "(\\s*,|$)")
-        )
-      )
+      ~ dplyr::filter(.x, stringr::str_detect(.data$form_id, ...))
+    ) |>
+    purrr::map(
+      ~ dplyr::select(.x, -dplyr::any_of(c("country", "latitude", "longitude")))
     )
 
   # get raw landings from cloud storage
