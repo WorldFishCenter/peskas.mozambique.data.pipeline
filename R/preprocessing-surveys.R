@@ -1078,8 +1078,12 @@ map_surveys <- function(
 ) {
   data |>
     dplyr::left_join(geo_mapping, by = c("district" = "survey_label")) |>
+    # `country` is stripped from every asset table before it reaches here (it
+    # is carried on all of taxa/gear/vessels/geo and would otherwise collide
+    # across the successive joins), so tolerate its absence rather than
+    # demanding it.
     dplyr::select(
-      -c("form_id", "district_code", "country")
+      -dplyr::any_of(c("form_id", "district_code", "country"))
     ) |>
     dplyr::relocate(
       "gaul_1_name",
