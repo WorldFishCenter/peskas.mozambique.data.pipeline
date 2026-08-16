@@ -31,7 +31,7 @@ Imports:
     rlang,
     sf,
     stringdist,
-    stringr,
+    stringr (>= 1.5.0),
     tibble,
     tidyr,
     tidyselect,

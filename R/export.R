@@ -474,9 +474,11 @@ export_landings <- function() {
 export_lurio_landings <- function() {
   conf <- read_config()
 
-  target_form_id <- get_airtable_form_id(
-    kobo_asset_id = conf$ingestion$`lurio`$asset_id,
-    conf = conf
+  ids_pattern <- form_id_pattern(
+    get_airtable_form_id(
+      kobo_asset_id = conf$ingestion$`lurio`$asset_id,
+      conf = conf
+    )
   )
 
   assets <-
@@ -496,10 +498,7 @@ export_lurio_landings <- function() {
     purrr::map(
       ~ dplyr::filter(
         .x,
-        stringr::str_detect(
-          .data$form_id,
-          paste0("(^|,\\s*)", !!target_form_id, "(\\s*,|$)")
-        )
+        stringr::str_detect(.data$form_id, .env$ids_pattern)
       )
     )
 

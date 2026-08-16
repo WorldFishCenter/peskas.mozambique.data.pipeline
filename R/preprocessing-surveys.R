@@ -36,9 +36,11 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
     options = conf$storage$google$options
   )
 
-  target_form_id <- get_airtable_form_id(
-    kobo_asset_id = conf$ingestion$`lurio`$asset_id,
-    conf = conf
+  ids_pattern <- form_id_pattern(
+    get_airtable_form_id(
+      kobo_asset_id = conf$ingestion$`lurio`$asset_id,
+      conf = conf
+    )
   )
 
   assets <-
@@ -56,10 +58,17 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
     readr::read_rds() |>
     purrr::keep_at(c("taxa", "gear", "vessels", "sites", "geo")) |>
     purrr::map(
-      ~ dplyr::filter(.x, stringr::str_detect(.data$form_id, ...))
+      ~ dplyr::filter(
+        .x,
+        stringr::str_detect(.data$form_id, .env$ids_pattern)
+      )
     ) |>
     purrr::map(
-      ~ dplyr::select(.x, -dplyr::any_of(c("country", "latitude", "longitude")))
+      ~ dplyr::select(
+        .x,
+        -dplyr::any_of(c("country", "latitude", "longitude"))
+      ) |>
+        dplyr::distinct()
     )
 
   # get raw landings from cloud storage
@@ -364,9 +373,11 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
     options = conf$storage$google$options
   )
 
-  target_form_id <- get_airtable_form_id(
-    kobo_asset_id = conf$ingestion$`adnap`$asset_id,
-    conf = conf
+  ids_pattern <- form_id_pattern(
+    get_airtable_form_id(
+      kobo_asset_id = conf$ingestion$`adnap`$asset_id,
+      conf = conf
+    )
   )
 
   assets <-
@@ -384,10 +395,17 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
     readr::read_rds() |>
     purrr::keep_at(c("taxa", "gear", "vessels", "sites", "geo")) |>
     purrr::map(
-      ~ dplyr::filter(.x, stringr::str_detect(.data$form_id, ...))
+      ~ dplyr::filter(
+        .x,
+        stringr::str_detect(.data$form_id, .env$ids_pattern)
+      )
     ) |>
     purrr::map(
-      ~ dplyr::select(.x, -dplyr::any_of(c("country", "latitude", "longitude")))
+      ~ dplyr::select(
+        .x,
+        -dplyr::any_of(c("country", "latitude", "longitude"))
+      ) |>
+        dplyr::distinct()
     )
 
   # get raw landings from cloud storage
@@ -917,6 +935,12 @@ calculate_fishery_metrics <- function(data = NULL) {
 #' @description
 #' Retrieves the Airtable record ID for a form based on its KoBoToolbox asset ID.
 #'
+#' @details
+#' Fails loudly when the lookup does not resolve to exactly one record. A
+#' missing environment variable makes `kobo_asset_id` an empty string, which
+#' would otherwise return `character(0)` and silently degrade every downstream
+#' asset filter into one that matches nothing.
+#'
 #' @param kobo_asset_id Character. The KoBoToolbox asset ID to match.
 #' @param conf Configuration object from read_config().
 #'
@@ -924,14 +948,93 @@ calculate_fishery_metrics <- function(data = NULL) {
 #' @keywords preprocessing helper
 #' @export
 get_airtable_form_id <- function(kobo_asset_id = NULL, conf = NULL) {
-  airtable_to_df(
-    base_id = conf$metadata$airtable$frame$base_id,
-    table_name = "forms",
-    token = conf$metadata$airtable$token
-  ) |>
+  if (
+    length(kobo_asset_id) != 1 || is.na(kobo_asset_id) || !nzchar(kobo_asset_id)
+  ) {
+    stop(
+      "`kobo_asset_id` must be a single non-empty string (got ",
+      class(kobo_asset_id)[1],
+      " of length ",
+      length(kobo_asset_id),
+      "). Check the matching `asset_id` entry in config.yml and that its ",
+      "environment variable is set.",
+      call. = FALSE
+    )
+  }
+
+  airtable_id <-
+    airtable_to_df(
+      base_id = conf$metadata$airtable$frame$base_id,
+      table_name = "forms",
+      token = conf$metadata$airtable$token
+    ) |>
     janitor::clean_names() |>
     dplyr::filter(.data$form_id == kobo_asset_id) |>
-    dplyr::pull(.data$airtable_id)
+    dplyr::pull(.data$airtable_id) |>
+    unique()
+
+  if (length(airtable_id) != 1) {
+    stop(
+      "Expected exactly 1 Airtable `forms` record for kobo asset id '",
+      kobo_asset_id,
+      "', found ",
+      length(airtable_id),
+      ".",
+      call. = FALSE
+    )
+  }
+
+  airtable_id
+}
+
+#' Build a Form-ID Match Pattern for Airtable Asset Tables
+#'
+#' @description
+#' Builds the regular expression used to select the rows of an Airtable asset
+#' table (`taxa`, `gear`, `vessels`, `sites`, `geo`) that belong to one or more
+#' forms.
+#'
+#' @details
+#' `form_id` in the assets snapshot is a *linked-record* field. [airtable_to_df()]
+#' collapses it with `paste(collapse = ", ")`, so a record shared by three forms
+#' arrives as a single string `"recA, recB, recC"`. Selecting a form's records
+#' therefore needs a whole-element match rather than a substring test.
+#'
+#' Both degenerate inputs are rejected rather than tolerated, because both fail
+#' silently downstream: a zero-length id makes `paste0()` recycle to a pattern
+#' that matches only empty strings (every asset table comes back empty and every
+#' join yields `NA`), and a multi-element pattern makes [stringr::str_detect()]
+#' recycle element-wise against the data instead of testing alternatives.
+#'
+#' @param form_ids Character vector of Airtable form record IDs, e.g. the output
+#'   of one or more [get_airtable_form_id()] calls.
+#'
+#' @return A length-1 character string: a regex matching any of `form_ids` as a
+#'   whole element of a comma-separated list.
+#'
+#' @examples
+#' form_id_pattern("recAAAAAAAAAAAAAA")
+#' form_id_pattern(c("recAAAAAAAAAAAAAA", "recBBBBBBBBBBBBBB"))
+#'
+#' @keywords preprocessing helper
+#' @export
+form_id_pattern <- function(form_ids) {
+  form_ids <- unique(form_ids[!is.na(form_ids) & nzchar(form_ids)])
+
+  if (length(form_ids) == 0) {
+    stop(
+      "No Airtable form record id to filter assets on. Filtering on an empty ",
+      "id silently returns zero asset rows, so this is an error rather than a ",
+      "warning.",
+      call. = FALSE
+    )
+  }
+
+  paste0(
+    "(^|,\\s*)(",
+    paste(stringr::str_escape(form_ids), collapse = "|"),
+    ")(\\s*,|$)"
+  )
 }
 
 #' Map Survey Labels to Standardized Taxa, Gear, and Vessel Names

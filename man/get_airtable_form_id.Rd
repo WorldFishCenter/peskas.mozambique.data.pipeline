@@ -17,5 +17,11 @@ Character. The Airtable record ID for the matching form.
 \description{
 Retrieves the Airtable record ID for a form based on its KoBoToolbox asset ID.
 }
+\details{
+Fails loudly when the lookup does not resolve to exactly one record. A
+missing environment variable makes \code{kobo_asset_id} an empty string, which
+would otherwise return \code{character(0)} and silently degrade every downstream
+asset filter into one that matches nothing.
+}
 \keyword{helper}
 \keyword{preprocessing}
