@@ -22,3 +22,10 @@ get_airtable_form_id(kobo_asset_id = NULL, conf = NULL)
 ## Value
 
 Character. The Airtable record ID for the matching form.
+
+## Details
+
+Fails loudly when the lookup does not resolve to exactly one record. A
+missing environment variable makes `kobo_asset_id` an empty string,
+which would otherwise return `character(0)` and silently degrade every
+downstream asset filter into one that matches nothing.

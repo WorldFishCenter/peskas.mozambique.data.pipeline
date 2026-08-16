@@ -57,6 +57,13 @@
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Character. The Airtable record ID for the matching form.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Fails loudly when the lookup does not resolve to exactly one record. A
+missing environment variable makes <code>kobo_asset_id</code> an empty string, which
+would otherwise return <code>character(0)</code> and silently degrade every downstream
+asset filter into one that matches nothing.</p>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

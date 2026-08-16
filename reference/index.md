@@ -65,6 +65,8 @@ Functions dedicated to the preprocessing module
   : Fetch and Filter Asset Data from Airtable
 - [`fetch_assets()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/fetch_assets.md)
   : Fetch Multiple Asset Tables from Airtable
+- [`form_id_pattern()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/form_id_pattern.md)
+  : Build a Form-ID Match Pattern for Airtable Asset Tables
 - [`getLWCoeffs()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/getLWCoeffs.md)
   : Get Length-Weight Coefficients and Morphological Data for Species
 - [`get_airtable_form_id()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_airtable_form_id.md)
@@ -160,6 +162,8 @@ Functions dedicated to data processing.
   : Fetch and Filter Asset Data from Airtable
 - [`fetch_assets()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/fetch_assets.md)
   : Fetch Multiple Asset Tables from Airtable
+- [`form_id_pattern()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/form_id_pattern.md)
+  : Build a Form-ID Match Pattern for Airtable Asset Tables
 - [`get_airtable_form_id()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_airtable_form_id.md)
   : Get Airtable Form ID from KoBoToolbox Asset ID
 - [`load_dotenv()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/load_dotenv.md)
