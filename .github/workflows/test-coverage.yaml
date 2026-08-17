@@ -38,7 +38,13 @@ jobs:
           covr::to_cobertura(cov)
         shell: Rscript {0}
 
+      # Coverage is computed above; this step only uploads it to a third-party
+      # service. It has been failing with "Repository not found" since July --
+      # a stale CODECOV_TOKEN or an unlinked repo, neither fixable from here.
+      # continue-on-error keeps the upload visibly red in the run view without
+      # gating the repo on someone else's outage.
       - uses: codecov/codecov-action@v4
+        continue-on-error: true
         with:
           fail_ci_if_error: ${{ github.event_name != 'pull_request' && true || false }}
           file: ./cobertura.xml
