@@ -1157,62 +1157,6 @@ fetch_asset <- function(
     dplyr::select(dplyr::all_of(select_cols))
 }
 
-#' Fetch Multiple Asset Tables from Airtable
-#'
-#' @description
-#' Fetches taxa, gear, vessels, and landing sites data from Airtable filtered
-#' by the specified form ID. Returns distinct records for each table.
-#'
-#' @param form_id Character. Form ID to filter assets by. This is passed to each
-#'   individual fetch_asset call.
-#' @param conf Configuration object from read_config().
-#'
-#' @return A named list containing four data frames:
-#'   \itemize{
-#'     \item \code{taxa}: Contains survey_label, alpha3_code, and scientific_name columns
-#'     \item \code{gear}: Contains survey_label and standard_name columns
-#'     \item \code{vessels}: Contains survey_label and standard_name columns
-#'     \item \code{sites}: Contains site and site_code columns
-#'   }
-#'
-#' @details
-#' Each table is fetched separately using `fetch_asset()` and filtered to return
-#' only distinct rows to avoid duplicates in the mapping tables.
-#'
-#' @keywords preprocessing helper
-#' @export
-fetch_assets <- function(form_id = NULL, conf = NULL) {
-  assets_list <-
-    list(
-      taxa = fetch_asset(
-        table_name = "taxa",
-        select_cols = c("survey_label", "alpha3_code", "scientific_name"),
-        form = form_id,
-        conf = conf
-      ),
-      gear = fetch_asset(
-        table_name = "gears",
-        select_cols = c("survey_label", "standard_name"),
-        form = form_id,
-        conf = conf
-      ),
-      vessels = fetch_asset(
-        table_name = "vessels",
-        select_cols = c("survey_label", "standard_name"),
-        form = form_id,
-        conf = conf
-      ),
-      sites = fetch_asset(
-        table_name = "landing_sites",
-        select_cols = c("site", "site_code"),
-        form = form_id,
-        conf = conf
-      )
-    )
-
-  purrr::map(assets_list, ~ dplyr::distinct(.x))
-}
-
 #' Preprocess General Survey Information for ADNAP
 #'
 #' Processes general survey information from ADNAP KoBoToolbox forms including
