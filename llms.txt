@@ -161,8 +161,6 @@ Functions dedicated to the preprocessing module
   : Calculate Fishery Metrics
 - [`fetch_asset()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/fetch_asset.md)
   : Fetch and Filter Asset Data from Airtable
-- [`fetch_assets()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/fetch_assets.md)
-  : Fetch Multiple Asset Tables from Airtable
 - [`form_id_pattern()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/form_id_pattern.md)
   : Build a Form-ID Match Pattern for Airtable Asset Tables
 - [`getLWCoeffs()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/getLWCoeffs.md)
@@ -258,8 +256,6 @@ Functions dedicated to data processing.
   : Create metric structure for MongoDB/ApexCharts
 - [`fetch_asset()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/fetch_asset.md)
   : Fetch and Filter Asset Data from Airtable
-- [`fetch_assets()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/fetch_assets.md)
-  : Fetch Multiple Asset Tables from Airtable
 - [`form_id_pattern()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/form_id_pattern.md)
   : Build a Form-ID Match Pattern for Airtable Asset Tables
 - [`get_airtable_form_id()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_airtable_form_id.md)
