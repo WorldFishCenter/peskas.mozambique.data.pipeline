@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Extract version and changelog from NEWS.md
         id: changelog
@@ -37,7 +39,7 @@ jobs:
       - name: Check if tag exists
         id: check_tag
         run: |
-          if git rev-parse "v${{ steps.changelog.outputs.tag_name }}" >/dev/null 2>&1; then
+          if git rev-parse "${{ steps.changelog.outputs.tag_name }}" >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
@@ -47,7 +49,7 @@ jobs:
         if: steps.check_tag.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.changelog.outputs.tag_name }}
+          tag_name: ${{ steps.changelog.outputs.tag_name }}
           body: ${{ steps.changelog.outputs.changelog }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
