@@ -79,9 +79,10 @@ ADNAP).
   indistinguishable from a passed check. `safe_min()` now yields `NA`
   rather than `Inf`, and because FishBase populates `CommonLength` for
   only 10% of species against 91% for `Length`, missing values are
-  estimated as `0.625 * Length` (`common_length_ratio()`). All 283 taxa
-  with morphology now have usable bounds. Expect a wave of new length
-  alerts on the first run: those records were never checked before.
+  estimated as `0.625 * Length` (`common_length_ratio()`). All taxa with
+  morphology now have usable bounds (283 on the dev pool, 290 on
+  production). Expect a wave of new length alerts on the first run:
+  those records were never checked before.
 
 - **Search-name aliases fix 28 taxa the ASFIS names could not match**
   ([`taxa_search_aliases()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/taxa_search_aliases.md),
@@ -98,7 +99,7 @@ ADNAP).
   `Haemulidae (=Pomadasyidae)`, whose embedded space made the rank rule
   read a family as a species. `VMX` is *Valamugil*, a genus the backbone
   no longer carries, so *Osteomugil* and *Moolgarda* are both searched.
-  Coverage goes from 231 to 257 of 288 codes, and unmatched names from
+  Coverage goes from 237 to 263 of 295 codes, and unmatched names from
   30 to 2.
 
   `CRA` (“marine crabs nei”, *Brachyura*) and `CUX` (“sea cucumbers
@@ -141,13 +142,18 @@ ADNAP).
 ### Known Issues
 
 Measured 2026-09-06 against FishBase 25.04 / SeaLifeBase 24.07 over the
-live KoBo data: **257 of 288 codes resolve length-weight coefficients**,
-up from 231 before this release (ADNAP 223/252, Lurio 52/55). The other
-31 form the documented baseline in
+**production** KoBo data for both forms: **263 of 295 codes resolve
+length-weight coefficients**, up from 237 before this release (ADNAP
+230/260, Lurio 52/55). The other 32 form the documented baseline in
 [`assert_taxa_coverage()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/assert_taxa_coverage.md),
 so any *new* loss fails the run. `CJX` and `PWT` are deliberately not in
 it — they resolve at 25.04 and are the two codes that break at 26.06, so
 a release move fails the check.
+
+Measure the baseline against production, not dev. The first CI run
+failed on `LHV`, an ADNAP code absent from the dev bucket, whose raw
+files lagged production by three weeks and 8 codes
+(`BIG BLR FLI LHV NXU OCZ PNQ RRU`; the other 7 all resolve).
 
 - **Not a taxon (1)** — `MZZ` (*Actinopterygii*), dropped before the
   search.
@@ -155,10 +161,16 @@ a release move fails the check.
   *Brachyura*) and `CUX` (class *Holothuroidea*).
 - **Wrong reference name (2)** — `AND`, `NAI` name species absent from
   FAO 51.
-- **No published coefficients (19)** —
-  `ADT CJV CWC ECG EFZ EJX GQT GQV ICZ NUH OCN OIC PEJ PKF RDR TCI TEC UVG YFK`
+- **No published coefficients (18)** —
+  `ADT CJV CWC ECG EFZ EJX GQT GQV ICZ NUH OCN OIC PEJ PKF RDR TCI UVG YFK`
   occur in FAO 51 but carry no length-weight pair in any length type.
   Nothing to convert, nothing to alias.
+- **Only a doubtful pair (2)** — `LHV` (*Lethrinus variegatus*) and
+  `TEC` (*Pterocaesio chrysozona*) each have exactly one published pair,
+  flagged `EsQ = "Yes"` by FishBase itself, which
+  [`get_length_weight_batch()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_length_weight_batch.md)
+  drops on purpose. Recovering either means overriding FishBase’s
+  quality flag.
 - **No usable length type (7)** — `HMP` (SL), `PKV` and `QCY` (FL),
   `RMB` (disc width), and `EFB`, `EFN`, `KAK`, which record no length
   type at all.

@@ -72,8 +72,8 @@ green. This turns that silence into a failed job.</p>
 <span>  <span class="va">taxa_list</span>,</span>
 <span>  <span class="va">lw</span>,</span>
 <span>  exempt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MZZ"</span>, <span class="st">"CRA"</span>, <span class="st">"CUX"</span>, <span class="st">"AND"</span>, <span class="st">"NAI"</span>, <span class="st">"ADT"</span>, <span class="st">"CJV"</span>, <span class="st">"CWC"</span>, <span class="st">"ECG"</span>, <span class="st">"EFZ"</span>, <span class="st">"EJX"</span>,</span>
-<span>    <span class="st">"GQT"</span>, <span class="st">"GQV"</span>, <span class="st">"ICZ"</span>, <span class="st">"NUH"</span>, <span class="st">"OCN"</span>, <span class="st">"OIC"</span>, <span class="st">"PEJ"</span>, <span class="st">"PKF"</span>, <span class="st">"RDR"</span>, <span class="st">"TCI"</span>, <span class="st">"TEC"</span>, <span class="st">"UVG"</span>,</span>
-<span>    <span class="st">"YFK"</span>, <span class="st">"EFB"</span>, <span class="st">"EFN"</span>, <span class="st">"HMP"</span>, <span class="st">"KAK"</span>, <span class="st">"PKV"</span>, <span class="st">"QCY"</span>, <span class="st">"RMB"</span><span class="op">)</span></span>
+<span>    <span class="st">"GQT"</span>, <span class="st">"GQV"</span>, <span class="st">"ICZ"</span>, <span class="st">"NUH"</span>, <span class="st">"OCN"</span>, <span class="st">"OIC"</span>, <span class="st">"PEJ"</span>, <span class="st">"PKF"</span>, <span class="st">"RDR"</span>, <span class="st">"TCI"</span>, <span class="st">"UVG"</span>, <span class="st">"YFK"</span>,</span>
+<span>    <span class="st">"LHV"</span>, <span class="st">"TEC"</span>, <span class="st">"EFB"</span>, <span class="st">"EFN"</span>, <span class="st">"HMP"</span>, <span class="st">"KAK"</span>, <span class="st">"PKV"</span>, <span class="st">"QCY"</span>, <span class="st">"RMB"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -94,8 +94,11 @@ coefficients have been bound on.</p></dd>
 <dd><p>Codes that carry no coefficients today. This is a <strong>baseline,
 not a whitelist</strong>: it records the taxa that were already uncovered when the
 check was introduced (measured 2026-09-06 against FishBase 25.04 /
-SeaLifeBase 24.07 over the live KoBo data for both forms, 257 of 288 codes
-resolving), so that any <em>new</em> loss fails the run. <code>CJX</code> (<em>Caesionidae</em>) and
+SeaLifeBase 24.07 over the <strong>production</strong> KoBo data for both forms, 263 of
+295 codes resolving — ADNAP 230/260, Lurio 52/55), so that any <em>new</em> loss
+fails the run. Measure against production, not dev: the dev bucket lagged
+by three weeks and 8 ADNAP codes, one of which (<code>LHV</code>) was uncovered and
+failed the first CI run. <code>CJX</code> (<em>Caesionidae</em>) and
 <code>PWT</code> (<em>Scaridae</em>) are deliberately absent — they resolve at 25.04 and are
 the two codes that break at 26.06, so a release move fails here.
 Shrinking this list is follow-up work; each group below is a separate fix.</p>
@@ -126,8 +129,16 @@ FAO 51, but FishBase or SeaLifeBase carries no length-weight pair for
 it in any length type. There is nothing to convert and nothing to
 alias; the measurement does not exist. <code>ADT</code>, <code>CJV</code>, <code>CWC</code>, <code>ECG</code>,
 <code>EFZ</code>, <code>EJX</code>, <code>GQT</code>, <code>GQV</code>, <code>ICZ</code>, <code>NUH</code>, <code>OCN</code>, <code>OIC</code>, <code>PEJ</code>, <code>PKF</code>,
-<code>RDR</code>, <code>TCI</code>, <code>TEC</code>, <code>UVG</code> and <code>YFK</code> — 19 codes, and the bulk of this
+<code>RDR</code>, <code>TCI</code>, <code>UVG</code> and <code>YFK</code> — 18 codes, and the bulk of this
 baseline. All but <code>EJX</code> and <code>OCN</code> are FishBase.</p></dd>
+
+<dt>Only a doubtful pair</dt>
+<dd><p><code>LHV</code> (<em>Lethrinus variegatus</em>) and <code>TEC</code>
+(<em>Pterocaesio chrysozona</em>) each have exactly one published pair, and
+FishBase flags it <code>EsQ = "Yes"</code> — its own marker for a doubtful
+estimate. <code><a href="get_length_weight_batch.html">get_length_weight_batch()</a></code> drops those deliberately, so
+nothing is left. Recovering either means overriding FishBase's own
+quality flag, which is a judgement call, not a lookup.</p></dd>
 
 <dt>No usable length type</dt>
 <dd><p>Published (a, b) pairs exist, but in a
