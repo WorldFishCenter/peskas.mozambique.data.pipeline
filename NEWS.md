@@ -19,9 +19,9 @@ measured against the live KoBo data for both forms (Lurio and ADNAP).
 
 - **Length-type conversion recovers taxa that weighed `NA`** (`get_length_conversions()`, `convert_lw_to_tl()`): FishBase tags every published length-weight pair with the length type the original study measured, and for tunas, billfish and several carangids that is fork length. `get_length_weight_batch()` kept only `Type == "TL"`, so those taxa got no coefficients at all and every length-measured catch row of them weighed `NA`. The conversions are published data in FishBase's POPLL table, which this pipeline never read. Reading it restates `a` on a total-length basis (`a_TL = a * ratio^b`, `b` unchanged) and recovers 18 codes across the two forms: `ARQ BAN BET CFX CJC CJZ FLY HDH HES HSU JOA LTQ MLS NGR NXP NXT ZEV AVR`.
 
-- **Morphology bounds no longer silently disable length validation**: `min(CommonLength, na.rm = TRUE)` returns `Inf` for a taxon whose matched species all lack that field, and the permissiveness step then computed `Inf - 0.75 * Inf` = `NaN`. Every comparison against `NaN` is `NA`, which `case_when()` treats as no-match, so the length alert codes never fired for those taxa — a missing bound was indistinguishable from a passed check. `safe_min()` now yields `NA` rather than `Inf`, and because FishBase populates `CommonLength` for only 10% of species against 91% for `Length`, missing values are estimated as `0.625 * Length` (`common_length_ratio()`). All 283 taxa with morphology now have usable bounds. Expect a wave of new length alerts on the first run: those records were never checked before.
+- **Morphology bounds no longer silently disable length validation**: `min(CommonLength, na.rm = TRUE)` returns `Inf` for a taxon whose matched species all lack that field, and the permissiveness step then computed `Inf - 0.75 * Inf` = `NaN`. Every comparison against `NaN` is `NA`, which `case_when()` treats as no-match, so the length alert codes never fired for those taxa — a missing bound was indistinguishable from a passed check. `safe_min()` now yields `NA` rather than `Inf`, and because FishBase populates `CommonLength` for only 10% of species against 91% for `Length`, missing values are estimated as `0.625 * Length` (`common_length_ratio()`). All taxa with morphology now have usable bounds (283 on the dev pool, 290 on production). Expect a wave of new length alerts on the first run: those records were never checked before.
 
-- **Search-name aliases fix 28 taxa the ASFIS names could not match** (`taxa_search_aliases()`, `apply_taxa_aliases()`): a handful of ASFIS reference names match nothing in the taxonomic backbone, so the taxon is dropped and every catch row of it weighs `NA`. Every row was derived by looking the ASFIS name up in the synonym table for the pinned release. Most are genus splits — *Carangoides* across *Ferdauia*, *Platycaranx*, *Atropus* and *Turrum*; *Sepia* across *Rhombosepion*, *Ascarosepion* and *Acanthosepion* — plus spelling drift (`ESR`, `PKT`, `RPO`, `SYQ`, `ZEV`, `LGE`) and two broken ASFIS strings: `HES` is truncated to `Herklotsichthys quadrimaculat.` and `GRX` carries the parenthetical `Haemulidae (=Pomadasyidae)`, whose embedded space made the rank rule read a family as a species. `VMX` is *Valamugil*, a genus the backbone no longer carries, so *Osteomugil* and *Moolgarda* are both searched. Coverage goes from 231 to 257 of 288 codes, and unmatched names from 30 to 2.
+- **Search-name aliases fix 28 taxa the ASFIS names could not match** (`taxa_search_aliases()`, `apply_taxa_aliases()`): a handful of ASFIS reference names match nothing in the taxonomic backbone, so the taxon is dropped and every catch row of it weighs `NA`. Every row was derived by looking the ASFIS name up in the synonym table for the pinned release. Most are genus splits — *Carangoides* across *Ferdauia*, *Platycaranx*, *Atropus* and *Turrum*; *Sepia* across *Rhombosepion*, *Ascarosepion* and *Acanthosepion* — plus spelling drift (`ESR`, `PKT`, `RPO`, `SYQ`, `ZEV`, `LGE`) and two broken ASFIS strings: `HES` is truncated to `Herklotsichthys quadrimaculat.` and `GRX` carries the parenthetical `Haemulidae (=Pomadasyidae)`, whose embedded space made the rank rule read a family as a species. `VMX` is *Valamugil*, a genus the backbone no longer carries, so *Osteomugil* and *Moolgarda* are both searched. Coverage goes from 237 to 263 of 295 codes, and unmatched names from 30 to 2.
 
   `CRA` ("marine crabs nei", *Brachyura*) and `CUX` ("sea cucumbers nei", *Holothuroidea*) are deliberately not aliased: both are ranks `match_species_from_taxa()` cannot search, and choosing a target means deciding which crab or holothurian families Mozambique lands. `CUX` is the largest single loss in the baseline, at 972 Lurio rows.
 
@@ -33,20 +33,30 @@ measured against the live KoBo data for both forms (Lurio and ADNAP).
 
 ## Known Issues
 
-Measured 2026-09-06 against FishBase 25.04 / SeaLifeBase 24.07 over the live
-KoBo data: **257 of 288 codes resolve length-weight coefficients**, up from 231
-before this release (ADNAP 223/252, Lurio 52/55). The other 31 form the
-documented baseline in `assert_taxa_coverage()`, so any *new* loss fails the
-run. `CJX` and `PWT` are deliberately not in it — they resolve at 25.04 and are
-the two codes that break at 26.06, so a release move fails the check.
+Measured 2026-09-06 against FishBase 25.04 / SeaLifeBase 24.07 over the
+**production** KoBo data for both forms: **263 of 295 codes resolve
+length-weight coefficients**, up from 237 before this release (ADNAP 230/260,
+Lurio 52/55). The other 32 form the documented baseline in
+`assert_taxa_coverage()`, so any *new* loss fails the run. `CJX` and `PWT` are
+deliberately not in it — they resolve at 25.04 and are the two codes that break
+at 26.06, so a release move fails the check.
+
+Measure the baseline against production, not dev. The first CI run failed on
+`LHV`, an ADNAP code absent from the dev bucket, whose raw files lagged
+production by three weeks and 8 codes (`BIG BLR FLI LHV NXU OCZ PNQ RRU`; the
+other 7 all resolve).
 
 - **Not a taxon (1)** — `MZZ` (*Actinopterygii*), dropped before the search.
 - **A rank the matcher cannot search (2)** — `CRA` (infraorder *Brachyura*) and
   `CUX` (class *Holothuroidea*).
 - **Wrong reference name (2)** — `AND`, `NAI` name species absent from FAO 51.
-- **No published coefficients (19)** — `ADT CJV CWC ECG EFZ EJX GQT GQV ICZ
-  NUH OCN OIC PEJ PKF RDR TCI TEC UVG YFK` occur in FAO 51 but carry no
+- **No published coefficients (18)** — `ADT CJV CWC ECG EFZ EJX GQT GQV ICZ
+  NUH OCN OIC PEJ PKF RDR TCI UVG YFK` occur in FAO 51 but carry no
   length-weight pair in any length type. Nothing to convert, nothing to alias.
+- **Only a doubtful pair (2)** — `LHV` (*Lethrinus variegatus*) and `TEC`
+  (*Pterocaesio chrysozona*) each have exactly one published pair, flagged
+  `EsQ = "Yes"` by FishBase itself, which `get_length_weight_batch()` drops on
+  purpose. Recovering either means overriding FishBase's quality flag.
 - **No usable length type (7)** — `HMP` (SL), `PKV` and `QCY` (FL), `RMB`
   (disc width), and `EFB`, `EFN`, `KAK`, which record no length type at all.
 

@@ -327,8 +327,11 @@ getLWCoeffs <- function(
 #' @param exempt Codes that carry no coefficients today. This is a **baseline,
 #'   not a whitelist**: it records the taxa that were already uncovered when the
 #'   check was introduced (measured 2026-09-06 against FishBase 25.04 /
-#'   SeaLifeBase 24.07 over the live KoBo data for both forms, 257 of 288 codes
-#'   resolving), so that any *new* loss fails the run. `CJX` (*Caesionidae*) and
+#'   SeaLifeBase 24.07 over the **production** KoBo data for both forms, 263 of
+#'   295 codes resolving — ADNAP 230/260, Lurio 52/55), so that any *new* loss
+#'   fails the run. Measure against production, not dev: the dev bucket lagged
+#'   by three weeks and 8 ADNAP codes, one of which (`LHV`) was uncovered and
+#'   failed the first CI run. `CJX` (*Caesionidae*) and
 #'   `PWT` (*Scaridae*) are deliberately absent — they resolve at 25.04 and are
 #'   the two codes that break at 26.06, so a release move fails here.
 #'   Shrinking this list is follow-up work; each group below is a separate fix.
@@ -354,8 +357,14 @@ getLWCoeffs <- function(
 #'       it in any length type. There is nothing to convert and nothing to
 #'       alias; the measurement does not exist. `ADT`, `CJV`, `CWC`, `ECG`,
 #'       `EFZ`, `EJX`, `GQT`, `GQV`, `ICZ`, `NUH`, `OCN`, `OIC`, `PEJ`, `PKF`,
-#'       `RDR`, `TCI`, `TEC`, `UVG` and `YFK` — 19 codes, and the bulk of this
+#'       `RDR`, `TCI`, `UVG` and `YFK` — 18 codes, and the bulk of this
 #'       baseline. All but `EJX` and `OCN` are FishBase.}
+#'     \item{Only a doubtful pair}{`LHV` (*Lethrinus variegatus*) and `TEC`
+#'       (*Pterocaesio chrysozona*) each have exactly one published pair, and
+#'       FishBase flags it `EsQ = "Yes"` — its own marker for a doubtful
+#'       estimate. [get_length_weight_batch()] drops those deliberately, so
+#'       nothing is left. Recovering either means overriding FishBase's own
+#'       quality flag, which is a judgement call, not a lookup.}
 #'     \item{No usable length type}{Published (a, b) pairs exist, but in a
 #'       length type [get_length_conversions()] cannot restate on a
 #'       total-length basis, because FishBase's POPLL table carries no
@@ -387,7 +396,9 @@ assert_taxa_coverage <- function(
     "AND", "NAI",
     # in FAO 51, but no published length-weight pair at all
     "ADT", "CJV", "CWC", "ECG", "EFZ", "EJX", "GQT", "GQV", "ICZ", "NUH",
-    "OCN", "OIC", "PEJ", "PKF", "RDR", "TCI", "TEC", "UVG", "YFK",
+    "OCN", "OIC", "PEJ", "PKF", "RDR", "TCI", "UVG", "YFK",
+    # the only published pair is flagged EsQ = "Yes" (doubtful) and excluded
+    "LHV", "TEC",
     # pairs exist, but in a length type with no POPLL fit to convert through
     # (EFB, EFN and KAK record no length type at all)
     "EFB", "EFN", "HMP", "KAK", "PKV", "QCY", "RMB"
