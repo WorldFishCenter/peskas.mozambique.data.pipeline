@@ -7,7 +7,12 @@ in batches. Handles both fish and non-fish species appropriately.
 ## Usage
 
 ``` r
-get_length_weight_batch(species_areas_filtered, include_morphology = FALSE)
+get_length_weight_batch(
+  species_areas_filtered,
+  include_morphology = FALSE,
+  fb_version = "latest",
+  slb_version = "latest"
+)
 ```
 
 ## Arguments
@@ -20,6 +25,15 @@ get_length_weight_batch(species_areas_filtered, include_morphology = FALSE)
 
   Logical, whether to include morphological data (Length, CommonLength,
   Weight). Default is FALSE.
+
+- fb_version:
+
+  FishBase release to read, e.g. `"25.04"`. Pinned in `inst/config.yml`
+  under `metadata:fishbase`; `"latest"` is unsafe.
+
+- slb_version:
+
+  SeaLifeBase release to read, e.g. `"24.07"`.
 
 ## Value
 

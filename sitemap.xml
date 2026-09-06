@@ -7,10 +7,13 @@
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/add_version.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/airtable_to_df.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/alert_outlier.html</loc></url>
+<url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/apply_taxa_aliases.html</loc></url>
+<url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/assert_taxa_coverage.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/bulk_update_airtable.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_catch_adnap.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_catch_lurio.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_fishery_metrics.html</loc></url>
+<url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/convert_lw_to_tl.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/create_metric_structure.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/device_sync.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/df_to_airtable.html</loc></url>
@@ -28,6 +31,7 @@
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_airtable_form_id.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_catch_bounds_taxon.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_fao_groups.html</loc></url>
+<url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_length_conversions.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_length_weight_batch.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_price_bounds.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_species_areas_batch.html</loc></url>
@@ -60,6 +64,7 @@
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/reshape_species_groups.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/standardize_enumerator_names.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.html</loc></url>
+<url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/taxa_search_aliases.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/update_airtable_record.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/update_validation_status.html</loc></url>
 <url><loc>https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/validate_catch_taxa.html</loc></url>

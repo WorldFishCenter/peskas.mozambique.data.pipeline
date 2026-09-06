@@ -6,7 +6,7 @@ specific survey version
 ## Usage
 
 ``` r
-process_version_data(catch_info = NULL, asfis = NULL)
+process_version_data(catch_info = NULL, asfis = NULL, conf = read_config())
 ```
 
 ## Arguments
@@ -18,6 +18,13 @@ process_version_data(catch_info = NULL, asfis = NULL)
 - asfis:
 
   ASFIS species data
+
+- conf:
+
+  Pipeline configuration, as returned by
+  [`read_config()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/read_config.md).
+  Supplies the pinned FishBase/SeaLifeBase releases under
+  `metadata:fishbase`.
 
 ## Value
 

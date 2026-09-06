@@ -53,6 +53,10 @@ Functions dedicated to the ingestion module
 
 Functions dedicated to the preprocessing module
 
+- [`apply_taxa_aliases()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/apply_taxa_aliases.md)
+  : Apply the search-name aliases to a processed species list
+- [`assert_taxa_coverage()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/assert_taxa_coverage.md)
+  : Fail the run when a taxon loses its length-weight coefficients
 - [`calculate_catch_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_catch_adnap.md)
   : Calculate Catch Weight from Length-Weight Relationships or Bucket
   Measurements
@@ -61,6 +65,8 @@ Functions dedicated to the preprocessing module
   Measurements
 - [`calculate_fishery_metrics()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_fishery_metrics.md)
   : Calculate Fishery Metrics
+- [`convert_lw_to_tl()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/convert_lw_to_tl.md)
+  : Restate a length-weight pair on a total-length basis
 - [`fetch_asset()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/fetch_asset.md)
   : Fetch and Filter Asset Data from Airtable
 - [`form_id_pattern()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/form_id_pattern.md)
@@ -71,6 +77,8 @@ Functions dedicated to the preprocessing module
   : Get Airtable Form ID from KoBoToolbox Asset ID
 - [`get_fao_groups()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_fao_groups.md)
   : Extract and Format FAO Taxonomic Groups
+- [`get_length_conversions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_length_conversions.md)
+  : Length-type conversion ratios from FishBase POPLL
 - [`get_length_weight_batch()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_length_weight_batch.md)
   : Get Length-Weight and Morphological Parameters for Species (Batch
   Version)
@@ -98,6 +106,8 @@ Functions dedicated to the preprocessing module
   : Reshape Species Groups from Wide to Long Format
 - [`standardize_enumerator_names()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/standardize_enumerator_names.md)
   : Standardize Enumerator Names
+- [`taxa_search_aliases()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/taxa_search_aliases.md)
+  : Search names that override the ASFIS reference name
 
 ## Validation
 

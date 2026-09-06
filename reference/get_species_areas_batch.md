@@ -6,7 +6,11 @@ in batches by database source, reducing API calls and processing time.
 ## Usage
 
 ``` r
-get_species_areas_batch(matched_species)
+get_species_areas_batch(
+  matched_species,
+  fb_version = "latest",
+  slb_version = "latest"
+)
 ```
 
 ## Arguments
@@ -14,6 +18,15 @@ get_species_areas_batch(matched_species)
 - matched_species:
 
   Data frame from match_species_from_taxa()
+
+- fb_version:
+
+  FishBase release to read, e.g. `"25.04"`. Pinned in `inst/config.yml`
+  under `metadata:fishbase`; `"latest"` is unsafe.
+
+- slb_version:
+
+  SeaLifeBase release to read, e.g. `"24.07"`.
 
 ## Value
 

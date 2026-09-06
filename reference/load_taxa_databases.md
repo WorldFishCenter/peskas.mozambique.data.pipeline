@@ -7,8 +7,19 @@ identification and classification.
 ## Usage
 
 ``` r
-load_taxa_databases()
+load_taxa_databases(fb_version = "latest", slb_version = "latest")
 ```
+
+## Arguments
+
+- fb_version:
+
+  FishBase release to read, e.g. `"25.04"`. `"latest"` lets the
+  installed `rfishbase` choose, which is what broke the pipeline.
+
+- slb_version:
+
+  SeaLifeBase release to read, e.g. `"24.07"`.
 
 ## Value
 

@@ -3,10 +3,10 @@
 Calculates total catch weight using either length-weight relationships
 or bucket measurements. The function prioritizes length-based
 calculations when available, falling back to bucket-based measurements
-when length data is missing. For Octopus (OCZ), the function converts
-total length (TL) to mantle length (ML) by dividing TL by 5.5 before
-applying the length-weight formula. This accounts for species-specific
-differences in body morphology.
+when length data is missing. For octopus (`OCZ` and `OQC`), the function
+converts the recorded arm-span to mantle length by dividing by 5.5
+before applying the length-weight formula, because the published
+coefficients for both are fitted on mantle length.
 
 ## Usage
 
@@ -72,8 +72,9 @@ The function calculates catch weight using two methods:
 
     - W is total weight in kg
 
-    - a and b are length-weight relationship coefficients (75th
-      percentile)
+    - a and b are length-weight relationship coefficients aggregated
+      across studies (geometric mean of a, arithmetic mean of b; cf.
+      Froese 2006)
 
     - L is length in cm
 
@@ -92,8 +93,10 @@ back to bucket-based calculation when length data is missing.
 
 ## Note
 
-- Length-based calculations use 75th percentile of length-weight
-  coefficients
+- Length-based calculations aggregate study-level (a, b) pairs as a =
+  exp(mean(log(a))) (geometric mean), b = mean(b) (arithmetic mean).
+  This preserves the log-linear nature of the length-weight
+  relationship.
 
 - All weights are returned in kilograms
 
