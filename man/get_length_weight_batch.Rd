@@ -4,13 +4,23 @@
 \alias{get_length_weight_batch}
 \title{Get Length-Weight and Morphological Parameters for Species (Batch Version)}
 \usage{
-get_length_weight_batch(species_areas_filtered, include_morphology = FALSE)
+get_length_weight_batch(
+  species_areas_filtered,
+  include_morphology = FALSE,
+  fb_version = "latest",
+  slb_version = "latest"
+)
 }
 \arguments{
 \item{species_areas_filtered}{Data frame with filtered species}
 
 \item{include_morphology}{Logical, whether to include morphological data (Length,
 CommonLength, Weight). Default is FALSE.}
+
+\item{fb_version}{FishBase release to read, e.g. \code{"25.04"}. Pinned in
+\code{inst/config.yml} under \code{metadata:fishbase}; \code{"latest"} is unsafe.}
+
+\item{slb_version}{SeaLifeBase release to read, e.g. \code{"24.07"}.}
 }
 \value{
 If include_morphology is FALSE (default), a data frame with columns:

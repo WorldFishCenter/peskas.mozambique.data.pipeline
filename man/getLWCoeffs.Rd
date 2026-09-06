@@ -4,12 +4,27 @@
 \alias{getLWCoeffs}
 \title{Get Length-Weight Coefficients and Morphological Data for Species}
 \usage{
-getLWCoeffs(taxa_list = NULL, asfis_list = NULL)
+getLWCoeffs(
+  taxa_list = NULL,
+  asfis_list = NULL,
+  fb_version = "latest",
+  slb_version = "latest",
+  fao_areas = 51
+)
 }
 \arguments{
 \item{taxa_list}{Character vector of FAO 3-alpha codes}
 
 \item{asfis_list}{ASFIS list data frame}
+
+\item{fb_version}{FishBase release to read, e.g. \code{"25.04"}. Pinned in
+\code{inst/config.yml} under \code{metadata:fishbase}; \code{"latest"} is unsafe.}
+
+\item{slb_version}{SeaLifeBase release to read, e.g. \code{"24.07"}.}
+
+\item{fao_areas}{FAO major fishing areas to keep species from. Zanzibar,
+Kenya and Mozambique are all area 51 (Western Indian Ocean); set it from
+\code{metadata:fishbase:fao_areas} in config when porting to another country.}
 }
 \value{
 A list with two elements:
@@ -17,7 +32,7 @@ A list with two elements:
 \item lw - A data frame with length-weight coefficients:
 \itemize{
 \item catch_taxon - FAO 3-alpha code
-\item n - Number of measurements
+\item n - Number of (a, b) records aggregated
 \item lw_a - Geometric mean of parameter 'a' across studies
 \item lw_b - Arithmetic mean of parameter 'b' across studies
 }

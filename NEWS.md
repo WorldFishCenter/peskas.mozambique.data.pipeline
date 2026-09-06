@@ -1,3 +1,71 @@
+# peskas.mozambique.data.pipeline 2.9.0
+
+## Bug Fixes
+
+Ports the FishBase import and coefficient fixes from
+`peskas.zanzibar.data.pipeline` 4.9.0. The mechanisms are identical; the
+species pool, the alias table and the coverage baseline are Mozambique's own,
+measured against the live KoBo data for both forms (Lurio and ADNAP).
+
+- **FishBase releases are now pinned, and a missing coefficient fails the run**: `rfishbase` reads a remote parquet dataset over the network, so an unpinned `"latest"` let a new FishBase release reach the pipeline the moment a container was rebuilt, with no code change. Release 26.06 dissolved `Caesionidae` into `Lutjanidae` and `Scaridae` into `Labridae` — both family names survive with zero species in them — so any taxon named after one expanded to nothing, got no length-weight coefficients, and weighed `NA`, which sums to zero. Here that is `CJX` (*Caesionidae*, 1,683 Lurio rows) and `PWT` (*Scaridae*, 6,536 rows). The releases are now pinned per server in `inst/config.yml` under `metadata:fishbase` and threaded through all five `rfishbase` reads in `getLWCoeffs()`, which previously could mix snapshots within a single run. `rfishbase` is additionally pinned to 5.0.1 in both Dockerfiles as the last install step, because `remotes::install_local(dependencies = TRUE)` upgrades it otherwise.
+
+- **`assert_taxa_coverage()` fails the run when a taxon resolves to no coefficients**: previously a taxon that matched nothing was dropped in silence and the pipeline stayed green while publishing a hole. Called from both `preprocess_landings_lurio()` and `process_version_data()`, after the manual FLY coefficient is pooled in.
+
+- **Unmatched taxa are now logged**: `match_species_from_taxa()` dropped any name that matched no species without a warning. That warning is what the alias table below was built from — it reported 30 unmatched names on the first run here.
+
+- **SeaLifeBase routing corrected**: `process_species_list()` routed only ISSCAAP groups 57, 45, 43, 42 and 56 to SeaLifeBase, sending sea cucumbers, gastropods, oysters, mussels, scallops and mantis shrimp to FishBase, where they matched nothing and were dropped. Routing is now ISSCAAP >= 40.
+
+- **Species names ending in "idae" are no longer read as families**: the rank test placed the family suffix before the species test, so a species like `Haliotis midae` was searched as a family and matched nothing.
+
+- **Length-type conversion recovers taxa that weighed `NA`** (`get_length_conversions()`, `convert_lw_to_tl()`): FishBase tags every published length-weight pair with the length type the original study measured, and for tunas, billfish and several carangids that is fork length. `get_length_weight_batch()` kept only `Type == "TL"`, so those taxa got no coefficients at all and every length-measured catch row of them weighed `NA`. The conversions are published data in FishBase's POPLL table, which this pipeline never read. Reading it restates `a` on a total-length basis (`a_TL = a * ratio^b`, `b` unchanged) and recovers 18 codes across the two forms: `ARQ BAN BET CFX CJC CJZ FLY HDH HES HSU JOA LTQ MLS NGR NXP NXT ZEV AVR`.
+
+- **Morphology bounds no longer silently disable length validation**: `min(CommonLength, na.rm = TRUE)` returns `Inf` for a taxon whose matched species all lack that field, and the permissiveness step then computed `Inf - 0.75 * Inf` = `NaN`. Every comparison against `NaN` is `NA`, which `case_when()` treats as no-match, so the length alert codes never fired for those taxa — a missing bound was indistinguishable from a passed check. `safe_min()` now yields `NA` rather than `Inf`, and because FishBase populates `CommonLength` for only 10% of species against 91% for `Length`, missing values are estimated as `0.625 * Length` (`common_length_ratio()`). All 283 taxa with morphology now have usable bounds. Expect a wave of new length alerts on the first run: those records were never checked before.
+
+- **Search-name aliases fix 28 taxa the ASFIS names could not match** (`taxa_search_aliases()`, `apply_taxa_aliases()`): a handful of ASFIS reference names match nothing in the taxonomic backbone, so the taxon is dropped and every catch row of it weighs `NA`. Every row was derived by looking the ASFIS name up in the synonym table for the pinned release. Most are genus splits — *Carangoides* across *Ferdauia*, *Platycaranx*, *Atropus* and *Turrum*; *Sepia* across *Rhombosepion*, *Ascarosepion* and *Acanthosepion* — plus spelling drift (`ESR`, `PKT`, `RPO`, `SYQ`, `ZEV`, `LGE`) and two broken ASFIS strings: `HES` is truncated to `Herklotsichthys quadrimaculat.` and `GRX` carries the parenthetical `Haemulidae (=Pomadasyidae)`, whose embedded space made the rank rule read a family as a species. `VMX` is *Valamugil*, a genus the backbone no longer carries, so *Osteomugil* and *Moolgarda* are both searched. Coverage goes from 231 to 257 of 288 codes, and unmatched names from 30 to 2.
+
+  `CRA` ("marine crabs nei", *Brachyura*) and `CUX` ("sea cucumbers nei", *Holothuroidea*) are deliberately not aliased: both are ranks `match_species_from_taxa()` cannot search, and choosing a target means deciding which crab or holothurian families Mozambique lands. `CUX` is the largest single loss in the baseline, at 972 Lurio rows.
+
+- **`OQC` now gets the octopus mantle-length conversion**: `OCZ` (*Octopus spp*, 5,990 Lurio rows) was special-cased in three places — an ML-only coefficient filter, the arm-span-to-mantle `/5.5` conversion, and the `min_length` floor — but `OQC` (*Octopus cyaneus*, ADNAP) was not. `OQC` resolves to a mantle-length pair, so applying it to arm-span unconverted weighed a single octopus at **264 kg** instead of 2.43 kg. This was latent while `OQC` had no coefficients and would have gone live with the alias above. The conversion is applied in both `calculate_catch_adnap()` and `calculate_catch_lurio()`, since the two forms carry one octopus code each.
+
+- **Fixed a duplicate join key for `FLY`**: both preprocessing paths appended a hardcoded flying-fish coefficient unconditionally. Now that the conversion recovers Exocoetidae pairs, `getLWCoeffs()` returns a `FLY` row of its own, and two rows on the same key would have doubled every flying fish catch record. The manual value now replaces rather than appends, and stays authoritative: changing it is a separate decision.
+
+- **Removed a dead fallback in `process_version_data()`**: the `tryCatch` around `getLWCoeffs()` read `inst/length_weight_params.rds`, which is not in the package, so the fallback could only ever fail — while hiding the original error behind it.
+
+## Known Issues
+
+Measured 2026-09-06 against FishBase 25.04 / SeaLifeBase 24.07 over the live
+KoBo data: **257 of 288 codes resolve length-weight coefficients**, up from 231
+before this release (ADNAP 223/252, Lurio 52/55). The other 31 form the
+documented baseline in `assert_taxa_coverage()`, so any *new* loss fails the
+run. `CJX` and `PWT` are deliberately not in it — they resolve at 25.04 and are
+the two codes that break at 26.06, so a release move fails the check.
+
+- **Not a taxon (1)** — `MZZ` (*Actinopterygii*), dropped before the search.
+- **A rank the matcher cannot search (2)** — `CRA` (infraorder *Brachyura*) and
+  `CUX` (class *Holothuroidea*).
+- **Wrong reference name (2)** — `AND`, `NAI` name species absent from FAO 51.
+- **No published coefficients (19)** — `ADT CJV CWC ECG EFZ EJX GQT GQV ICZ
+  NUH OCN OIC PEJ PKF RDR TCI TEC UVG YFK` occur in FAO 51 but carry no
+  length-weight pair in any length type. Nothing to convert, nothing to alias.
+- **No usable length type (7)** — `HMP` (SL), `PKV` and `QCY` (FL), `RMB`
+  (disc width), and `EFB`, `EFN`, `KAK`, which record no length type at all.
+
+## Not ported
+
+Zanzibar's retired-code remaps (`AHI`→`BAF`, `BFL`→`TEI`) and its `SR`/`MAC`→
+`AQX` correction come from Zanzibar's forms; none of those three codes occurs
+in Mozambique's data, so no remap was added. The existing `TUN`→`TUS`,
+`SKH`→`CVX` and `CLP`→`ANX` remaps in `preprocess_landings_lurio()` are the
+local equivalents and are unchanged. Because `CLP` is already remapped at the
+survey level here, Zanzibar's `CLP`→*Dorosomatidae* alias is not needed.
+
+Two metadata gaps were found while measuring and are **not** code fixes:
+`FOT` (*Eleutheronema tetradactylum*, 17 ADNAP rows) is a valid ASFIS code
+missing from the Airtable taxa table, so `map_surveys()` leaves those rows
+without a scientific or English name; and Lurio `survey_label` 27 (43 rows) has
+no Airtable row at all, orphaning those submissions. Both need an Airtable
+edit, not a remap — rewriting either code would mislabel real catch.
+
 # peskas.mozambique.data.pipeline 2.8.0
 
 ### Infrastructure & Workflow

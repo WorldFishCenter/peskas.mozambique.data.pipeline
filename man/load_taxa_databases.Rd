@@ -4,7 +4,13 @@
 \alias{load_taxa_databases}
 \title{Load Taxa Data from FishBase and SeaLifeBase}
 \usage{
-load_taxa_databases()
+load_taxa_databases(fb_version = "latest", slb_version = "latest")
+}
+\arguments{
+\item{fb_version}{FishBase release to read, e.g. \code{"25.04"}. \code{"latest"} lets
+the installed \code{rfishbase} choose, which is what broke the pipeline.}
+
+\item{slb_version}{SeaLifeBase release to read, e.g. \code{"24.07"}.}
 }
 \value{
 A list with two elements:

@@ -4,10 +4,19 @@
 \alias{get_species_areas_batch}
 \title{Get FAO Areas for Species (Batch Version)}
 \usage{
-get_species_areas_batch(matched_species)
+get_species_areas_batch(
+  matched_species,
+  fb_version = "latest",
+  slb_version = "latest"
+)
 }
 \arguments{
 \item{matched_species}{Data frame from match_species_from_taxa()}
+
+\item{fb_version}{FishBase release to read, e.g. \code{"25.04"}. Pinned in
+\code{inst/config.yml} under \code{metadata:fishbase}; \code{"latest"} is unsafe.}
+
+\item{slb_version}{SeaLifeBase release to read, e.g. \code{"24.07"}.}
 }
 \value{
 A data frame with columns:

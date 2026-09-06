@@ -137,6 +137,20 @@ default:
         tables:
           countries: Countries
           pds_devices: pds_devices
+    # Pinned FishBase/SeaLifeBase data releases. Left unpinned, rfishbase reads
+    # "latest", so a container rebuild changes published catch with no code
+    # change: release 26.06 emptied Caesionidae and Scaridae of species, and
+    # taxa named after them silently lost their coefficients. Move these
+    # deliberately, with a before/after measurement.
+    fishbase:
+      # FAO major fishing area(s) to keep species from. 51 is the
+      # Western Indian Ocean; Timor uses [57, 71].
+      fao_areas: [51]
+      fishbase_version: "25.04"
+      # SeaLifeBase 25.04 changed the genera table schema and rfishbase 5.0.1
+      # cannot read it (`Column GEN_NAME doesn't exist`), so the two servers
+      # are pinned independently.
+      sealifebase_version: "24.07"
 
   validation:
     k_nboats: 3

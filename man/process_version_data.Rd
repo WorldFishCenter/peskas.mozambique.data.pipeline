@@ -4,12 +4,15 @@
 \alias{process_version_data}
 \title{Process Version Data Helper Function}
 \usage{
-process_version_data(catch_info = NULL, asfis = NULL)
+process_version_data(catch_info = NULL, asfis = NULL, conf = read_config())
 }
 \arguments{
 \item{catch_info}{Processed catch information}
 
 \item{asfis}{ASFIS species data}
+
+\item{conf}{Pipeline configuration, as returned by \code{\link[=read_config]{read_config()}}. Supplies
+the pinned FishBase/SeaLifeBase releases under \code{metadata:fishbase}.}
 }
 \value{
 Combined and processed survey data

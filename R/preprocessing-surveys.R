@@ -242,7 +242,9 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
       "weight_bucket",
       individuals = "counts",
       length = "length_class"
-    ) |> # replace CLP with ANX and SKH to Carcharhiniformes as more pertinent
+    ) |>
+    # Retired codes stay in historical submissions -- editing a Kobo form does
+    # not rewrite data already collected. Remap them on read.
     dplyr::mutate(
       catch_taxon = dplyr::case_when(
         .data$catch_taxon == "TUN" ~ "TUS",
@@ -252,20 +254,34 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
       )
     )
 
-  # Try to get length-weight coefficients from Rfishbase
+  # Releases are pinned in config. Left at "latest", a container rebuild can
+  # silently change published catch.
   lwcoeffs <- getLWCoeffs(
     taxa_list = unique(catch_info$catch_taxon),
-    asfis_list = asfis
+    asfis_list = asfis,
+    fb_version = conf$metadata$fishbase$fishbase_version %||% "latest",
+    slb_version = conf$metadata$fishbase$sealifebase_version %||% "latest",
+    fao_areas = conf$metadata$fishbase$fao_areas %||% 51
   )
 
-  # add flyng fish estimates
+  # FLY now also resolves from FishBase, so replace rather than append -- two
+  # rows would duplicate the join key. The manual value stays authoritative,
+  # since the two disagree by roughly 2.5x and switching needs its own review.
   fly_lwcoeffs <- dplyr::tibble(
     catch_taxon = "FLY",
     n = 0,
     lw_a = 0.00631,
     lw_b = 3.05
   )
-  lwcoeffs$lw <- dplyr::bind_rows(lwcoeffs$lw, fly_lwcoeffs)
+  lwcoeffs$lw <- lwcoeffs$lw |>
+    dplyr::filter(.data$catch_taxon != "FLY") |>
+    dplyr::bind_rows(fly_lwcoeffs)
+
+  # Assert after the manual coefficients are pooled in, so FLY counts as covered
+  assert_taxa_coverage(
+    taxa_list = unique(catch_info$catch_taxon),
+    lw = lwcoeffs$lw
+  )
 
   catch_df <-
     calculate_catch_lurio(catch_data = catch_info, lwcoeffs = lwcoeffs$lw) |>
@@ -418,7 +434,11 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
 
   trip_info <- preprocess_general_adnap(data = raw_dat)
   catch_info <- preprocess_catch(data = raw_dat)
-  catch_df <- process_version_data(catch_info = catch_info, asfis = asfis)
+  catch_df <- process_version_data(
+    catch_info = catch_info,
+    asfis = asfis,
+    conf = conf
+  )
 
   preprocessed_landings <-
     dplyr::left_join(trip_info, catch_df, by = "submission_id") |>
@@ -633,9 +653,10 @@ process_species_group <- function(data = NULL) {
 #' @description
 #' Calculates total catch weight using either length-weight relationships or bucket measurements.
 #' The function prioritizes length-based calculations when available, falling back to bucket-based
-#' measurements when length data is missing. For Octopus (OCZ), the function converts total length (TL)
-#' to mantle length (ML) by dividing TL by 5.5 before applying the length-weight formula.
-#' This accounts for species-specific differences in body morphology.
+#' measurements when length data is missing. For octopus (`OCZ` and `OQC`), the
+#' function converts the recorded arm-span to mantle length by dividing by 5.5
+#' before applying the length-weight formula, because the published
+#' coefficients for both are fitted on mantle length.
 #'
 #' @param catch_data A data frame containing catch information with columns:
 #'   \itemize{
@@ -671,7 +692,8 @@ process_species_group <- function(data = NULL) {
 #' 1. Length-based calculation: W = a * L^b * N / 1000
 #'    Where:
 #'    - W is total weight in kg
-#'    - a and b are length-weight relationship coefficients (75th percentile)
+#'    - a and b are length-weight relationship coefficients aggregated across
+#'      studies (geometric mean of a, arithmetic mean of b; cf. Froese 2006)
 #'    - L is length in cm
 #'    - N is number of individuals
 #'
@@ -694,7 +716,9 @@ process_species_group <- function(data = NULL) {
 #' }
 #'
 #' @note
-#' - Length-based calculations use 75th percentile of length-weight coefficients
+#' - Length-based calculations aggregate study-level (a, b) pairs as
+#'   a = exp(mean(log(a))) (geometric mean), b = mean(b) (arithmetic mean).
+#'   This preserves the log-linear nature of the length-weight relationship.
 #' - All weights are returned in kilograms
 #' - NA values are returned when neither calculation method is possible
 #'
@@ -706,11 +730,12 @@ calculate_catch_lurio <- function(catch_data = NULL, lwcoeffs = NULL) {
     dplyr::mutate(
       # Calculate weight in grams for records with length measurements
       catch_length_gr = dplyr::case_when(
-        # Specific case for Octopus cyanea (OCZ) - using length conversion
+        # Octopus coefficients are fitted on mantle length, but surveys record
+        # arm-span. Both octopus codes need the conversion.
         !is.na(.data$length) &
           !is.na(.data$lw_a) &
           !is.na(.data$lw_b) &
-          .data$catch_taxon == "OCZ" ~
+          .data$catch_taxon %in% c("OCZ", "OQC") ~
           .data$lw_a * ((.data$length / 5.5)^.data$lw_b),
         # General case for other species - direct calculation
         !is.na(.data$length) & !is.na(.data$lw_a) & !is.na(.data$lw_b) ~
@@ -1258,36 +1283,48 @@ preprocess_general_adnap <- function(data = NULL) {
 #'
 #' @param catch_info Processed catch information
 #' @param asfis ASFIS species data
+#' @param conf Pipeline configuration, as returned by [read_config()]. Supplies
+#'   the pinned FishBase/SeaLifeBase releases under `metadata:fishbase`.
 #'
 #' @return Combined and processed survey data
 #' @keywords internal
-process_version_data <- function(catch_info = NULL, asfis = NULL) {
-  # Try to get length-weight coefficients from Rfishbase
-  lwcoeffs <- tryCatch(
-    {
-      getLWCoeffs(
-        taxa_list = unique(catch_info$catch_taxon),
-        asfis_list = asfis
-      )
-    },
-    error = function(e) {
-      message("Error in getLWCoeffs, using local fallback: ", e$message)
-      # Fallback to local data
-      readr::read_rds(system.file(
-        "length_weight_params.rds",
-        package = "peskas.mozambique.data.pipeline"
-      ))
-    }
+process_version_data <- function(
+  catch_info = NULL,
+  asfis = NULL,
+  conf = read_config()
+) {
+  # Releases are pinned in config. Left at "latest", a container rebuild can
+  # silently change published catch.
+  #
+  # The former tryCatch fallback here read inst/length_weight_params.rds, which
+  # is not in the package -- it could only ever fail, while hiding the original
+  # error behind it.
+  lwcoeffs <- getLWCoeffs(
+    taxa_list = unique(catch_info$catch_taxon),
+    asfis_list = asfis,
+    fb_version = conf$metadata$fishbase$fishbase_version %||% "latest",
+    slb_version = conf$metadata$fishbase$sealifebase_version %||% "latest",
+    fao_areas = conf$metadata$fishbase$fao_areas %||% 51
   )
 
-  # add flying fish estimates
+  # FLY now also resolves from FishBase, so replace rather than append -- two
+  # rows would duplicate the join key. The manual value stays authoritative,
+  # since the two disagree by roughly 2.5x and switching needs its own review.
   fly_lwcoeffs <- dplyr::tibble(
     catch_taxon = "FLY",
     n = 0,
     lw_a = 0.00631,
     lw_b = 3.05
   )
-  lwcoeffs$lw <- dplyr::bind_rows(lwcoeffs$lw, fly_lwcoeffs)
+  lwcoeffs$lw <- lwcoeffs$lw |>
+    dplyr::filter(.data$catch_taxon != "FLY") |>
+    dplyr::bind_rows(fly_lwcoeffs)
+
+  # Assert after the manual coefficients are pooled in, so FLY counts as covered
+  assert_taxa_coverage(
+    taxa_list = unique(catch_info$catch_taxon),
+    lw = lwcoeffs$lw
+  )
 
   catch_df <-
     calculate_catch_adnap(catch_data = catch_info, lwcoeffs = lwcoeffs$lw) |>
