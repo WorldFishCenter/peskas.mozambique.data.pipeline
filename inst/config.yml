@@ -97,6 +97,10 @@ default:
   pds:
     token: !expr Sys.getenv('PDS_TOKEN')
     secret: !expr Sys.getenv('PDS_SECRET')
+    # Keep trips that happened at these customers' communities, rather than
+    # trips whose device is under them today. A retired or reassigned tracker
+    # keeps its history this way. See `?coasts::select_country_trips`.
+    select_by: community
     customers:
       - "WorldFish - Mozambique"
       - "Syberintel - distributor"
