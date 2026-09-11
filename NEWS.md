@@ -1,3 +1,10 @@
+# peskas.mozambique.data.pipeline 2.9.1
+
+## Refactor
+
+- **The total-length restatement now comes from coasts**: `get_length_conversions()` and `convert_lw_to_tl()` are deleted; `get_length_weight_batch()` calls [`coasts::convert_lw_to_tl()`](https://github.com/WorldFishCenter/peskas.coasts) instead. The same arithmetic existed here, in Zanzibar and in Timor. coasts passes unconvertible rows through rather than dropping them, so the call site keeps `Type == "TL"` to preserve the behaviour this pipeline had. Verified over 71 taxon codes at FishBase 25.04 / SeaLifeBase 24.07, area 51 — the alias table's 28 codes included: the same 24 rows restated for the same 10 taxa, and the resulting table is `identical()` across all 68 codes that carry coefficients.
+- **`coasts (>= 4.13.0)`** is now a declared floor in `DESCRIPTION`.
+
 # peskas.mozambique.data.pipeline 2.9.0
 
 ## Bug Fixes

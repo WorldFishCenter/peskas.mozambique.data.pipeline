@@ -366,7 +366,7 @@ getLWCoeffs <- function(
 #'       nothing is left. Recovering either means overriding FishBase's own
 #'       quality flag, which is a judgement call, not a lookup.}
 #'     \item{No usable length type}{Published (a, b) pairs exist, but in a
-#'       length type [get_length_conversions()] cannot restate on a
+#'       length type [coasts::convert_lw_to_tl()] cannot restate on a
 #'       total-length basis, because FishBase's POPLL table carries no
 #'       proportional length-length fit for that species. `HMP` is standard
 #'       length, `PKV` and `QCY` fork length, `RMB` disc width (a manta, which
@@ -947,122 +947,6 @@ get_species_areas_batch <- function(
 }
 
 
-#' Length-type conversion ratios from FishBase POPLL
-#'
-#' @description
-#' FishBase tags every published length-weight pair with the length type the
-#' original study measured. For tunas, billfish and several carangids that is
-#' fork length, because FL is the standard measurement in those fisheries --
-#' not because anything is wrong with the record. Mozambique's enumerators
-#' measure total length, so an FL-fitted `(a, b)` cannot be applied directly:
-#' a 200 cm TL swordfish is 186.5 cm FL, and feeding the TL straight into the
-#' FL relationship weighs it 105.7 kg against 83.7 kg, 26% too heavy.
-#'
-#' The conversions are published data, in FishBase's POPLL table. This reads
-#' them and reduces each to a single scaling factor `ratio` such that
-#' `L_type ~= ratio * TL`, which is what [convert_lw_to_tl()] needs.
-#'
-#' @details
-#' POPLL stores a linear fit, `Length2 = a + b * Length1`. Treating it as
-#' proportional (dropping the intercept) is what makes a power-law conversion
-#' possible, and it is well supported: of the 23,921 TL-to-FL/SL rows in
-#' release 25.04, 21,029 have an intercept of exactly zero and 23,222 are
-#' below 1 cm. Rows with a larger intercept are not proportional and are
-#' discarded rather than approximated. Where several fits exist for the same
-#' species and type, the median ratio is used.
-#'
-#' The resulting ratios are physically sensible -- median FL/TL 0.962, SL/TL
-#' 0.831 -- and validate against the 632 species that carry both a native TL
-#' pair and an FL one: converting halves the median error in predicted weight
-#' (15.6% against 27.5% for using the FL pair as-is), and on the 1,186 species
-#' with both TL and SL pairs it cuts it fourfold (16.8% against 70.6%). The
-#' residual is the scatter between independent published studies, not
-#' conversion error.
-#'
-#' @param species Character vector of scientific names (FishBase only).
-#' @param version FishBase release to read.
-#' @param max_intercept Largest absolute POPLL intercept, in cm, still treated
-#'   as proportional.
-#' @return A tibble of `species`, `type` and `ratio`, or `NULL` when no usable
-#'   conversion exists.
-#' @keywords mining preprocessing
-#' @export
-get_length_conversions <- function(
-  species,
-  version = "latest",
-  max_intercept = 1
-) {
-  if (length(species) == 0) {
-    return(NULL)
-  }
-
-  ll <- rfishbase::length_length(
-    unique(species),
-    fields = c("Species", "Length1", "Length2", "a", "b"),
-    server = "fishbase",
-    version = version
-  )
-
-  if (is.null(ll) || nrow(ll) == 0) {
-    return(NULL)
-  }
-
-  ll %>%
-    dplyr::filter(
-      !is.na(.data$b),
-      .data$b > 0,
-      !is.na(.data$a),
-      abs(.data$a) <= max_intercept
-    ) %>%
-    # POPLL fits `Length1 = a + b * Length2` -- the second column is the
-    # predictor. Either direction works; one is the reciprocal of the other.
-    dplyr::mutate(
-      type = dplyr::case_when(
-        .data$Length2 == "TL" ~ .data$Length1,
-        .data$Length1 == "TL" ~ .data$Length2,
-        TRUE ~ NA_character_
-      ),
-      ratio = dplyr::case_when(
-        .data$Length2 == "TL" ~ .data$b,
-        .data$Length1 == "TL" ~ 1 / .data$b,
-        TRUE ~ NA_real_
-      )
-    ) %>%
-    dplyr::filter(!is.na(.data$type), .data$type != "TL", !is.na(.data$ratio)) %>%
-    dplyr::group_by(species = .data$Species, .data$type) %>%
-    dplyr::summarise(ratio = stats::median(.data$ratio), .groups = "drop")
-}
-
-#' Restate a length-weight pair on a total-length basis
-#'
-#' @description
-#' Given `W = a * L_type^b` and `L_type ~= ratio * TL`, substitution gives
-#' `W = a * ratio^b * TL^b`. So `b` is unchanged and only `a` is rescaled.
-#'
-#' @param lw A tibble of length-weight rows carrying `species`, `Type`, `a`
-#'   and `b`.
-#' @param conversions Output of [get_length_conversions()].
-#' @return `lw` with `a` restated on a TL basis and `Type` set to `"TL"`. Rows
-#'   with no usable conversion are dropped.
-#' @keywords mining preprocessing
-#' @export
-convert_lw_to_tl <- function(lw, conversions) {
-  if (is.null(conversions) || nrow(conversions) == 0) {
-    return(lw[0, ])
-  }
-
-  lw %>%
-    dplyr::inner_join(
-      conversions,
-      by = c("Species" = "species", "Type" = "type")
-    ) %>%
-    dplyr::mutate(
-      a = .data$a * .data$ratio^.data$b,
-      Type = "TL"
-    ) %>%
-    dplyr::select(-"ratio")
-}
-
 #' Get Length-Weight and Morphological Parameters for Species (Batch Version)
 #'
 #' @description
@@ -1202,10 +1086,37 @@ get_length_weight_batch <- function(
         .data$a3_code %in% uncovered,
         .data$Type != "TL"
       )
-    converted <- convert_lw_to_tl(
-      candidates,
-      get_length_conversions(candidates$Species, version = fb_version)
+    # The restatement lives in coasts, which takes the POPLL rows as published
+    # and reduces them to one ratio per species and type itself. It passes
+    # unconvertible rows through unchanged, so keep only what became TL.
+    conversions <- rfishbase::length_length(
+      unique(candidates$Species),
+      fields = c("Species", "Length1", "Length2", "a", "b"),
+      server = "fishbase",
+      version = fb_version
     )
+    converted <- if (is.null(conversions) || nrow(conversions) == 0) {
+      candidates[0, ]
+    } else {
+      coasts::convert_lw_to_tl(
+        dplyr::rename(
+          candidates,
+          species_found = "Species",
+          server = "database"
+        ),
+        dplyr::transmute(
+          conversions,
+          species_found = .data$Species,
+          server = "fishbase",
+          .data$Length1,
+          .data$Length2,
+          aL = .data$a,
+          bL = .data$b
+        )
+      ) %>%
+        dplyr::filter(.data$Type == "TL") %>%
+        dplyr::rename(Species = "species_found", database = "server")
+    }
     if (nrow(converted) > 0) {
       logger::log_info(
         "Restated {nrow(converted)} length-weight pairs on a total-length ",

@@ -1,6 +1,6 @@
 Package: peskas.mozambique.data.pipeline
 Title: What the Package Does (One Line, Title Case)
-Version: 2.9.0
+Version: 2.9.1
 Authors@R: 
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
@@ -36,7 +36,7 @@ Imports:
     tidyr,
     tidyselect,
     univOutl,
-    coasts
+    coasts (>= 4.13.0)
 Remotes:
     github::WorldFishCenter/peskas.coasts,
     github::WorldFishCenter/ssf-ai-toolkit/Rplug@plug-R

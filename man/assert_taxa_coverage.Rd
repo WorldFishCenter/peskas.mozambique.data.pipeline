@@ -60,7 +60,7 @@ estimate. \code{\link[=get_length_weight_batch]{get_length_weight_batch()}} drop
 nothing is left. Recovering either means overriding FishBase's own
 quality flag, which is a judgement call, not a lookup.}
 \item{No usable length type}{Published (a, b) pairs exist, but in a
-length type \code{\link[=get_length_conversions]{get_length_conversions()}} cannot restate on a
+length type \code{\link[coasts:convert_lw_to_tl]{coasts::convert_lw_to_tl()}} cannot restate on a
 total-length basis, because FishBase's POPLL table carries no
 proportional length-length fit for that species. \code{HMP} is standard
 length, \code{PKV} and \code{QCY} fork length, \code{RMB} disc width (a manta, which
