@@ -65,8 +65,6 @@ Functions dedicated to the preprocessing module
   Measurements
 - [`calculate_fishery_metrics()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_fishery_metrics.md)
   : Calculate Fishery Metrics
-- [`convert_lw_to_tl()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/convert_lw_to_tl.md)
-  : Restate a length-weight pair on a total-length basis
 - [`fetch_asset()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/fetch_asset.md)
   : Fetch and Filter Asset Data from Airtable
 - [`form_id_pattern()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/form_id_pattern.md)
@@ -77,8 +75,6 @@ Functions dedicated to the preprocessing module
   : Get Airtable Form ID from KoBoToolbox Asset ID
 - [`get_fao_groups()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_fao_groups.md)
   : Extract and Format FAO Taxonomic Groups
-- [`get_length_conversions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_length_conversions.md)
-  : Length-type conversion ratios from FishBase POPLL
 - [`get_length_weight_batch()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_length_weight_batch.md)
   : Get Length-Weight and Morphological Parameters for Species (Batch
   Version)

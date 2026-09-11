@@ -102,7 +102,7 @@ assert_taxa_coverage(
   No usable length type
 
   :   Published (a, b) pairs exist, but in a length type
-      [`get_length_conversions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_length_conversions.md)
+      [`coasts::convert_lw_to_tl()`](https://rdrr.io/pkg/coasts/man/convert_lw_to_tl.html)
       cannot restate on a total-length basis, because FishBase's POPLL
       table carries no proportional length-length fit for that species.
       `HMP` is standard length, `PKV` and `QCY` fork length, `RMB` disc
