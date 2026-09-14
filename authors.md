@@ -8,13 +8,13 @@
 ## Citation
 
 Last F (2026). *peskas.mozambique.data.pipeline: What the Package Does
-(One Line, Title Case)*. R package version 2.9.1,
+(One Line, Title Case)*. R package version 2.9.2,
 <https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/>.
 
     @Manual{,
       title = {peskas.mozambique.data.pipeline: What the Package Does (One Line, Title Case)},
       author = {First Last},
       year = {2026},
-      note = {R package version 2.9.1},
+      note = {R package version 2.9.2},
       url = {https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/},
     }
