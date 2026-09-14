@@ -445,6 +445,30 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
     dplyr::arrange(.data$submission_id, .data$n_catch) |>
     dplyr::distinct()
 
+  # KoBo choice list `dx7qi97` behind `group_trip/habitat`. The list was
+  # renamed and extended part-way through the form's life: versions
+  # vWMxUBnadxLX3ashwjxLKj and vD3vqVYfJGPqEoxLKn4FbR code the same six
+  # options numerically ("3" is `deep sea / mar profundo`, the option later
+  # renamed `opsea`), so both codings have to resolve.
+  habitat_names <- c(
+    creef = "Reef",
+    fad = "FAD",
+    opsea = "Open sea",
+    shore = "Shore",
+    mang = "Mangrove",
+    seagr = "Seagrass",
+    east = "Estuary",
+    intzone = "Intertidal zone",
+    rock = "Rocky area / Reef base",
+    mud = "Mud / Algae / Sand",
+    `1` = "Reef",
+    `2` = "FAD",
+    `3` = "Open sea",
+    `4` = "Shore",
+    `6` = "Mangrove",
+    `7` = "Seagrass"
+  )
+
   preprocessed_data <-
     map_surveys(
       data = preprocessed_landings,
@@ -453,22 +477,33 @@ preprocess_landings_adnap <- function(log_threshold = logger::DEBUG) {
       vessels_mapping = assets$vessels,
       sites_mapping = assets$sites,
       geo_mapping = assets$geo
-    ) |>
-    dplyr::mutate(
-      habitat = dplyr::case_when(
-        .data$habitat == "creef" ~ "Reef",
-        .data$habitat == "fad" ~ "FAD",
-        .data$habitat == "opsea" ~ "Open sea",
-        .data$habitat == "shore" ~ "Shore",
-        .data$habitat == "mang" ~ "Mangrove",
-        .data$habitat == "seagr" ~ "Seagrass",
-        .data$habitat == "east" ~ "Estuary",
-        .data$habitat == "intzone" ~ "Intertidal zone",
-        .data$habitat == "rock" ~ "Rocky area / Reef base",
-        .data$habitat == "mud" ~ "Mud / Algae / Sand",
-        TRUE ~ .data$habitat
-      )
-    ) |>
+    )
+
+  # An unmapped code used to fall through this mapping unchanged and reach the
+  # API as a bare form value, sitting in a column of habitat names. Stop on it
+  # instead: a new or renamed choice is a form change to mirror here, not
+  # something to publish.
+  unmapped_habitat <- setdiff(
+    unique(stats::na.omit(preprocessed_data$habitat)),
+    names(habitat_names)
+  )
+
+  if (length(unmapped_habitat) > 0) {
+    stop(
+      "Unmapped habitat code(s) in the ADNAP form: ",
+      paste(sort(unmapped_habitat), collapse = ", "),
+      ". These are raw values of `group_trip/habitat` with no entry in ",
+      "`habitat_names`, and passing them through publishes a bare code in a ",
+      "column of habitat names. Read the choice list off the form version ",
+      "that carries them (KoBo `/api/v2/assets/{asset}/versions/{version}/`, ",
+      "list `dx7qi97`) and add the mapping.",
+      call. = FALSE
+    )
+  }
+
+  preprocessed_data <-
+    preprocessed_data |>
+    dplyr::mutate(habitat = unname(habitat_names[.data$habitat])) |>
     dplyr::distinct() |>
     dplyr::select(-"airtable_id")
 

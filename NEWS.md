@@ -1,3 +1,23 @@
+# peskas.mozambique.data.pipeline 2.9.2
+
+## Bug Fixes
+
+Three defects found by a cross-country audit of the validated parquet files
+published to `gs://peskas-api-prod`. Measured against
+`trips-validated__20260913030758_763060b__.parquet` (2,193 rows, 1,605 trips)
+and `trips-raw__20260913030600_763060b__.parquet` (2,949 rows, 1,989 trips).
+
+- **A raw form code was reaching the API in `catch_habitat`**: 16 published rows across 12 validated trips carried `catch_habitat = "3"` — a literal `3`, sitting in a column whose other values are habitat names. The ADNAP habitat mapping in `preprocess_landings_adnap()` was a `case_when()` over the current form's string codes with a `TRUE ~ .data$habitat` fallthrough, so any code it did not recognise was published verbatim. Two early versions of the form (`vWMxUBnadxLX3ashwjxLKj`, `vD3vqVYfJGPqEoxLKn4FbR`) code the same KoBo choice list `dx7qi97` numerically, before it was renamed and extended: `1` reef, `2` FAD, `3` deep sea (the option later renamed `opsea`), `4` shore, `6` mangrove, `7` seagrass. Those six codes are now mapped. **Data impact**: validated export, 16 rows across 12 trips change from `"3"` to `"Open sea"`; raw export, 19 rows across 15 trips — 18 from `"3"` to `"Open sea"` and 1 from `"4"` to `"Shore"`. No other value changes, and `NA` still passes through as `NA`.
+
+- **An unmapped habitat code now fails the run instead of being published**: the fallthrough was the real defect — it made a habitat code the pipeline had never seen indistinguishable from one it understood, so the next renamed choice would land in production the same way. `preprocess_landings_adnap()` now stops on any raw `group_trip/habitat` value with no entry in the mapping, naming the codes and pointing at the KoBo versions endpoint that carries the choice list. `preprocess_landings_lurio()` keeps its own numeric mapping; its form emits only codes `1 2 3 4 6 7`, all of which it covers, and it does not feed the API export.
+
+- **`n_fishers = 0` now raises alert 11 instead of being published**: the API schema declares `n_fishers` with a minimum of 1, but a trip whose three fisher counts were all zero was published as `0`, and every per-fisher metric divided by it into `Inf`, which survives `mean()` and `median()` into the portal. Zero fishers is not a count — every one of these submissions records `survey_activity = 1`, a `fishing_start`, a `fishing_end` and a habitat, so the trip happened and the crew was simply never entered. Alert 11 already covered exactly this, but was narrowed by `& catch_outcome == "1"`, so the identical defect was excluded on a landed catch and published on a no-catch trip: of the 42 preprocessed submissions with all-zero counts, 37 were already dropped and 5 were not. The catch-outcome condition is removed, so the flag now fires on the zero itself. **Data impact**: 4 submissions leave the validated set (1,605 → 1,601 trips, 2,193 → 2,189 rows), removing all 4 published `n_fishers = 0` rows. All four carry `catch_outcome = "0"` and `catch_kg = 0`, so no catch is lost. They are not discarded — they surface in the `flags-adnap` and `enumerators_stats-adnap` collections for the enumerator to correct at source. `validate_landings_lurio()` keeps the narrower condition for now; widening it there would newly exclude 570 submissions (1.44% of its validated set), which is a portal-data decision beyond this audit.
+
+- **A no-op `relocate()` in both API exports**: `dplyr::relocate(c("catch_price", "tot_catch_kg", "tot_catch_price"), .after = "catch_price")` relocated `catch_price` after itself. Now `.after = "catch_kg"`, matching Kenya and Zanzibar. **Data impact**: none — the preceding `select()` already fixes the order, and both spellings produce the identical 22-column order byte-for-byte against the published file. Latent, not active.
+
+`tot_catch_kg == sum(catch_kg)` within `trip_id` still holds at 0 failures across
+all 1,605 validated trips; none of these changes touch that derivation.
+
 # peskas.mozambique.data.pipeline 2.9.1
 
 ## Refactor

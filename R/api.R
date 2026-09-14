@@ -118,7 +118,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
     dplyr::ungroup() |>
     dplyr::relocate(
       c("catch_price", "tot_catch_kg", "tot_catch_price"),
-      .after = "catch_price"
+      .after = "catch_kg"
     ) |>
     dplyr::distinct()
 
@@ -277,7 +277,7 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
     dplyr::ungroup() |>
     dplyr::relocate(
       c("catch_price", "tot_catch_kg", "tot_catch_price"),
-      .after = "catch_price"
+      .after = "catch_kg"
     ) |>
     dplyr::distinct()
 

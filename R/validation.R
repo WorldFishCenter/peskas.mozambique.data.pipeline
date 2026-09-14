@@ -823,8 +823,15 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
         !.data$rpue == Inf & .data$rpue > rpue_max ~ "10",
         TRUE ~ NA_character_
       ),
+      # A trip with nobody on it did not happen: a zero here is the
+      # enumerator's untouched default, not a count. These submissions record
+      # survey_activity = 1, a fishing_start, a fishing_end and a habitat, so
+      # the trip is real and the crew was simply never entered. The catch
+      # outcome used to narrow this, which let the same defect through on
+      # no-catch trips and published n_fishers = 0 against a schema whose
+      # minimum is 1, with every per-fisher metric dividing into Inf.
       alert_fishers = dplyr::case_when(
-        .data$n_fishers == 0 & .data$catch_outcome == "1" ~ "11",
+        .data$n_fishers == 0 ~ "11",
         TRUE ~ NA_character_
       )
     ) |>
