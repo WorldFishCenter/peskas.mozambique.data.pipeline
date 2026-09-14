@@ -110,6 +110,11 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
       "catch_kg",
       tot_catch_price = "catch_price"
     ) |>
+    # Deduplicate before the total is taken, not after. Summing first and
+    # dropping rows afterwards leaves tot_catch_kg counting a row that is no
+    # longer in the file, which breaks `tot_catch_kg == sum(catch_kg)` within
+    # trip_id at the moment of export.
+    dplyr::distinct() |>
     dplyr::group_by(.data$trip_id) |>
     dplyr::mutate(
       catch_price = NA_real_,
@@ -119,8 +124,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
     dplyr::relocate(
       c("catch_price", "tot_catch_kg", "tot_catch_price"),
       .after = "catch_kg"
-    ) |>
-    dplyr::distinct()
+    )
 
   logger::log_info(
     "Processed {nrow(api_raw)} records from {length(unique(api_raw$trip_id))} unique trips"
@@ -269,6 +273,11 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
       "catch_kg",
       tot_catch_price = "catch_price"
     ) |>
+    # Deduplicate before the total is taken, not after. Summing first and
+    # dropping rows afterwards leaves tot_catch_kg counting a row that is no
+    # longer in the file, which breaks `tot_catch_kg == sum(catch_kg)` within
+    # trip_id at the moment of export.
+    dplyr::distinct() |>
     dplyr::group_by(.data$trip_id) |>
     dplyr::mutate(
       catch_price = NA_real_,
@@ -278,8 +287,7 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
     dplyr::relocate(
       c("catch_price", "tot_catch_kg", "tot_catch_price"),
       .after = "catch_kg"
-    ) |>
-    dplyr::distinct()
+    )
 
   logger::log_info(
     "Processed {nrow(api_validated)} records from {length(unique(api_validated$trip_id))} unique trips"
