@@ -65,6 +65,22 @@ trips) and `trips-raw__20260913030600_763060b__.parquet` (2,949 rows,
   exclude 570 submissions (1.44% of its validated set), which is a
   portal-data decision beyond this audit.
 
+- **`tot_catch_kg` was summed before `distinct()`, not after**: both
+  export functions computed `tot_catch_kg = sum(catch_kg)` grouped by
+  `trip_id` and only then called
+  [`dplyr::distinct()`](https://dplyr.tidyverse.org/reference/distinct.html).
+  Any row the deduplication removed was still counted in the total, so
+  `tot_catch_kg` would have exceeded `sum(catch_kg)` for that trip — the
+  one invariant the API export exists to hold. `distinct()` now runs
+  before the total is taken, so the sum covers exactly the rows that
+  reach the file. **Data impact**: none today. `distinct()` removes 0
+  rows from both exports (2,949 raw, 2,193 validated), because
+  [`preprocess_landings_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_adnap.md)
+  already deduplicates upstream, and both orderings produce an identical
+  row set. This was latent: it would have bitten the first time two
+  genuinely identical catch rows shared a trip, and it would have failed
+  silently, since nothing downstream rechecks the total.
+
 - **A no-op `relocate()` in both API exports**:
   `dplyr::relocate(c("catch_price", "tot_catch_kg", "tot_catch_price"), .after = "catch_price")`
   relocated `catch_price` after itself. Now `.after = "catch_kg"`,
