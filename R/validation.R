@@ -98,6 +98,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
   price_kg_max <- 2500 # 30 EUR converted to MZN (81420 TZS * 0.023 MZN/TZS)
   cpue_max <- 30 # Max CPUE kg/fisher/day
   rpue_max <- 2500 # 30 EUR converted to MZN
+  max_length_cm <- 500
 
   # Prepare catch data for validation - adapt to Mozambique structure
 
@@ -154,6 +155,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
           !is.na(.data$max_length_75) &
           .data$length > .data$max_length_75 ~
           "4",
+        !is.na(.data$length) & .data$length > max_length_cm ~ "4",
         TRUE ~ NA_character_
       ),
       # Flag 5: Bucket weight exceeds maximum (following Zanzibar exactly)
@@ -566,6 +568,8 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
   price_kg_max <- 2500 # Mozambican metical -> 30 eur
   cpue_max <- 30
   rpue_max <- 2500
+  # Absolute backstop for alert 4; see the note in validate_surveys_lurio().
+  max_length_cm <- 500
 
   catch_df <-
     preprocessed_surveys |>
@@ -615,6 +619,8 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
       ),
       alert_max_length = dplyr::case_when(
         .data$length > .data$max_length_75 ~ "4",
+        # Backstop for a taxon FishBase gives no bound for; see max_length_cm.
+        .data$length > max_length_cm ~ "4",
         TRUE ~ NA_character_
       ),
       alert_bucket_weight = dplyr::case_when(
