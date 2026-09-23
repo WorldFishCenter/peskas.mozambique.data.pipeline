@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.9.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,27 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.11.0" id="peskasmozambiquedatapipeline-2110">peskas.mozambique.data.pipeline 2.11.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-2110"></a></h2>
+<div class="section level3">
+<h3 id="records-say-which-organization-collected-them-2-11-0">Records say which organization collected them<a class="anchor" aria-label="anchor" href="#records-say-which-organization-collected-them-2-11-0"></a></h3>
+<ul><li><strong>NEW</strong></li>
+</ul><p><code>survey_organization</code> names the organization behind each record, as the first column — <code>"ADNAP"</code> here. <code>survey_id</code> identifies the form, not the organization, and a country can run more than one programme at once, as Kenya does.</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.10.0" id="peskasmozambiquedatapipeline-2100">peskas.mozambique.data.pipeline 2.10.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-2100"></a></h2>
+<div class="section level3">
+<h3 id="a-length-with-no-species-bound-is-now-bounded-anyway-2-10-0">A length with no species bound is now bounded anyway<a class="anchor" aria-label="anchor" href="#a-length-with-no-species-bound-is-now-bounded-anyway-2-10-0"></a></h3>
+<ul><li><strong>FIXED</strong></li>
+</ul><p>Alert 4 compares a catch length against a per-taxon bound from FishBase, and the rule skipped rows where FishBase provides no bound — so a missing bound passed silently. An absolute 500 cm ceiling now backs the per-taxon rule up in both validators. Nothing is flagged today; Mozambique’s longest recorded fish is 95 cm.</p>
+</div>
+<div class="section level3">
+<h3 id="habitat-casing-matches-the-other-programmes-2-10-0">Habitat casing matches the other programmes<a class="anchor" aria-label="anchor" href="#habitat-casing-matches-the-other-programmes-2-10-0"></a></h3>
+<ul><li><strong>FIXED</strong></li>
+</ul><p><code><a href="../reference/preprocess_landings_lurio.html">preprocess_landings_lurio()</a></code> writes <code>"Open sea"</code>, not <code>"Open Sea"</code>. ADNAP, Kenya and Zanzibar all use the lowercase form, so Lurio’s variant split the category in two wherever the two programmes were grouped together — 23.5% of its rows.</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.9.2" id="peskasmozambiquedatapipeline-292">peskas.mozambique.data.pipeline 2.9.2<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-292"></a></h2>
 <div class="section level3">

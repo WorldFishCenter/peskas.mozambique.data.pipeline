@@ -1,5 +1,37 @@
 # Changelog
 
+## peskas.mozambique.data.pipeline 2.11.0
+
+### Records say which organization collected them
+
+- **NEW**
+
+`survey_organization` names the organization behind each record, as the
+first column — `"ADNAP"` here. `survey_id` identifies the form, not the
+organization, and a country can run more than one programme at once, as
+Kenya does.
+
+## peskas.mozambique.data.pipeline 2.10.0
+
+### A length with no species bound is now bounded anyway
+
+- **FIXED**
+
+Alert 4 compares a catch length against a per-taxon bound from FishBase,
+and the rule skipped rows where FishBase provides no bound — so a
+missing bound passed silently. An absolute 500 cm ceiling now backs the
+per-taxon rule up in both validators. Nothing is flagged today;
+Mozambique’s longest recorded fish is 95 cm.
+
+### Habitat casing matches the other programmes
+
+- **FIXED**
+
+[`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_lurio.md)
+writes `"Open sea"`, not `"Open Sea"`. ADNAP, Kenya and Zanzibar all use
+the lowercase form, so Lurio’s variant split the category in two
+wherever the two programmes were grouped together — 23.5% of its rows.
+
 ## peskas.mozambique.data.pipeline 2.9.2
 
 ### Bug Fixes
