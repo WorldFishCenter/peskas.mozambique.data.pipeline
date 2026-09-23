@@ -8,8 +8,8 @@ assert_taxa_coverage(
   taxa_list,
   lw,
   exempt = c("MZZ", "CRA", "CUX", "AND", "NAI", "ADT", "CJV", "CWC", "ECG", "EFZ", "EJX",
-    "GQT", "GQV", "ICZ", "NUH", "OCN", "OIC", "PEJ", "PKF", "RDR", "TCI", "UVG", "YFK",
-    "LHV", "TEC", "EFB", "EFN", "HMP", "KAK", "PKV", "QCY", "RMB")
+    "GQT", "GQV", "ICZ", "NUH", "OCN", "OIC", "PEJ", "PKF", "RDR", "SRQ", "TCI", "UVG",
+    "YFK", "LHV", "TEC", "EFB", "EFN", "HMP", "KAK", "PKV", "QCY", "RMB")
 )
 }
 \arguments{
@@ -51,8 +51,10 @@ FAO 51, but FishBase or SeaLifeBase carries no length-weight pair for
 it in any length type. There is nothing to convert and nothing to
 alias; the measurement does not exist. \code{ADT}, \code{CJV}, \code{CWC}, \code{ECG},
 \code{EFZ}, \code{EJX}, \code{GQT}, \code{GQV}, \code{ICZ}, \code{NUH}, \code{OCN}, \code{OIC}, \code{PEJ}, \code{PKF},
-\code{RDR}, \code{TCI}, \code{UVG} and \code{YFK} — 18 codes, and the bulk of this
-baseline. All but \code{EJX} and \code{OCN} are FishBase.}
+\code{RDR}, \code{SRQ}, \code{TCI}, \code{UVG} and \code{YFK} — 19 codes, and the bulk of
+this baseline. All but \code{EJX} and \code{OCN} are FishBase. \code{SRQ}
+(\emph{Sorsogona prionota}, now \emph{Ratabulus prionotus}) first appeared in
+production after the baseline was measured.}
 \item{Only a doubtful pair}{\code{LHV} (\emph{Lethrinus variegatus}) and \code{TEC}
 (\emph{Pterocaesio chrysozona}) each have exactly one published pair, and
 FishBase flags it \code{EsQ = "Yes"} — its own marker for a doubtful

@@ -357,8 +357,10 @@ getLWCoeffs <- function(
 #'       it in any length type. There is nothing to convert and nothing to
 #'       alias; the measurement does not exist. `ADT`, `CJV`, `CWC`, `ECG`,
 #'       `EFZ`, `EJX`, `GQT`, `GQV`, `ICZ`, `NUH`, `OCN`, `OIC`, `PEJ`, `PKF`,
-#'       `RDR`, `TCI`, `UVG` and `YFK` — 18 codes, and the bulk of this
-#'       baseline. All but `EJX` and `OCN` are FishBase.}
+#'       `RDR`, `SRQ`, `TCI`, `UVG` and `YFK` — 19 codes, and the bulk of
+#'       this baseline. All but `EJX` and `OCN` are FishBase. `SRQ`
+#'       (*Sorsogona prionota*, now *Ratabulus prionotus*) first appeared in
+#'       production after the baseline was measured.}
 #'     \item{Only a doubtful pair}{`LHV` (*Lethrinus variegatus*) and `TEC`
 #'       (*Pterocaesio chrysozona*) each have exactly one published pair, and
 #'       FishBase flags it `EsQ = "Yes"` — its own marker for a doubtful
@@ -396,7 +398,7 @@ assert_taxa_coverage <- function(
     "AND", "NAI",
     # in FAO 51, but no published length-weight pair at all
     "ADT", "CJV", "CWC", "ECG", "EFZ", "EJX", "GQT", "GQV", "ICZ", "NUH",
-    "OCN", "OIC", "PEJ", "PKF", "RDR", "TCI", "UVG", "YFK",
+    "OCN", "OIC", "PEJ", "PKF", "RDR", "SRQ", "TCI", "UVG", "YFK",
     # the only published pair is flagged EsQ = "Yes" (doubtful) and excluded
     "LHV", "TEC",
     # pairs exist, but in a length type with no POPLL fit to convert through
@@ -708,6 +710,9 @@ taxa_search_aliases <- function() {
     "Species",
     "RPO",
     "Parupeneus macronemus",
+    "Species",
+    "SRQ",
+    "Ratabulus prionotus",
     "Species",
     "SYQ",
     "Strongylura leiurus",
