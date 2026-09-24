@@ -2,7 +2,7 @@
 
 Exports validation flags directly to MongoDB without updating
 KoboToolbox validation statuses. This function replaces the workflow of
-[`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.md)
+[`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/sync_validation_submissions.md)
 to avoid slow API updates to KoboToolbox. Instead, it uses KoboToolbox
 validation status queries only to identify manually edited validations
 by human reviewers.
@@ -23,7 +23,7 @@ export_validation_flags(
 - conf:
 
   Configuration object from
-  [`read_config()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/read_config.md)
+  [`read_config()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/read_config.md)
   containing MongoDB connection parameters and survey-specific settings
 
 - asset_id:
@@ -40,7 +40,7 @@ export_validation_flags(
 - validation_statuses:
 
   Data frame from
-  [`get_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_validation_status.md)
+  [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
   with columns: `submission_id`, `validation_status`, `validated_by`,
   `validation_date`
 
@@ -70,7 +70,7 @@ The function performs the following steps:
   calls)
 
 - Uses `validation_statuses` parameter obtained via
-  [`get_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_validation_status.md)
+  [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
 
 - Stores final validation state only in MongoDB
 
@@ -92,7 +92,7 @@ The function performs the following steps:
 ## Note
 
 This function is called internally by
-[`validate_surveys_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/validate_surveys_adnap.md)
+[`validate_surveys_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_surveys_adnap.md)
 and should not typically be called directly. It requires:
 
 - Valid configuration with MongoDB connection string
@@ -118,13 +118,13 @@ The function pushes to two MongoDB collections:
 
 ## See also
 
-- [`validate_surveys_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/validate_surveys_adnap.md)
+- [`validate_surveys_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_surveys_adnap.md)
   for the main validation workflow
 
-- [`get_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_validation_status.md)
+- [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
   for fetching KoboToolbox validation status
 
-- [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.md)
+- [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/sync_validation_submissions.md)
   for the deprecated approach that updates KoboToolbox
 
 - [`coasts::mdb_collection_push()`](https://rdrr.io/pkg/coasts/man/mdb_collection_push.html)

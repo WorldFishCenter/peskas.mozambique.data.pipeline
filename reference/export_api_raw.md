@@ -48,7 +48,7 @@ and is part of a two-stage API export pipeline:
 1.  `export_api_raw()` - Exports raw/preprocessed data (this function)
 
 2.  (Future)
-    [`export_api_validated()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_api_validated.md) -
+    [`export_api_validated()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/export_api_validated.md) -
     Will export quality-controlled validated data
 
 **Output Schema**: The exported dataset includes the following fields:

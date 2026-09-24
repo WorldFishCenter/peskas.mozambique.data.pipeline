@@ -8,7 +8,7 @@ with **zero species** in them, so any taxon whose reference name is one
 of those families expands to nothing and gets no coefficients.
 
 Nothing fails on its own when that happens:
-[`calculate_catch_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_catch_adnap.md)
+[`calculate_catch_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/calculate_catch_adnap.md)
 left-joins the coefficients, so a taxon with no `(lw_a, lw_b)` pair
 yields `NA` weight, and `NA` sums to zero. The taxon disappears from the
 portal and the run stays green. This turns that silence into a failed
@@ -21,8 +21,8 @@ assert_taxa_coverage(
   taxa_list,
   lw,
   exempt = c("MZZ", "CRA", "CUX", "AND", "NAI", "ADT", "CJV", "CWC", "ECG", "EFZ", "EJX",
-    "GQT", "GQV", "ICZ", "NUH", "OCN", "OIC", "PEJ", "PKF", "RDR", "TCI", "UVG", "YFK",
-    "LHV", "TEC", "EFB", "EFN", "HMP", "KAK", "PKV", "QCY", "RMB")
+    "GQT", "GQV", "ICZ", "NUH", "OCN", "OIC", "PEJ", "PKF", "RDR", "SRQ", "TCI", "UVG",
+    "YFK", "LHV", "TEC", "EFB", "EFN", "HMP", "KAK", "PKV", "QCY", "RMB")
 )
 ```
 
@@ -35,7 +35,7 @@ assert_taxa_coverage(
 - lw:
 
   The `lw` table from
-  [`getLWCoeffs()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/getLWCoeffs.md),
+  [`getLWCoeffs()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/getLWCoeffs.md),
   after any manually curated coefficients have been bound on.
 
 - exempt:
@@ -56,12 +56,12 @@ assert_taxa_coverage(
   Not a taxon
 
   :   `MZZ` (*Actinopterygii*, "marine fishes nei") is dropped by
-      [`get_fao_groups()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_fao_groups.md)
+      [`get_fao_groups()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_fao_groups.md)
       before the search runs.
 
   A rank the matcher cannot search
 
-  :   [`match_species_from_taxa()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/match_species_from_taxa.md)
+  :   [`match_species_from_taxa()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/match_species_from_taxa.md)
       handles species, genus, family and order. `CRA` ("marine crabs
       nei") is the infraorder *Brachyura*, and SeaLifeBase carries no
       rank between order *Decapoda* and family; `CUX` ("sea cucumbers
@@ -69,7 +69,7 @@ assert_taxa_coverage(
       orders and 24 families. Aliasing either means deciding which
       families Mozambique lands, so both are left here rather than
       guessed at in
-      [`taxa_search_aliases()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/taxa_search_aliases.md).
+      [`taxa_search_aliases()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/taxa_search_aliases.md).
       `CUX` is the largest single loss in the list, at 972 Lurio rows.
 
   Wrong reference name
@@ -86,15 +86,17 @@ assert_taxa_coverage(
       type. There is nothing to convert and nothing to alias; the
       measurement does not exist. `ADT`, `CJV`, `CWC`, `ECG`, `EFZ`,
       `EJX`, `GQT`, `GQV`, `ICZ`, `NUH`, `OCN`, `OIC`, `PEJ`, `PKF`,
-      `RDR`, `TCI`, `UVG` and `YFK` — 18 codes, and the bulk of this
-      baseline. All but `EJX` and `OCN` are FishBase.
+      `RDR`, `SRQ`, `TCI`, `UVG` and `YFK` — 19 codes, and the bulk of
+      this baseline. All but `EJX` and `OCN` are FishBase. `SRQ`
+      (*Sorsogona prionota*, now *Ratabulus prionotus*) first appeared
+      in production after the baseline was measured.
 
   Only a doubtful pair
 
   :   `LHV` (*Lethrinus variegatus*) and `TEC` (*Pterocaesio
       chrysozona*) each have exactly one published pair, and FishBase
       flags it `EsQ = "Yes"` — its own marker for a doubtful estimate.
-      [`get_length_weight_batch()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_length_weight_batch.md)
+      [`get_length_weight_batch()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_length_weight_batch.md)
       drops those deliberately, so nothing is left. Recovering either
       means overriding FishBase's own quality flag, which is a judgement
       call, not a lookup.

@@ -31,14 +31,14 @@ The function performs the following main operations:
 2.  Downloads raw survey data from GCS as Parquet file
 
 3.  Processes general trip information using
-    [`preprocess_general_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_general_adnap.md)
+    [`preprocess_general_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_general_adnap.md)
 
 4.  Processes catch data using
-    [`preprocess_catch()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_catch.md)
+    [`preprocess_catch()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_catch.md)
     which handles survey version detection
 
 5.  Calculates catch weights via
-    [`calculate_catch_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_catch_adnap.md)
+    [`calculate_catch_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/calculate_catch_adnap.md)
     using length-weight coefficients
 
 6.  Joins trip and catch data

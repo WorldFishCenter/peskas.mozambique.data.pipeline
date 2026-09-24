@@ -46,7 +46,7 @@ individuals in that length range
 The function performs the following steps:
 
 1.  Reshapes species groups from wide to long using
-    [`reshape_species_groups()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/reshape_species_groups.md)
+    [`reshape_species_groups()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/reshape_species_groups.md)
 
 2.  Normalizes multiple species fields (species_TL for teleosts,
     species_RF for rays/fish, species_SH for sharks, species_FSH for
@@ -58,7 +58,7 @@ The function performs the following steps:
     column
 
 3.  Processes each species row individually using
-    [`expand_length_frequency()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/expand_length_frequency.md)
+    [`expand_length_frequency()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/expand_length_frequency.md)
     to:
 
     - Check if length frequency data exists for that row

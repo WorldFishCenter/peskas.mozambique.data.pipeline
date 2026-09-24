@@ -27,7 +27,7 @@ Mozambique’s longest recorded fish is 95 cm.
 
 - **FIXED**
 
-[`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_lurio.md)
+[`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_landings_lurio.md)
 writes `"Open sea"`, not `"Open Sea"`. ADNAP, Kenya and Zanzibar all use
 the lowercase form, so Lurio’s variant split the category in two
 wherever the two programmes were grouped together — 23.5% of its rows.
@@ -46,7 +46,7 @@ trips) and `trips-raw__20260913030600_763060b__.parquet` (2,949 rows,
   published rows across 12 validated trips carried `catch_habitat = "3"`
   — a literal `3`, sitting in a column whose other values are habitat
   names. The ADNAP habitat mapping in
-  [`preprocess_landings_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_adnap.md)
+  [`preprocess_landings_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_landings_adnap.md)
   was a `case_when()` over the current form’s string codes with a
   `TRUE ~ .data$habitat` fallthrough, so any code it did not recognise
   was published verbatim. Two early versions of the form
@@ -64,11 +64,11 @@ trips) and `trips-raw__20260913030600_763060b__.parquet` (2,949 rows,
   code the pipeline had never seen indistinguishable from one it
   understood, so the next renamed choice would land in production the
   same way.
-  [`preprocess_landings_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_adnap.md)
+  [`preprocess_landings_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_landings_adnap.md)
   now stops on any raw `group_trip/habitat` value with no entry in the
   mapping, naming the codes and pointing at the KoBo versions endpoint
   that carries the choice list.
-  [`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_lurio.md)
+  [`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_landings_lurio.md)
   keeps its own numeric mapping; its form emits only codes
   `1 2 3 4 6 7`, all of which it covers, and it does not feed the API
   export.
@@ -107,7 +107,7 @@ trips) and `trips-raw__20260913030600_763060b__.parquet` (2,949 rows,
   before the total is taken, so the sum covers exactly the rows that
   reach the file. **Data impact**: none today. `distinct()` removes 0
   rows from both exports (2,949 raw, 2,193 validated), because
-  [`preprocess_landings_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_adnap.md)
+  [`preprocess_landings_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_landings_adnap.md)
   already deduplicates upstream, and both orderings produce an identical
   row set. This was latent: it would have bitten the first time two
   genuinely identical catch rows shared a trip, and it would have failed
@@ -131,7 +131,7 @@ that derivation.
 
 - **The total-length restatement now comes from coasts**:
   `get_length_conversions()` and `convert_lw_to_tl()` are deleted;
-  [`get_length_weight_batch()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_length_weight_batch.md)
+  [`get_length_weight_batch()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_length_weight_batch.md)
   calls
   [`coasts::convert_lw_to_tl()`](https://github.com/WorldFishCenter/peskas.coasts)
   instead. The same arithmetic existed here, in Zanzibar and in Timor.
@@ -166,29 +166,29 @@ ADNAP).
   6,536 rows). The releases are now pinned per server in
   `inst/config.yml` under `metadata:fishbase` and threaded through all
   five `rfishbase` reads in
-  [`getLWCoeffs()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/getLWCoeffs.md),
+  [`getLWCoeffs()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/getLWCoeffs.md),
   which previously could mix snapshots within a single run. `rfishbase`
   is additionally pinned to 5.0.1 in both Dockerfiles as the last
   install step, because `remotes::install_local(dependencies = TRUE)`
   upgrades it otherwise.
 
-- **[`assert_taxa_coverage()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/assert_taxa_coverage.md)
+- **[`assert_taxa_coverage()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/assert_taxa_coverage.md)
   fails the run when a taxon resolves to no coefficients**: previously a
   taxon that matched nothing was dropped in silence and the pipeline
   stayed green while publishing a hole. Called from both
-  [`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_lurio.md)
+  [`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_landings_lurio.md)
   and
-  [`process_version_data()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_version_data.md),
+  [`process_version_data()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_version_data.md),
   after the manual FLY coefficient is pooled in.
 
 - **Unmatched taxa are now logged**:
-  [`match_species_from_taxa()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/match_species_from_taxa.md)
+  [`match_species_from_taxa()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/match_species_from_taxa.md)
   dropped any name that matched no species without a warning. That
   warning is what the alias table below was built from — it reported 30
   unmatched names on the first run here.
 
 - **SeaLifeBase routing corrected**:
-  [`process_species_list()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_species_list.md)
+  [`process_species_list()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_species_list.md)
   routed only ISSCAAP groups 57, 45, 43, 42 and 56 to SeaLifeBase,
   sending sea cucumbers, gastropods, oysters, mussels, scallops and
   mantis shrimp to FishBase, where they matched nothing and were
@@ -204,7 +204,7 @@ ADNAP).
   every published length-weight pair with the length type the original
   study measured, and for tunas, billfish and several carangids that is
   fork length.
-  [`get_length_weight_batch()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_length_weight_batch.md)
+  [`get_length_weight_batch()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_length_weight_batch.md)
   kept only `Type == "TL"`, so those taxa got no coefficients at all and
   every length-measured catch row of them weighed `NA`. The conversions
   are published data in FishBase’s POPLL table, which this pipeline
@@ -228,8 +228,8 @@ ADNAP).
   those records were never checked before.
 
 - **Search-name aliases fix 28 taxa the ASFIS names could not match**
-  ([`taxa_search_aliases()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/taxa_search_aliases.md),
-  [`apply_taxa_aliases()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/apply_taxa_aliases.md)):
+  ([`taxa_search_aliases()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/taxa_search_aliases.md),
+  [`apply_taxa_aliases()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/apply_taxa_aliases.md)):
   a handful of ASFIS reference names match nothing in the taxonomic
   backbone, so the taxon is dropped and every catch row of it weighs
   `NA`. Every row was derived by looking the ASFIS name up in the
@@ -247,7 +247,7 @@ ADNAP).
 
   `CRA` (“marine crabs nei”, *Brachyura*) and `CUX` (“sea cucumbers
   nei”, *Holothuroidea*) are deliberately not aliased: both are ranks
-  [`match_species_from_taxa()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/match_species_from_taxa.md)
+  [`match_species_from_taxa()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/match_species_from_taxa.md)
   cannot search, and choosing a target means deciding which crab or
   holothurian families Mozambique lands. `CUX` is the largest single
   loss in the baseline, at 972 Lurio rows.
@@ -260,24 +260,24 @@ ADNAP).
   to arm-span unconverted weighed a single octopus at **264 kg** instead
   of 2.43 kg. This was latent while `OQC` had no coefficients and would
   have gone live with the alias above. The conversion is applied in both
-  [`calculate_catch_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_catch_adnap.md)
+  [`calculate_catch_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/calculate_catch_adnap.md)
   and
-  [`calculate_catch_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_catch_lurio.md),
+  [`calculate_catch_lurio()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/calculate_catch_lurio.md),
   since the two forms carry one octopus code each.
 
 - **Fixed a duplicate join key for `FLY`**: both preprocessing paths
   appended a hardcoded flying-fish coefficient unconditionally. Now that
   the conversion recovers Exocoetidae pairs,
-  [`getLWCoeffs()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/getLWCoeffs.md)
+  [`getLWCoeffs()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/getLWCoeffs.md)
   returns a `FLY` row of its own, and two rows on the same key would
   have doubled every flying fish catch record. The manual value now
   replaces rather than appends, and stays authoritative: changing it is
   a separate decision.
 
 - **Removed a dead fallback in
-  [`process_version_data()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_version_data.md)**:
+  [`process_version_data()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_version_data.md)**:
   the `tryCatch` around
-  [`getLWCoeffs()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/getLWCoeffs.md)
+  [`getLWCoeffs()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/getLWCoeffs.md)
   read `inst/length_weight_params.rds`, which is not in the package, so
   the fallback could only ever fail — while hiding the original error
   behind it.
@@ -288,7 +288,7 @@ Measured 2026-09-06 against FishBase 25.04 / SeaLifeBase 24.07 over the
 **production** KoBo data for both forms: **263 of 295 codes resolve
 length-weight coefficients**, up from 237 before this release (ADNAP
 230/260, Lurio 52/55). The other 32 form the documented baseline in
-[`assert_taxa_coverage()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/assert_taxa_coverage.md),
+[`assert_taxa_coverage()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/assert_taxa_coverage.md),
 so any *new* loss fails the run. `CJX` and `PWT` are deliberately not in
 it — they resolve at 25.04 and are the two codes that break at 26.06, so
 a release move fails the check.
@@ -311,7 +311,7 @@ files lagged production by three weeks and 8 codes
 - **Only a doubtful pair (2)** — `LHV` (*Lethrinus variegatus*) and
   `TEC` (*Pterocaesio chrysozona*) each have exactly one published pair,
   flagged `EsQ = "Yes"` by FishBase itself, which
-  [`get_length_weight_batch()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_length_weight_batch.md)
+  [`get_length_weight_batch()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_length_weight_batch.md)
   drops on purpose. Recovering either means overriding FishBase’s
   quality flag.
 - **No usable length type (7)** — `HMP` (SL), `PKV` and `QCY` (FL),
@@ -324,7 +324,7 @@ Zanzibar’s retired-code remaps (`AHI`→`BAF`, `BFL`→`TEI`) and its
 `SR`/`MAC`→ `AQX` correction come from Zanzibar’s forms; none of those
 three codes occurs in Mozambique’s data, so no remap was added. The
 existing `TUN`→`TUS`, `SKH`→`CVX` and `CLP`→`ANX` remaps in
-[`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_lurio.md)
+[`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_landings_lurio.md)
 are the local equivalents and are unchanged. Because `CLP` is already
 remapped at the survey level here, Zanzibar’s `CLP`→*Dorosomatidae*
 alias is not needed.
@@ -332,7 +332,7 @@ alias is not needed.
 Two metadata gaps were found while measuring and are **not** code fixes:
 `FOT` (*Eleutheronema tetradactylum*, 17 ADNAP rows) is a valid ASFIS
 code missing from the Airtable taxa table, so
-[`map_surveys()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/map_surveys.md)
+[`map_surveys()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/map_surveys.md)
 leaves those rows without a scientific or English name; and Lurio
 `survey_label` 27 (43 rows) has no Airtable row at all, orphaning those
 submissions. Both need an Airtable edit, not a remap — rewriting either
@@ -372,7 +372,7 @@ code would mislabel real catch.
 ### New Features
 
 - **Trip-Survey Merging Pipeline**: Added new
-  [`merge_trips()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/merge_trips.md)
+  [`merge_trips()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/merge_trips.md)
   function to combine GPS tracker data with survey landings
   - Merges PDS trip data with validated survey submissions based on
     device IMEI and landing date
@@ -412,7 +412,7 @@ code would mislabel real catch.
 ### New Features
 
 - **API Data Export Pipeline**: Added new
-  [`export_api_raw()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_api_raw.md)
+  [`export_api_raw()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/export_api_raw.md)
   function to export raw preprocessed survey data in API-friendly format
   - Exports raw/preprocessed trip data (before validation) to cloud
     storage
@@ -448,13 +448,13 @@ code would mislabel real catch.
 ### Major Changes
 
 - **Lurio landings export pipeline**: Added
-  [`export_lurio_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_lurio_landings.md)
+  [`export_lurio_landings()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/export_lurio_landings.md)
   to publish portal-ready collections to MongoDB after validation.
   - Generates monthly metrics, site stats, taxa length distributions,
     taxa composition per site, gear/habitat CPUE-RPUE metrics, and geo
     indicators
   - New
-    [`create_metric_structure()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/create_metric_structure.md)
+    [`create_metric_structure()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/create_metric_structure.md)
     helper builds ApexCharts JSON series for gear/habitat views
   - Added GitHub Actions job to run the Lurio export after
     `validate-lurio`
@@ -471,7 +471,7 @@ code would mislabel real catch.
   - Temporarily align `landing_date` with `submission_date` in exports
     pending validation fixes
   - Pause fishery metrics parquet export in
-    [`export_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_landings.md)
+    [`export_landings()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/export_landings.md)
     while outputs are reviewed
 
 ### Infrastructure & Dependencies
@@ -486,12 +486,12 @@ code would mislabel real catch.
 - **Streamlined Validation Workflow**: Replaced KoboToolbox API updates
   with direct MongoDB storage to improve performance.
   - New
-    [`export_validation_flags()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_validation_flags.md)
+    [`export_validation_flags()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/export_validation_flags.md)
     function exports validation flags directly to MongoDB
   - Validation status queries now only identify manually edited
     submissions, not update them
   - Disabled
-    [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.md)
+    [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/sync_validation_submissions.md)
     workflow steps in GitHub Actions
   - Significantly reduced pipeline execution time by avoiding slow
     KoboToolbox API calls
@@ -502,7 +502,7 @@ code would mislabel real catch.
   - Validation functions now preserve manual human approvals while
     updating system-generated statuses
   - Added `fetch_error` field to
-    [`get_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_validation_status.md)
+    [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
     for better error tracking
   - Improved error handling in validation status queries
 - **Code Quality**:
@@ -511,7 +511,7 @@ code would mislabel real catch.
   - Standardized function parameter formatting across validation and
     preprocessing modules
   - Removed empty
-    [R/data.R](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/news/R/data.R)
+    [R/data.R](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/news/R/data.R)
     file
 - **Pipeline Configuration**:
   - Removed survey activity filter in Lurio preprocessing to include all
@@ -524,7 +524,7 @@ code would mislabel real catch.
 - **Enumerator Name Standardization**: New intelligent name cleaning and
   matching system to handle data entry inconsistencies.
   - Introduced
-    [`standardize_enumerator_names()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/standardize_enumerator_names.md)
+    [`standardize_enumerator_names()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/standardize_enumerator_names.md)
     function with fuzzy string matching using Levenshtein distance
   - Automatically removes special characters, numbers, and extra
     whitespace from enumerator names
@@ -578,7 +578,7 @@ code would mislabel real catch.
   - Fixed assignment operators (`=` → `<-`) for R style consistency
   - Improved function parameter formatting throughout codebase
   - Added proper roxygen2 documentation for new
-    [`standardize_enumerator_names()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/standardize_enumerator_names.md)
+    [`standardize_enumerator_names()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/standardize_enumerator_names.md)
     function
   - Enhanced inline comments explaining validation thresholds and logic
 
@@ -602,7 +602,7 @@ code would mislabel real catch.
 - Enhanced parallel processing configuration for validation status
   queries
 - Updated NAMESPACE with new exported function
-  [`standardize_enumerator_names()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/standardize_enumerator_names.md)
+  [`standardize_enumerator_names()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/standardize_enumerator_names.md)
 - Added man page documentation for enumerator name standardization
   function
 
@@ -613,10 +613,10 @@ code would mislabel real catch.
 - **Redesigned Length Frequency Processing**: Complete rebuild of catch
   data reshaping with simplified, row-by-row processing architecture.
   - Introduced
-    [`expand_length_frequency()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/expand_length_frequency.md)
+    [`expand_length_frequency()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/expand_length_frequency.md)
     for processing individual species rows
   - Refactored
-    [`reshape_catch_data()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/reshape_catch_data.md)
+    [`reshape_catch_data()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/reshape_catch_data.md)
     to use row-wise expansion instead of complex joins
   - Eliminated data loss issues caused by multiple join operations
   - Preserves all metadata (counting_method, species, n_buckets, etc.)
@@ -636,12 +636,12 @@ code would mislabel real catch.
   - More robust error handling for empty length bins
 - **Code Architecture**:
   - New
-    [`expand_length_frequency()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/expand_length_frequency.md)
+    [`expand_length_frequency()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/expand_length_frequency.md)
     function processes one species row at a time
   - Deprecated `process_regular_length_groups()` in favor of simpler
     row-by-row approach
   - Retained
-    [`process_over100_length_groups()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_over100_length_groups.md)
+    [`process_over100_length_groups()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_over100_length_groups.md)
     for backwards compatibility with large fish data
   - Eliminated complex join logic that was prone to losing metadata
   - Uses `rowwise() |> group_split() |> map_dfr()` pattern for cleaner
@@ -681,10 +681,10 @@ code would mislabel real catch.
 - **Enhanced Validation Sync System**: Restructured validation
   synchronization following Kenya pipeline best practices.
   - Added
-    [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.md)
+    [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/sync_validation_submissions.md)
     for bidirectional validation status updates with rate limiting
   - Implemented
-    [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_submissions_parallel.md)
+    [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_submissions_parallel.md)
     helper function for consistent API interactions
   - **Rate limiting** (0.1-0.2s delays) prevents overwhelming
     KoboToolbox API
@@ -739,8 +739,8 @@ code would mislabel real catch.
   - Maintained robust error handling with granular validation stages
 - **Code Quality**:
   - Added new exported functions: `summarize_data()`,
-    [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/sync_validation_submissions.md),
-    [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_submissions_parallel.md)
+    [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/sync_validation_submissions.md),
+    [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_submissions_parallel.md)
   - Enhanced function documentation with proper importFrom declarations
   - Improved variable scoping and data pipeline clarity
   - Better separation of concerns between preprocessing and validation
@@ -778,33 +778,33 @@ code would mislabel real catch.
 - **Dual Survey System Integration**: Full support for both Lurio and
   ADNAP fisheries surveys with parallel processing workflows.
   - Added
-    [`ingest_landings_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/ingest_landings_lurio.md)
+    [`ingest_landings_lurio()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/ingest_landings_lurio.md)
     and
-    [`ingest_landings_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/ingest_landings_adnap.md)
+    [`ingest_landings_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/ingest_landings_adnap.md)
     for separate survey data streams
   - Implemented
-    [`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_lurio.md)
+    [`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_landings_lurio.md)
     and
-    [`preprocess_landings_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_adnap.md)
+    [`preprocess_landings_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_landings_adnap.md)
     with survey-specific transformations
   - Created
-    [`validate_surveys_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/validate_surveys_lurio.md)
+    [`validate_surveys_lurio()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_surveys_lurio.md)
     and
-    [`validate_surveys_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/validate_surveys_adnap.md)
+    [`validate_surveys_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_surveys_adnap.md)
     with tailored validation rules
   - Added
-    [`calculate_catch_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_catch_lurio.md)
+    [`calculate_catch_lurio()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/calculate_catch_lurio.md)
     and
-    [`calculate_catch_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_catch_adnap.md)
+    [`calculate_catch_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/calculate_catch_adnap.md)
     for survey-specific catch weight estimation
   - Introduced survey version detection and adaptive processing via
-    [`reshape_catch_data()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/reshape_catch_data.md)
+    [`reshape_catch_data()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/reshape_catch_data.md)
 - **Enhanced Validation System for ADNAP**: Advanced validation with
   KoBoToolbox integration.
   - Integrated KoBoToolbox validation status API for manual approval
     workflow
   - Added
-    [`get_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_validation_status.md)
+    [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
     to query submission approval status
   - Implemented parallel processing for validation status queries across
     multiple submissions
@@ -815,16 +815,16 @@ code would mislabel real catch.
 - **Flexible Survey Data Reshaping**: New module for handling multiple
   survey form structures.
   - Introduced
-    [`reshape_species_groups()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/reshape_species_groups.md)
+    [`reshape_species_groups()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/reshape_species_groups.md)
     for converting wide-format species data to long format
   - Created
-    [`reshape_catch_data()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/reshape_catch_data.md)
+    [`reshape_catch_data()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/reshape_catch_data.md)
     supporting both version 1 and version 2 survey structures
   - Added
-    [`preprocess_catch()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_catch.md)
+    [`preprocess_catch()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_catch.md)
     with automatic survey version detection
   - Implemented
-    [`preprocess_general_adnap()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_general_adnap.md)
+    [`preprocess_general_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_general_adnap.md)
     for ADNAP-specific trip information processing
   - Enhanced handling of nested length groups and fish over 100cm
 - **Improved GitHub Actions Workflow**: Enhanced automation with clearer
@@ -905,21 +905,21 @@ code would mislabel real catch.
 - **Airtable Integration Module**: Complete suite of functions for
   two-way synchronization with Airtable.
   - Implemented
-    [`airtable_to_df()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/airtable_to_df.md)
+    [`airtable_to_df()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/airtable_to_df.md)
     with automatic pagination for full table retrieval
   - Added
-    [`device_sync()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/device_sync.md)
+    [`device_sync()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/device_sync.md)
     for intelligent device data synchronization (updates existing,
     creates new)
   - Created `sync_device_users()` to manage vessel user credentials
     across Airtable and MongoDB
   - Developed
-    [`bulk_update_airtable()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/bulk_update_airtable.md)
+    [`bulk_update_airtable()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/bulk_update_airtable.md)
     and
-    [`df_to_airtable()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/df_to_airtable.md)
+    [`df_to_airtable()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/df_to_airtable.md)
     for batch operations
   - Added
-    [`get_writable_fields()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_writable_fields.md)
+    [`get_writable_fields()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_writable_fields.md)
     to identify editable fields and prevent computed field errors
 - **Comprehensive Data Validation Framework**: Implemented multi-stage
   validation adapted from Peskas Zanzibar pipeline.
@@ -930,30 +930,30 @@ code would mislabel real catch.
   - Stage 2: Composite economic indicators (price per kg, CPUE, RPUE)
     following Zanzibar thresholds
   - Created modular validation functions:
-    [`validate_catch_taxa()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/validate_catch_taxa.md),
-    [`validate_price()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/validate_price.md),
-    [`validate_total_catch()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/validate_total_catch.md)
+    [`validate_catch_taxa()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_catch_taxa.md),
+    [`validate_price()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_price.md),
+    [`validate_total_catch()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_total_catch.md)
   - Validation results exclude flagged submissions from final dataset
     while preserving flags for monitoring
 - **Taxa Modeling and Species Intelligence**: New module for automated
   species identification and biological data enrichment.
   - Introduced
-    [`match_species_from_taxa()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/match_species_from_taxa.md)
+    [`match_species_from_taxa()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/match_species_from_taxa.md)
     using fuzzy matching against FishBase and SeaLifeBase
   - Implemented
-    [`get_fao_groups()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_fao_groups.md)
+    [`get_fao_groups()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_fao_groups.md)
     for commercial species categorization
   - Added
-    [`get_species_areas_batch()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_species_areas_batch.md)
+    [`get_species_areas_batch()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_species_areas_batch.md)
     for biogeographic validation
   - Created
-    [`get_length_weight_batch()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_length_weight_batch.md)
+    [`get_length_weight_batch()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_length_weight_batch.md)
     for length-weight relationship parameters
   - Developed
-    [`getLWCoeffs()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/getLWCoeffs.md)
+    [`getLWCoeffs()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/getLWCoeffs.md)
     to retrieve stored coefficients from local database
   - Added
-    [`process_species_list()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_species_list.md)
+    [`process_species_list()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_species_list.md)
     for batch processing with automatic fallback logic
 
 ### Improvements
@@ -971,10 +971,10 @@ code would mislabel real catch.
 - **Configuration Management**:
   - Switched to `dotenv` package for environment variable management
   - Added
-    [`load_dotenv()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/load_dotenv.md)
+    [`load_dotenv()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/load_dotenv.md)
     function with configurable .env file paths
   - Updated
-    [`read_config()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/read_config.md)
+    [`read_config()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/read_config.md)
     to automatically load environment variables
   - Expanded configuration schema to support PDS, Airtable, and
     multi-cloud storage
@@ -984,7 +984,7 @@ code would mislabel real catch.
   - Enhanced `preprocess_landings()` with metadata table joins (landing
     sites, boats, enumerators)
   - Implemented
-    [`process_species_group()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_species_group.md)
+    [`process_species_group()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_species_group.md)
     for handling species group disaggregation
   - Added species validation and enrichment with FishBase/SeaLifeBase
     data
@@ -993,10 +993,10 @@ code would mislabel real catch.
   - Improved catch weight calculation with multiple estimation methods
 - **Export Functionality**:
   - Expanded
-    [`export_landings()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/export_landings.md)
+    [`export_landings()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/export_landings.md)
     to generate multiple analytical outputs
   - Added
-    [`calculate_fishery_metrics()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_fishery_metrics.md)
+    [`calculate_fishery_metrics()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/calculate_fishery_metrics.md)
     for aggregated statistics
   - Created MongoDB portal collections for dashboard integration
   - Implemented trip-level summarization for GPS track data

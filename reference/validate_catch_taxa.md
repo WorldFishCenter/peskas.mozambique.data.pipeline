@@ -2,7 +2,7 @@
 
 Flags outliers in `catch_kg` by comparing values to upper bounds
 computed per `gear + catch_taxon` group (via
-[`get_catch_bounds_taxon`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_catch_bounds_taxon.md)).
+[`get_catch_bounds_taxon`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_catch_bounds_taxon.md)).
 Rows with `catch_kg` above the bound receive a numeric alert code and
 optionally have their `catch_kg` set to `NA`.
 
@@ -24,7 +24,7 @@ validate_catch_taxa(data, k = 3, flag_value = 4)
   A numeric parameter passed to
   [`LocScaleB`](https://rdrr.io/pkg/univOutl/man/LocScaleB.html); used
   for computing outlier bounds in
-  [`get_catch_bounds_taxon`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_catch_bounds_taxon.md).
+  [`get_catch_bounds_taxon`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_catch_bounds_taxon.md).
 
 - flag_value:
 
@@ -54,7 +54,7 @@ A data frame with the columns:
 ## Details
 
 1.  Calls
-    [`get_catch_bounds_taxon`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_catch_bounds_taxon.md)
+    [`get_catch_bounds_taxon`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_catch_bounds_taxon.md)
     to retrieve outlier bounds for each `gear + catch_taxon` group.
 
 2.  Joins these bounds to `data` on `gear` and `catch_taxon`.
@@ -65,7 +65,7 @@ A data frame with the columns:
 
 ## See also
 
-[`get_catch_bounds_taxon`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_catch_bounds_taxon.md),
+[`get_catch_bounds_taxon`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_catch_bounds_taxon.md),
 [`LocScaleB`](https://rdrr.io/pkg/univOutl/man/LocScaleB.html)
 
 ## Examples

@@ -81,13 +81,13 @@ respect API constraints.
 
 ## See also
 
-- [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_submissions_parallel.md)
+- [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_submissions_parallel.md)
   for the helper function with rate limiting
 
-- [`get_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_validation_status.md)
+- [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
   for fetching KoboToolbox validation status
 
-- [`update_validation_status()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/update_validation_status.md)
+- [`update_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/update_validation_status.md)
   for updating KoboToolbox validation status
 
 ## Examples

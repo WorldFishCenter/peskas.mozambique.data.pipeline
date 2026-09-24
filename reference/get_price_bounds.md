@@ -31,14 +31,14 @@ dropped.
 ## Details
 
 Similar to
-[`get_catch_bounds_taxon`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_catch_bounds_taxon.md),
+[`get_catch_bounds_taxon`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_catch_bounds_taxon.md),
 but operating on `catch_price` rather than `catch_kg`. Splits the data
 by gear + taxon, uses `LocScaleB` to find outlier bounds, and
 exponentiates the upper bound.
 
 ## See also
 
-[`validate_price`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/validate_price.md)
+[`validate_price`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_price.md)
 for usage in a validation step.
 
 ## Examples

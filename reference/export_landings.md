@@ -65,9 +65,9 @@ The following fields are included in the export:
 
 ## See also
 
-[`preprocess_landings_adnap`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/preprocess_landings_adnap.md)
+[`preprocess_landings_adnap`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_landings_adnap.md)
 for data preprocessing
-[`calculate_catch_adnap`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_catch_adnap.md)
+[`calculate_catch_adnap`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/calculate_catch_adnap.md)
 for catch weight calculations
 
 ## Examples

@@ -37,11 +37,11 @@ The function performs the following main operations:
     duration)
 
 5.  Processes catch data using
-    [`process_species_group()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_species_group.md)
+    [`process_species_group()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_species_group.md)
     to reshape from wide to long format
 
 6.  Calculates catch weights via
-    [`calculate_catch_lurio()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/calculate_catch_lurio.md)
+    [`calculate_catch_lurio()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/calculate_catch_lurio.md)
     using length-weight coefficients
 
 7.  Processes market information (catch use and price)

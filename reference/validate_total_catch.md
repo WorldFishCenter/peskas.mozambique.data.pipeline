@@ -23,7 +23,7 @@ validate_total_catch(data, k = 3, flag_value = 5)
   A numeric parameter passed to
   [`LocScaleB`](https://rdrr.io/pkg/univOutl/man/LocScaleB.html), used
   for bounding outliers in
-  [`get_total_catch_bounds`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_total_catch_bounds.md).
+  [`get_total_catch_bounds`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_total_catch_bounds.md).
 
 - flag_value:
 
@@ -46,14 +46,14 @@ A data frame with columns:
     `catch_kg` into `total_catch_kg`.
 
 2.  Retrieves outlier bounds from
-    [`get_total_catch_bounds`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_total_catch_bounds.md).
+    [`get_total_catch_bounds`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_total_catch_bounds.md).
 
 3.  Flags any `total_catch_kg` above `upper.up` with `alert_total`. Sets
     those outlier values to `NA_real_`.
 
 ## See also
 
-[`get_total_catch_bounds`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_total_catch_bounds.md),
+[`get_total_catch_bounds`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_total_catch_bounds.md),
 [`LocScaleB`](https://rdrr.io/pkg/univOutl/man/LocScaleB.html)
 
 ## Examples

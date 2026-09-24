@@ -16,7 +16,7 @@ form_id_pattern(form_ids)
 
   Character vector of Airtable form record IDs, e.g. the output of one
   or more
-  [`get_airtable_form_id()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_airtable_form_id.md)
+  [`get_airtable_form_id()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_airtable_form_id.md)
   calls.
 
 ## Value
@@ -27,7 +27,7 @@ whole element of a comma-separated list.
 ## Details
 
 `form_id` in the assets snapshot is a *linked-record* field.
-[`airtable_to_df()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/airtable_to_df.md)
+[`airtable_to_df()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/airtable_to_df.md)
 collapses it with `paste(collapse = ", ")`, so a record shared by three
 forms arrives as a single string `"recA, recB, recC"`. Selecting a
 form's records therefore needs a whole-element match rather than a

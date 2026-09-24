@@ -47,7 +47,7 @@ bounds from `LocScaleB`. The `lower.low` column is dropped.
 
 [`LocScaleB`](https://rdrr.io/pkg/univOutl/man/LocScaleB.html) for
 outlier detection,
-[`validate_catch_taxa`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/validate_catch_taxa.md)
+[`validate_catch_taxa`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_catch_taxa.md)
 for usage of these bounds in a validation step.
 
 ## Examples

@@ -62,7 +62,7 @@ monitoring.
 ## Note
 
 This function requires a configuration file accessible via
-[`read_config()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/read_config.md)
+[`read_config()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/read_config.md)
 providing cloud storage connection details.
 
 ## Examples

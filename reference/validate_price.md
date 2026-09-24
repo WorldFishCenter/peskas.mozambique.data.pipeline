@@ -22,7 +22,7 @@ validate_price(data, k = 3, flag_value = 6)
   A numeric parameter passed to
   [`LocScaleB`](https://rdrr.io/pkg/univOutl/man/LocScaleB.html), used
   in
-  [`get_price_bounds`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_price_bounds.md).
+  [`get_price_bounds`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_price_bounds.md).
 
 - flag_value:
 
@@ -51,7 +51,7 @@ A data frame with columns:
 ## Details
 
 1.  Calls
-    [`get_price_bounds`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_price_bounds.md)
+    [`get_price_bounds`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_price_bounds.md)
     to compute outlier thresholds.
 
 2.  Joins thresholds back to `data` via `gear` and `catch_taxon`.
@@ -61,7 +61,7 @@ A data frame with columns:
 
 ## See also
 
-[`get_price_bounds`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/get_price_bounds.md),
+[`get_price_bounds`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_price_bounds.md),
 [`LocScaleB`](https://rdrr.io/pkg/univOutl/man/LocScaleB.html)
 
 ## Examples

@@ -48,7 +48,7 @@ A data frame with columns:
 
 ## See also
 
-[`validate_total_catch`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/validate_total_catch.md)
+[`validate_total_catch`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_total_catch.md)
 for usage of these bounds in validation.
 
 ## Examples

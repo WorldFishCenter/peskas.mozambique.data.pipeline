@@ -46,7 +46,7 @@ name it points to. Three groups:
   `HES` is truncated in the reference table –
   `Herklotsichthys quadrimaculat.` – and `GRX` carries a parenthetical,
   `Haemulidae (=Pomadasyidae)`, whose embedded space makes
-  [`process_species_list()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/process_species_list.md)
+  [`process_species_list()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_species_list.md)
   read a family name as a species. Both are substituted with the string
   the backbone actually holds; `Pomadasyidae` carries 0 species against
   138 for `Haemulidae`.
@@ -58,12 +58,12 @@ for *P. picus*. Only the former is used.
 Two codes are deliberately absent, because choosing a target means
 deciding which families Mozambique lands rather than reading a synonym
 off a table. Both are a rank
-[`match_species_from_taxa()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/match_species_from_taxa.md)
+[`match_species_from_taxa()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/match_species_from_taxa.md)
 cannot search: `CRA` ("marine crabs nei") is the infraorder *Brachyura*,
 and SeaLifeBase carries no rank between order *Decapoda* and family;
 `CUX` ("sea cucumbers nei") is the class *Holothuroidea*, whose 1,133
 species span 8 orders and 24 families. They stay in the
-[`assert_taxa_coverage()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/assert_taxa_coverage.md)
+[`assert_taxa_coverage()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/assert_taxa_coverage.md)
 baseline instead.
 
 ## Porting

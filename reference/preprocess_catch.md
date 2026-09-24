@@ -26,7 +26,7 @@ individuals, length, catch_weight
 ## Details
 
 The function uses
-[`reshape_catch_data()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/reshape_catch_data.md)
+[`reshape_catch_data()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/reshape_catch_data.md)
 internally which automatically handles:
 
 - Multiple species field formats (species_TL, species_RF, species_SH,

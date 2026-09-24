@@ -22,7 +22,7 @@ process_version_data(catch_info = NULL, asfis = NULL, conf = read_config())
 - conf:
 
   Pipeline configuration, as returned by
-  [`read_config()`](https://worldfishcenter.github.io/peskas.malawi.data.pipeline/reference/read_config.md).
+  [`read_config()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/read_config.md).
   Supplies the pinned FishBase/SeaLifeBase releases under
   `metadata:fishbase`.
 

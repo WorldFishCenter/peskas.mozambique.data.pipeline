@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>What the Package Does (One Line, Title Case) • peskas.mozambique.data.pipeline</title>
+<title>Mozambique Small-Scale Fisheries Data Pipeline • peskas.mozambique.data.pipeline</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/IBM_Plex_Sans-0.4.10/font.css" rel="stylesheet">
@@ -13,9 +13,9 @@
 <link href="deps/Alegreya_Sans_SC-0.4.10/font.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="What the Package Does (One Line, Title Case)">
-<meta name="description" content="What the package does (one paragraph).">
-<meta property="og:description" content="What the package does (one paragraph).">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Mozambique Small-Scale Fisheries Data Pipeline">
+<meta name="description" content="This package implements the data and modelling pipelines underpinning the Peskas system in Mozambique.">
+<meta property="og:description" content="This package implements the data and modelling pipelines underpinning the Peskas system in Mozambique.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -49,55 +49,120 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="peskasmozambiquedatapipeline">peskas.mozambique.data.pipeline<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline"></a>
+<div class="page-header"><h1 id="peskas-mozambique-data-pipeline">Peskas Mozambique data pipeline<a class="anchor" aria-label="anchor" href="#peskas-mozambique-data-pipeline"></a>
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of peskas.mozambique.data.pipeline is to implement, deploy, and execute the data and modelling pipelines that underpin Peskas in Mozambique. ## The pipeline is an R package</p>
-<p>peskas.mozambique.data.pipeline is structured as an R package because it makes it easier to write production-grade software. Specifically, structuring the code as an R package allows us to:</p>
-<ul>
-<li>better handle system and package dependencies,</li>
-<li>forces us to split the code into functions,</li>
-<li>makes it easier to document the code, and</li>
-<li>makes it easier to test the code</li>
-</ul>
-<p>We make heavy use of <a href="https://engineering-shiny.org" class="external-link">tidyverse style conventions</a> and the <a href="https://usethis.r-lib.org" class="external-link">usethis</a> package to automate tasks during project setup and deployment.</p>
-<p>For more information about the rationale of structuring the pipeline as a package check <a href="https://engineering-shiny.org/structuring-project.html#structuring-your-app_" class="external-link">Chapter 3</a> in <a href="https://engineering-shiny.org" class="external-link"><em>Engineering Production-Grade Shiny Apps</em></a>. The book is focused on Shiny applications but the rationale also applies to data pipelines and production-ready code in general.</p>
+<p>The code that turns landing surveys and boat GPS tracks from Mozambique into checked fisheries data.</p>
+<p>See the results at <a href="https://peskas-dashboard-mozambique.vercel.app" class="external-link">Peskas Mozambique</a>, the <a href="https://validation.peskas.org" class="external-link">Peskas Management Platform</a> and the <a href="https://api.peskas.org/docs" class="external-link">Peskas Fishery Data API</a>.</p>
 <div class="section level2">
-<h2 id="how-the-pipeline-works">How the pipeline works<a class="anchor" aria-label="anchor" href="#how-the-pipeline-works"></a>
+<h2 id="what-it-is">What it is<a class="anchor" aria-label="anchor" href="#what-it-is"></a>
 </h2>
-<p>The pipeline is composed of different modules:</p>
-<ol style="list-style-type: decimal">
-<li><p>Data Collection: On site fishing landing surveys and continuous, solar-powered GPS vessel trackers to collect and send data in near real-time, alongside fishery metadata for a thorough data-gathering process.</p></li>
-<li><p>Pre-processing: Data formatting, shaping, and standardisation to prepare the raw data for analysis.</p></li>
-<li><p>Validation: Outlier detection and error identification, and includes an alert system to maintain data quality.</p></li>
-<li><p>Analytics: Modelling fisheries indicators, nutritional characterization, and data mining to extract valuable insights.</p></li>
-<li><p>Data export: Automated dissemination of processed and analysed fisheries data to ensure accessibility and comprehension. This involves restructuring data for dashboard integration and open publication.</p></li>
-<li><p>isualisation: Tools for data reporting and sharing of insights through a comprehensive dedicated web app dashboard (not hosted in this repository).</p></li>
-</ol>
-<p>See <a href="https://www.researchsquare.com/article/rs-4386336/v1" class="external-link">Peskas: Automated analytics for small-scale, data-deficient fisheries</a> for further details.</p>
+<p>This pipeline collects, checks and summarises small-scale fisheries data from Mozambique. It serves the fisheries managers, survey teams and researchers who use Peskas Mozambique. It runs automatically every two days.</p>
 </div>
 <div class="section level2">
-<h2 id="getting-started">Getting Started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
+<h2 id="what-it-produces">What it produces<a class="anchor" aria-label="anchor" href="#what-it-produces"></a>
 </h2>
-<p>This package uses a configuration file <a href="inst/config.yml"><code>config.yml</code></a> to manage environment-specific settings and connections. To get started, familiarize yourself with the package structure, particularly the <a href="R"><code>R</code></a> directory where the main functions are located.</p>
-<p>Each function typically reads the configuration using <code><a href="reference/read_config.html">read_config()</a></code> to access necessary parameters. To work on this package locally, you’ll need to set up the required authentication files in the <code>auth/</code> directory and ensure your environment variables are properly set. Remember to run <code>devtools::load_all()</code> when testing changes locally. If you’re new to R package development, consider reviewing the <a href="https://r-pkgs.org" class="external-link"><em>R packages</em></a> book by Hadley Wickham and Jenny Brian.</p>
+<ul>
+<li>Downloads the landing surveys of two programmes, ADNAP and Lurio, and the GPS tracks of boats that carry a tracker.</li>
+<li>Estimates the weight of each catch from the fish lengths recorded, or from the number of buckets landed when no length is recorded.</li>
+<li>Flags records that look wrong, such as a fish longer than its species allows or a price per kilo far out of range, and sends the flags to the Peskas Management Platform for survey teams to review.</li>
+<li>Publishes ADNAP landing records, before and after the checks, to the Peskas Fishery Data API.</li>
+<li>Builds the monthly, district, species and gear summaries shown on Peskas Mozambique.</li>
+<li>Writes separate summaries of Lurio landings to the pipeline’s own database.</li>
+</ul>
 </div>
 <div class="section level2">
-<h2 id="quick-guide-for-contributors">Quick Guide for Contributors<a class="anchor" aria-label="anchor" href="#quick-guide-for-contributors"></a>
+<h2 id="where-the-data-comes-from">Where the data comes from<a class="anchor" aria-label="anchor" href="#where-the-data-comes-from"></a>
 </h2>
-<p>To keep our repository clean and efficient, please keep these guidelines in mind:</p>
+<p>Two survey programmes record landings in Mozambique, each with its own survey form:</p>
 <ul>
-<li>Always work on a new branch, not directly on main.</li>
-<li>Write clear, concise commit messages.</li>
-<li>Avoid storing intermediate and garbage files, especially in the root folder.</li>
-<li>Strive for soft-coded solutions.</li>
-<li>Maintain consistent code style throughout the project.</li>
-<li>Document your code well - future you (and others) will thank you.</li>
-<li>Test your changes thoroughly before submitting a pull request.</li>
-<li>Keep your fork synced with the main repository.</li>
+<li>
+<strong>ADNAP</strong> (Administração Nacional da Pesca), Mozambique’s national fisheries administration. Only ADNAP data reaches Peskas Mozambique and the Peskas Fishery Data API. Where an ADNAP boat carries a GPS tracker, its landings are linked to its tracked trips.</li>
+<li>
+<strong>Lurio</strong>. Lurio landings go through the same checks as ADNAP’s but end in their own export. They do not appear on Peskas Mozambique or in the Peskas Fishery Data API.</li>
 </ul>
-<p>These practices help us maintain a clean, efficient codebase that’s easier for everyone to work with. For more detailed guidelines, check out our <a href="CONTRIBUTING.html">CONTRIBUTING.md</a> file.</p>
+<p>Other sources: GPS trackers from Pelagic Data Systems; reference lists of species, gear, boats and landing sites; and length-weight formulas from FishBase and SeaLifeBase.</p>
+<p>The data updates every two days. Known limits:</p>
+<ul>
+<li>Catch weights are estimates, not scale readings.</li>
+<li>A record with any flag is left out of the validated data until it is corrected or approved by hand in KoboToolbox.</li>
+<li>Prices are in local currency (Mozambican meticais).</li>
+<li>GPS tracks cover only boats that carry a tracker.</li>
+</ul>
+<p>Key terms:</p>
+<ul>
+<li>
+<strong>Landing</strong>: a boat’s return to shore with its catch, recorded by an enumerator.</li>
+<li>
+<strong>Enumerator</strong>: a trained data collector who records landings at landing sites.</li>
+<li>
+<strong>KoboToolbox</strong>: the free mobile survey app enumerators use to record landings.</li>
+<li>
+<strong>GPS trackers (Pelagic Data Systems)</strong>: small solar-powered devices on boats that record where they travel.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="who-runs-it">Who runs it<a class="anchor" aria-label="anchor" href="#who-runs-it"></a>
+</h2>
+<p><a href="https://worldfishcenter.org/" class="external-link">WorldFish</a> develops and runs this pipeline. <a href="https://adnap.gov.mz/" class="external-link">ADNAP</a> collects the landing surveys that feed Peskas Mozambique.</p>
+<p>For questions, write to <a href="mailto:peskas.platform@gmail.com" class="email">peskas.platform@gmail.com</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="part-of-peskas">Part of Peskas<a class="anchor" aria-label="anchor" href="#part-of-peskas"></a>
+</h2>
+<p>Peskas is WorldFish’s open-source platform for monitoring small-scale fisheries (<a href="https://peskas.org" class="external-link uri">https://peskas.org</a>).</p>
+<ul>
+<li>
+<a href="https://zanzibar.peskas.org" class="external-link">Peskas Zanzibar</a>, <a href="https://peskas-dashboard-kenya.vercel.app/en" class="external-link">Peskas Kenya</a>, <a href="https://peskas-dashboard-mozambique.vercel.app" class="external-link">Peskas Mozambique</a>: country dashboards</li>
+<li>
+<a href="https://timor.peskas.org" class="external-link">Peskas Timor-Leste</a>: Timor-Leste portal</li>
+<li>
+<a href="https://coasts.peskas.org" class="external-link">Peskas Coasts</a>: regional comparison across countries</li>
+<li>
+<a href="https://tracks.peskas.org" class="external-link">Peskas Tracks</a>: app for fishers to see their trips and log catches</li>
+<li>
+<a href="https://digitalfisheries.kenya.peskas.org" class="external-link">Peskas Kenya BMU dashboard</a>: dashboard for Beach Management Units in Kenya</li>
+<li>
+<a href="https://validation.peskas.org" class="external-link">Peskas Management Platform</a>: data review and download for survey teams</li>
+<li>
+<a href="https://api.peskas.org/docs" class="external-link">Peskas Fishery Data API</a>: programmatic access to landing data</li>
+<li>Data pipelines: <a href="https://github.com/WorldFishCenter/peskas.kenya.data.pipeline" class="external-link">Kenya</a>, <a href="https://github.com/WorldFishCenter/peskas.zanzibar.data.pipeline" class="external-link">Zanzibar</a>, <a href="https://github.com/WorldFishCenter/peskas.timor.data.pipeline" class="external-link">Timor-Leste</a>, <a href="https://github.com/WorldFishCenter/peskas.coasts" class="external-link">Coasts</a>
+</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="for-developers">For developers<a class="anchor" aria-label="anchor" href="#for-developers"></a>
+</h2>
+<p>The pipeline is an R package. Each step is an exported function, and the GitHub Actions workflow calls them in order. Shared code (cloud storage, KoboToolbox, GPS tracker ingestion, dashboard summaries) lives in <a href="https://github.com/WorldFishCenter/peskas.coasts" class="external-link">peskas.coasts</a> and is called as <code>coasts::</code>. The function reference is at <a href="https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/" class="uri">https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/</a>.</p>
+<p><strong>Requirements</strong>: R with the geospatial system libraries (production uses the <code>rocker/geospatial:4.5</code> image), and the credentials listed in <code>.env.example</code>.</p>
+<p><strong>Setup</strong>:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Copy .env.example to .env and fill in the values (ask the Peskas team).</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_deps</span><span class="op">(</span>dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># installs peskas.coasts from GitHub</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">load_all</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="reference/read_config.html">read_config()</a></code> loads <code>.env</code> and reads <a href="inst/config.yml"><code>inst/config.yml</code></a>. The <code>default</code> profile points at the <code>-dev</code> buckets and databases; <code>production</code> is used only by the workflow on <code>main</code>. Never log the whole config object: it holds the credentials.</p>
+<p><strong>Main commands</strong>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">load_all</span><span class="op">(</span><span class="op">)</span>    <span class="co"># load the package</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">document</span><span class="op">(</span><span class="op">)</span>    <span class="co"># rebuild man/ after changing roxygen comments</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">check</span><span class="op">(</span><span class="op">)</span>       <span class="co"># R CMD check</span></span>
+<span><span class="fu">peskas.mozambique.data.pipeline</span><span class="fu">::</span><span class="fu"><a href="reference/validate_surveys_adnap.html">validate_surveys_adnap</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># run one step</span></span></code></pre></div>
+<p><strong>How it runs in production</strong>: <a href=".github/workflows/data-pipeline.yaml"><code>.github/workflows/data-pipeline.yaml</code></a> runs every two days and on every push. Pushes to <code>main</code> write to production; other branches run the whole pipeline against the development resources. The first job builds a container with the latest peskas.coasts release (see <code>DESCRIPTION</code> for the minimum version); every other job runs inside it:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>build<span class="sc">-</span>container</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>├── ingest<span class="sc">-</span>preprocess<span class="sc">-</span>adnap ─► validate<span class="sc">-</span>adnap ─► export<span class="sc">-</span>api<span class="sc">-</span>validated ─► summarize<span class="sc">-</span>model<span class="sc">-</span>data ─► export<span class="sc">-</span>surveys<span class="sc">-</span>portal</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>│                          └─► export<span class="sc">-</span>api<span class="sc">-</span>raw</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>├── ingest<span class="sc">-</span>preprocess<span class="sc">-</span>lurio ─► validate<span class="sc">-</span>lurio ─► export<span class="sc">-</span>lurio<span class="sc">-</span>data</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>└── ingest<span class="sc">-</span>preprocess<span class="sc">-</span>pds ─► merge<span class="sc">-</span>trips<span class="sc">-</span><span class="fu">adnap</span> (also needs validate<span class="sc">-</span>adnap)</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>                         └─► summarize<span class="sc">-</span>model<span class="sc">-</span>data</span></code></pre></div>
+<p><strong>Releases</strong>: bump <code>Version:</code> in <code>DESCRIPTION</code> and add a block at the top of <a href="NEWS.html"><code>NEWS.md</code></a>. On a push to <code>main</code>, <code>release.yaml</code> turns that block into a GitHub release.</p>
+<p><strong>Tests</strong>: no automated tests yet (<code>tests/testthat/</code> is empty). Check a change by running the function against the <code>default</code> profile, or by pushing a branch other than <code>main</code>.</p>
+<p><strong>AI-assisted work</strong>: see <a href="CLAUDE.html"><code>CLAUDE.md</code></a>.</p>
+</div>
+<div class="section level2">
+<h2 id="licence">Licence<a class="anchor" aria-label="anchor" href="#licence"></a>
+</h2>
+<p>GPL (&gt;= 3). See <a href="LICENSE.html"><code>LICENSE.md</code></a>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
@@ -119,7 +184,8 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>First Last <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/YOUR-ORCID-ID" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Lorenzo Longobardi <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3126-7341" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
 
@@ -127,8 +193,7 @@
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://github.com/WorldFishCenter/peskas.mozambique.data.pipeline/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/WorldFishCenter/peskas.mozambique.data.pipeline/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://app.codecov.io/gh/WorldFishCenter/peskas.mozambique.data.pipeline" class="external-link"><img src="https://codecov.io/gh/WorldFishCenter/peskas.mozambique.data.pipeline/graph/badge.svg" alt="Codecov test coverage"></a></li>
-<li><a href="https://www.repostatus.org/#active" class="external-link"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active – The project has reached a stable, usable state and is being actively developed."></a></li>
+<li><a href="https://github.com/WorldFishCenter/peskas.mozambique.data.pipeline/actions/workflows/data-pipeline.yaml" class="external-link"><img src="https://github.com/WorldFishCenter/peskas.mozambique.data.pipeline/actions/workflows/data-pipeline.yaml/badge.svg" alt="Data pipeline"></a></li>
 </ul>
 </div>
 
@@ -137,7 +202,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by First Last.</p>
+  <p>Developed by Lorenzo Longobardi.</p>
 </div>
 
 <div class="pkgdown-footer-right">
