@@ -407,7 +407,7 @@ export_landings <- function() {
         data = .x,
         connection_string = conf$storage$mongodb$connection_strings$main,
         collection_name = .y,
-        db_name = "portal-dev"
+        db_name = conf$storage$mongodb$databases$dashboard$database_name
       )
     }
   )

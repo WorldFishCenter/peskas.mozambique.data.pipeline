@@ -1,10 +1,13 @@
 Package: peskas.mozambique.data.pipeline
-Title: What the Package Does (One Line, Title Case)
+Title: Mozambique Small-Scale Fisheries Data Pipeline
 Version: 2.11.0
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person("Lorenzo", "Longobardi", , "l.longobardi@cgiar.org", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-3126-7341")),
+    person("WorldFish", role = "cph")
+  )
+Description: This package implements the data and modelling pipelines
+    underpinning the Peskas system in Mozambique.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

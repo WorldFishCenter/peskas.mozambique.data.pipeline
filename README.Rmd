@@ -4,73 +4,114 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
-```
-
-# peskas.mozambique.data.pipeline
+# Peskas Mozambique data pipeline
 
 <!-- badges: start -->
-
 [![R-CMD-check](https://github.com/WorldFishCenter/peskas.mozambique.data.pipeline/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/WorldFishCenter/peskas.mozambique.data.pipeline/actions/workflows/R-CMD-check.yaml)
-[![Codecov test coverage](https://codecov.io/gh/WorldFishCenter/peskas.mozambique.data.pipeline/graph/badge.svg)](https://app.codecov.io/gh/WorldFishCenter/peskas.mozambique.data.pipeline)
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Data pipeline](https://github.com/WorldFishCenter/peskas.mozambique.data.pipeline/actions/workflows/data-pipeline.yaml/badge.svg)](https://github.com/WorldFishCenter/peskas.mozambique.data.pipeline/actions/workflows/data-pipeline.yaml)
 <!-- badges: end -->
 
-The goal of peskas.mozambique.data.pipeline is to implement, deploy, and execute the data and modelling pipelines that underpin Peskas in Mozambique.
-## The pipeline is an R package
+The code that turns landing surveys and boat GPS tracks from Mozambique into checked fisheries data.
 
-peskas.mozambique.data.pipeline is structured as an R package because it makes it easier to write production-grade software. Specifically, structuring the code as an R package allows us to:
+See the results at [Peskas Mozambique](https://peskas-dashboard-mozambique.vercel.app), the [Peskas Management Platform](https://validation.peskas.org) and the [Peskas Fishery Data API](https://api.peskas.org/docs).
 
--   better handle system and package dependencies,
--   forces us to split the code into functions,
--   makes it easier to document the code, and
--   makes it easier to test the code
+## What it is
 
-We make heavy use of [tidyverse style conventions](https://engineering-shiny.org) and the [usethis](https://usethis.r-lib.org) package to automate tasks during project setup and deployment.
+This pipeline collects, checks and summarises small-scale fisheries data from Mozambique. It serves the fisheries managers, survey teams and researchers who use Peskas Mozambique. It runs automatically every two days.
 
-For more information about the rationale of structuring the pipeline as a package check [Chapter 3](https://engineering-shiny.org/structuring-project.html#structuring-your-app_) in [*Engineering Production-Grade Shiny Apps*](https://engineering-shiny.org). The book is focused on Shiny applications but the rationale also applies to data pipelines and production-ready code in general.
+## What it produces
 
-## How the pipeline works
+- Downloads the landing surveys of two programmes, ADNAP and Lurio, and the GPS tracks of boats that carry a tracker.
+- Estimates the weight of each catch from the fish lengths recorded, or from the number of buckets landed when no length is recorded.
+- Flags records that look wrong, such as a fish longer than its species allows or a price per kilo far out of range, and sends the flags to the Peskas Management Platform for survey teams to review.
+- Publishes ADNAP landing records, before and after the checks, to the Peskas Fishery Data API.
+- Builds the monthly, district, species and gear summaries shown on Peskas Mozambique.
+- Writes separate summaries of Lurio landings to the pipeline's own database.
 
-The pipeline is composed of different modules:
+## Where the data comes from
 
-1.  Data Collection: On site fishing landing surveys and continuous, solar-powered GPS vessel trackers to collect and send data in near real-time, alongside fishery metadata for a thorough data-gathering process.
+Two survey programmes record landings in Mozambique, each with its own survey form:
 
-2.  Pre-processing: Data formatting, shaping, and standardisation to prepare the raw data for analysis.
+- **ADNAP** (Administração Nacional da Pesca), Mozambique's national fisheries administration. Only ADNAP data reaches Peskas Mozambique and the Peskas Fishery Data API. Where an ADNAP boat carries a GPS tracker, its landings are linked to its tracked trips.
+- **Lurio**. Lurio landings go through the same checks as ADNAP's but end in their own export. They do not appear on Peskas Mozambique or in the Peskas Fishery Data API.
 
-3.  Validation: Outlier detection and error identification, and includes an alert system to maintain data quality.
+Other sources: GPS trackers from Pelagic Data Systems; reference lists of species, gear, boats and landing sites; and length-weight formulas from FishBase and SeaLifeBase.
 
-4.  Analytics: Modelling fisheries indicators, nutritional characterization, and data mining to extract valuable insights.
+The data updates every two days. Known limits:
 
-5.  Data export: Automated dissemination of processed and analysed fisheries data to ensure accessibility and comprehension. This involves restructuring data for dashboard integration and open publication.
+- Catch weights are estimates, not scale readings.
+- A record with any flag is left out of the validated data until it is corrected or approved by hand in KoboToolbox.
+- Prices are in local currency (Mozambican meticais).
+- GPS tracks cover only boats that carry a tracker.
 
-6.  isualisation: Tools for data reporting and sharing of insights through a comprehensive dedicated web app dashboard (not hosted in this repository).
+Key terms:
 
-See [Peskas: Automated analytics for small-scale, data-deficient fisheries](https://www.researchsquare.com/article/rs-4386336/v1) for further details.
+- **Landing**: a boat's return to shore with its catch, recorded by an enumerator.
+- **Enumerator**: a trained data collector who records landings at landing sites.
+- **KoboToolbox**: the free mobile survey app enumerators use to record landings.
+- **GPS trackers (Pelagic Data Systems)**: small solar-powered devices on boats that record where they travel.
 
-## Getting Started
+## Who runs it
 
-This package uses a configuration file [`config.yml`](inst/config.yml) to manage environment-specific settings and connections. To get started, familiarize yourself with the package structure, particularly the [`R`](R) directory where the main functions are located.
+[WorldFish](https://worldfishcenter.org/) develops and runs this pipeline. [ADNAP](https://adnap.gov.mz/) collects the landing surveys that feed Peskas Mozambique.
 
-Each function typically reads the configuration using `read_config()` to access necessary parameters. To work on this package locally, you'll need to set up the required authentication files in the `auth/` directory and ensure your environment variables are properly set. Remember to run `devtools::load_all()` when testing changes locally. If you're new to R package development, consider reviewing the [*R packages*](https://r-pkgs.org) book by Hadley Wickham and Jenny Brian.
+For questions, write to <peskas.platform@gmail.com>.
 
-## Quick Guide for Contributors
+## Part of Peskas
 
-To keep our repository clean and efficient, please keep these guidelines in mind:
+Peskas is WorldFish's open-source platform for monitoring small-scale fisheries (https://peskas.org).
 
--   Always work on a new branch, not directly on main.
--   Write clear, concise commit messages.
--   Avoid storing intermediate and garbage files, especially in the root folder.
--   Strive for soft-coded solutions.
--   Maintain consistent code style throughout the project.
--   Document your code well - future you (and others) will thank you.
--   Test your changes thoroughly before submitting a pull request.
--   Keep your fork synced with the main repository.
+- [Peskas Zanzibar](https://zanzibar.peskas.org), [Peskas Kenya](https://peskas-dashboard-kenya.vercel.app/en), [Peskas Mozambique](https://peskas-dashboard-mozambique.vercel.app): country dashboards
+- [Peskas Timor-Leste](https://timor.peskas.org): Timor-Leste portal
+- [Peskas Coasts](https://coasts.peskas.org): regional comparison across countries
+- [Peskas Tracks](https://tracks.peskas.org): app for fishers to see their trips and log catches
+- [Peskas Kenya BMU dashboard](https://digitalfisheries.kenya.peskas.org): dashboard for Beach Management Units in Kenya
+- [Peskas Management Platform](https://validation.peskas.org): data review and download for survey teams
+- [Peskas Fishery Data API](https://api.peskas.org/docs): programmatic access to landing data
+- Data pipelines: [Kenya](https://github.com/WorldFishCenter/peskas.kenya.data.pipeline), [Zanzibar](https://github.com/WorldFishCenter/peskas.zanzibar.data.pipeline), [Timor-Leste](https://github.com/WorldFishCenter/peskas.timor.data.pipeline), [Coasts](https://github.com/WorldFishCenter/peskas.coasts)
 
-These practices help us maintain a clean, efficient codebase that's easier for everyone to work with. For more detailed guidelines, check out our [CONTRIBUTING.md](.github/CONTRIBUTING.md) file.
+## For developers
+
+The pipeline is an R package. Each step is an exported function, and the GitHub Actions workflow calls them in order. Shared code (cloud storage, KoboToolbox, GPS tracker ingestion, dashboard summaries) lives in [peskas.coasts](https://github.com/WorldFishCenter/peskas.coasts) and is called as `coasts::`. The function reference is at <https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/>.
+
+**Requirements**: R with the geospatial system libraries (production uses the `rocker/geospatial:4.5` image), and the credentials listed in `.env.example`.
+
+**Setup**:
+
+```r
+# Copy .env.example to .env and fill in the values (ask the Peskas team).
+remotes::install_deps(dependencies = TRUE)  # installs peskas.coasts from GitHub
+devtools::load_all()
+```
+
+`read_config()` loads `.env` and reads [`inst/config.yml`](inst/config.yml). The `default` profile points at the `-dev` buckets and databases; `production` is used only by the workflow on `main`. Never log the whole config object: it holds the credentials.
+
+**Main commands**:
+
+```r
+devtools::load_all()    # load the package
+devtools::document()    # rebuild man/ after changing roxygen comments
+devtools::check()       # R CMD check
+peskas.mozambique.data.pipeline::validate_surveys_adnap()  # run one step
+```
+
+**How it runs in production**: [`.github/workflows/data-pipeline.yaml`](.github/workflows/data-pipeline.yaml) runs every two days and on every push. Pushes to `main` write to production; other branches run the whole pipeline against the development resources. The first job builds a container with the latest peskas.coasts release (see `DESCRIPTION` for the minimum version); every other job runs inside it:
+
+```
+build-container
+├── ingest-preprocess-adnap ─► validate-adnap ─► export-api-validated ─► summarize-model-data ─► export-surveys-portal
+│                          └─► export-api-raw
+├── ingest-preprocess-lurio ─► validate-lurio ─► export-lurio-data
+└── ingest-preprocess-pds ─► merge-trips-adnap (also needs validate-adnap)
+                         └─► summarize-model-data
+```
+
+**Releases**: bump `Version:` in `DESCRIPTION` and add a block at the top of [`NEWS.md`](NEWS.md). On a push to `main`, `release.yaml` turns that block into a GitHub release.
+
+**Tests**: no automated tests yet (`tests/testthat/` is empty). Check a change by running the function against the `default` profile, or by pushing a branch other than `main`.
+
+**AI-assisted work**: see [`CLAUDE.md`](CLAUDE.md).
+
+## Licence
+
+GPL (>= 3). See [`LICENSE.md`](LICENSE.md).

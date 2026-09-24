@@ -28,5 +28,6 @@ auth/*
 /.quarto/
 docs
 
-## Other
-CLAUDE.md
+## Claude Code (personal)
+.claude/settings.local.json
+CLAUDE.local.md
