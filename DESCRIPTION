@@ -39,7 +39,7 @@ Imports:
     tidyr,
     tidyselect,
     univOutl,
-    coasts (>= 4.13.0)
+    coasts (>= 4.15.0)
 Remotes:
     github::WorldFishCenter/peskas.coasts,
     github::WorldFishCenter/ssf-ai-toolkit/Rplug@plug-R

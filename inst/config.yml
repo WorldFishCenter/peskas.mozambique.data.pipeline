@@ -85,6 +85,9 @@ default:
             districts_summaries: districts_summaries
             gear_summaries: gear_summaries
             grid_summaries: grid_summaries
+            taxa_traits: taxa_traits
+            length_summaries: length_summaries
+            gear_taxa_summaries: gear_taxa_summaries
 
   pds_storage:
     google:
@@ -155,6 +158,10 @@ default:
       # cannot read it (`Column GEN_NAME doesn't exist`), so the two servers
       # are pinned independently.
       sealifebase_version: "24.07"
+      # Hub table of FishBase traits (enrich_taxa() in coasts) that
+      # coasts::summarize_data() turns into the dashboard's taxa traits.
+      taxa_enriched:
+        file_prefix: taxa-fishbase-enriched
 
   validation:
     k_nboats: 3
