@@ -15,8 +15,6 @@ these functions executes a step in the data pipeline.
   : Export Lurio landings data
 - [`export_validation_flags()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/export_validation_flags.md)
   : Export Validation Flags to MongoDB
-- [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
-  : Get Validation Status from KoboToolbox
 - [`ingest_landings_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/ingest_landings_adnap.md)
   : Download and Process ADNAP Surveys from Kobotoolbox
 - [`ingest_landings_lurio()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/ingest_landings_lurio.md)
@@ -27,10 +25,6 @@ these functions executes a step in the data pipeline.
   : Preprocess ADNAP Landings Data
 - [`preprocess_landings_lurio()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/preprocess_landings_lurio.md)
   : Preprocess Lurio Landings Data
-- [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/sync_validation_submissions.md)
-  : Synchronize Validation Statuses with KoboToolbox
-- [`update_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/update_validation_status.md)
-  : Update Validation Status in KoboToolbox
 - [`validate_surveys_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_surveys_adnap.md)
   : Validate ADNAP Survey Data
 - [`validate_surveys_lurio()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_surveys_lurio.md)
@@ -119,14 +113,6 @@ Functions dedicated to the validation module
   : Get Price Bounds by Gear + Taxon
 - [`get_total_catch_bounds()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_total_catch_bounds.md)
   : Get Total Catch Bounds by Landing Site and Gear
-- [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
-  : Get Validation Status from KoboToolbox
-- [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_submissions_parallel.md)
-  : Process Submissions in Parallel with Rate Limiting
-- [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/sync_validation_submissions.md)
-  : Synchronize Validation Statuses with KoboToolbox
-- [`update_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/update_validation_status.md)
-  : Update Validation Status in KoboToolbox
 - [`validate_catch_taxa()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_catch_taxa.md)
   : Validate Catch at Taxon Level
 - [`validate_price()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_price.md)

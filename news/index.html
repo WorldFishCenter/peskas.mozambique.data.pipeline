@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.11.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.11.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,14 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.11.1" id="peskasmozambiquedatapipeline-2111">peskas.mozambique.data.pipeline 2.11.1<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-2111"></a></h2>
+<div class="section level3">
+<h3 id="reviewers-decisions-are-kept-between-runs-2-11-1">Reviewers’ decisions are kept between runs<a class="anchor" aria-label="anchor" href="#reviewers-decisions-are-kept-between-runs-2-11-1"></a></h3>
+<ul><li>
+<strong>FIXED</strong> Surveys a reviewer approves in the Peskas Management Platform stay in the data (16 Lurio surveys on 2026-09-28), those a reviewer rejects leave it, and reviewers’ decisions are no longer undone by the next run.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.11.0" id="peskasmozambiquedatapipeline-2110">peskas.mozambique.data.pipeline 2.11.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-2110"></a></h2>
 <div class="section level3">
@@ -253,7 +261,7 @@
 <strong>Streamlined Validation Workflow</strong>: Replaced KoboToolbox API updates with direct MongoDB storage to improve performance.
 <ul><li>New <code><a href="../reference/export_validation_flags.html">export_validation_flags()</a></code> function exports validation flags directly to MongoDB</li>
 <li>Validation status queries now only identify manually edited submissions, not update them</li>
-<li>Disabled <code><a href="../reference/sync_validation_submissions.html">sync_validation_submissions()</a></code> workflow steps in GitHub Actions</li>
+<li>Disabled <code>sync_validation_submissions()</code> workflow steps in GitHub Actions</li>
 <li>Significantly reduced pipeline execution time by avoiding slow KoboToolbox API calls</li>
 </ul></li>
 </ul></div>
@@ -262,7 +270,7 @@
 <ul><li>
 <strong>Validation System</strong>:
 <ul><li>Validation functions now preserve manual human approvals while updating system-generated statuses</li>
-<li>Added <code>fetch_error</code> field to <code><a href="../reference/get_validation_status.html">get_validation_status()</a></code> for better error tracking</li>
+<li>Added <code>fetch_error</code> field to <code>get_validation_status()</code> for better error tracking</li>
 <li>Improved error handling in validation status queries</li>
 </ul></li>
 <li>
@@ -410,8 +418,8 @@
 <h3 id="major-changes-2-1-0">Major Changes<a class="anchor" aria-label="anchor" href="#major-changes-2-1-0"></a></h3>
 <ul><li>
 <strong>Enhanced Validation Sync System</strong>: Restructured validation synchronization following Kenya pipeline best practices.
-<ul><li>Added <code><a href="../reference/sync_validation_submissions.html">sync_validation_submissions()</a></code> for bidirectional validation status updates with rate limiting</li>
-<li>Implemented <code><a href="../reference/process_submissions_parallel.html">process_submissions_parallel()</a></code> helper function for consistent API interactions</li>
+<ul><li>Added <code>sync_validation_submissions()</code> for bidirectional validation status updates with rate limiting</li>
+<li>Implemented <code>process_submissions_parallel()</code> helper function for consistent API interactions</li>
 <li>
 <strong>Rate limiting</strong> (0.1-0.2s delays) prevents overwhelming KoboToolbox API</li>
 <li>
@@ -465,7 +473,7 @@
 </ul></li>
 <li>
 <strong>Code Quality</strong>:
-<ul><li>Added new exported functions: <code>summarize_data()</code>, <code><a href="../reference/sync_validation_submissions.html">sync_validation_submissions()</a></code>, <code><a href="../reference/process_submissions_parallel.html">process_submissions_parallel()</a></code>
+<ul><li>Added new exported functions: <code>summarize_data()</code>, <code>sync_validation_submissions()</code>, <code>process_submissions_parallel()</code>
 </li>
 <li>Enhanced function documentation with proper importFrom declarations</li>
 <li>Improved variable scoping and data pipeline clarity</li>
@@ -508,7 +516,7 @@
 <li>
 <strong>Enhanced Validation System for ADNAP</strong>: Advanced validation with KoBoToolbox integration.
 <ul><li>Integrated KoBoToolbox validation status API for manual approval workflow</li>
-<li>Added <code><a href="../reference/get_validation_status.html">get_validation_status()</a></code> to query submission approval status</li>
+<li>Added <code>get_validation_status()</code> to query submission approval status</li>
 <li>Implemented parallel processing for validation status queries across multiple submissions</li>
 <li>Manual approvals in KoBoToolbox now bypass automatic validation flags</li>
 <li>Maintained two-stage validation (7 basic checks + 3 composite economic indicators)</li>

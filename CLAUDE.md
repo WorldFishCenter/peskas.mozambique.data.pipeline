@@ -98,16 +98,12 @@ CLAUDE.local.md.
 - A change to catch weight or flags usually belongs in both chains;
   check the sibling function and say if you left one alone on purpose.
 - Call the coasts version of Airtable and KoBo validation-status
-  helpers. R/airtable.R,
+  helpers. R/airtable.R and
   [`fetch_asset()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/fetch_asset.md)
   /
   [`form_id_pattern()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/form_id_pattern.md)
-  in R/preprocessing-surveys.R, and
-  [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
-  /
-  [`update_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/update_validation_status.md)
-  in R/validation-functions.R are local copies of coasts functions; flag
-  them when you touch them rather than extending them.
+  in R/preprocessing-surveys.R are local copies of coasts functions;
+  flag them when you touch them rather than extending them.
 - Keep the taxon remap and the `FLY` override unless the task is to
   change them; both protect published catch.
 

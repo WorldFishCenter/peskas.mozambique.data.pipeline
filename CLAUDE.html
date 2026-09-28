@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.11.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.11.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,7 @@
 <h2 id="rules">Rules<a class="anchor" aria-label="anchor" href="#rules"></a></h2>
 <ul><li>Add a validation flag as the next free number (14, 15, …) in both <code><a href="reference/validate_surveys_lurio.html">validate_surveys_lurio()</a></code> and <code><a href="reference/validate_surveys_adnap.html">validate_surveys_adnap()</a></code> where it applies. Existing numbers are read by peskas-validation.</li>
 <li>A change to catch weight or flags usually belongs in both chains; check the sibling function and say if you left one alone on purpose.</li>
-<li>Call the coasts version of Airtable and KoBo validation-status helpers. R/airtable.R, <code><a href="reference/fetch_asset.html">fetch_asset()</a></code> / <code><a href="reference/form_id_pattern.html">form_id_pattern()</a></code> in R/preprocessing-surveys.R, and <code><a href="reference/get_validation_status.html">get_validation_status()</a></code> / <code><a href="reference/update_validation_status.html">update_validation_status()</a></code> in R/validation-functions.R are local copies of coasts functions; flag them when you touch them rather than extending them.</li>
+<li>Call the coasts version of Airtable and KoBo validation-status helpers. R/airtable.R and <code><a href="reference/fetch_asset.html">fetch_asset()</a></code> / <code><a href="reference/form_id_pattern.html">form_id_pattern()</a></code> in R/preprocessing-surveys.R are local copies of coasts functions; flag them when you touch them rather than extending them.</li>
 <li>Keep the taxon remap and the <code>FLY</code> override unless the task is to change them; both protect published catch.</li>
 </ul></div>
 <div class="section level2">

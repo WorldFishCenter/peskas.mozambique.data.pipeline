@@ -1,11 +1,9 @@
 # Export Validation Flags to MongoDB
 
-Exports validation flags directly to MongoDB without updating
-KoboToolbox validation statuses. This function replaces the workflow of
-[`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/sync_validation_submissions.md)
-to avoid slow API updates to KoboToolbox. Instead, it uses KoboToolbox
-validation status queries only to identify manually edited validations
-by human reviewers.
+Exports validation flags to MongoDB, keeping the decisions reviewers
+made in the Peskas Management Platform or in KoboToolbox (read
+beforehand with
+[`coasts::review_decisions()`](https://rdrr.io/pkg/coasts/man/review_decisions.html)).
 
 ## Usage
 
@@ -39,10 +37,10 @@ export_validation_flags(
 
 - validation_statuses:
 
-  Data frame from
-  [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
-  with columns: `submission_id`, `validation_status`, `validated_by`,
-  `validation_date`
+  Reviewers' decisions from
+  [`coasts::review_decisions()`](https://rdrr.io/pkg/coasts/man/review_decisions.html),
+  with columns `submission_id`, `validation_status`, `validated_at`,
+  `validated_by`
 
 ## Value
 
@@ -64,20 +62,6 @@ The function performs the following steps:
 
 5.  Pushes results directly to MongoDB collections
 
-**Key Differences from sync_validation_submissions():**
-
-- Does NOT update validation statuses in KoboToolbox (avoids slow API
-  calls)
-
-- Uses `validation_statuses` parameter obtained via
-  [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
-
-- Stores final validation state only in MongoDB
-
-- Respects manual human approvals by preserving their validation status
-
-- System-generated validations are updated based on current flags
-
 **Validation Status Logic:**
 
 - If submission has flags AND validated_by is system username: set to
@@ -86,8 +70,8 @@ The function performs the following steps:
 - If submission has no flags AND validated_by is system username: set to
   "approved"
 
-- If validated_by is NOT system username: preserve existing status
-  (manual approval)
+- If validated_by is NOT system username: preserve existing status (a
+  reviewer's approval or rejection)
 
 ## Note
 
@@ -120,12 +104,6 @@ The function pushes to two MongoDB collections:
 
 - [`validate_surveys_adnap()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/validate_surveys_adnap.md)
   for the main validation workflow
-
-- [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
-  for fetching KoboToolbox validation status
-
-- [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/sync_validation_submissions.md)
-  for the deprecated approach that updates KoboToolbox
 
 - [`coasts::mdb_collection_push()`](https://rdrr.io/pkg/coasts/man/mdb_collection_push.html)
   for MongoDB operations

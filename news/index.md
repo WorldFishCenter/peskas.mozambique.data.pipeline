@@ -1,5 +1,14 @@
 # Changelog
 
+## peskas.mozambique.data.pipeline 2.11.1
+
+### Reviewers’ decisions are kept between runs
+
+- **FIXED** Surveys a reviewer approves in the Peskas Management
+  Platform stay in the data (16 Lurio surveys on 2026-09-28), those a
+  reviewer rejects leave it, and reviewers’ decisions are no longer
+  undone by the next run.
+
 ## peskas.mozambique.data.pipeline 2.11.0
 
 ### Records say which organization collected them
@@ -490,9 +499,8 @@ code would mislabel real catch.
     function exports validation flags directly to MongoDB
   - Validation status queries now only identify manually edited
     submissions, not update them
-  - Disabled
-    [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/sync_validation_submissions.md)
-    workflow steps in GitHub Actions
+  - Disabled `sync_validation_submissions()` workflow steps in GitHub
+    Actions
   - Significantly reduced pipeline execution time by avoiding slow
     KoboToolbox API calls
 
@@ -501,9 +509,8 @@ code would mislabel real catch.
 - **Validation System**:
   - Validation functions now preserve manual human approvals while
     updating system-generated statuses
-  - Added `fetch_error` field to
-    [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
-    for better error tracking
+  - Added `fetch_error` field to `get_validation_status()` for better
+    error tracking
   - Improved error handling in validation status queries
 - **Code Quality**:
   - Fixed SeaLifeBase API calls by pinning to version 24.07 to avoid
@@ -680,12 +687,10 @@ code would mislabel real catch.
 
 - **Enhanced Validation Sync System**: Restructured validation
   synchronization following Kenya pipeline best practices.
-  - Added
-    [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/sync_validation_submissions.md)
-    for bidirectional validation status updates with rate limiting
-  - Implemented
-    [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_submissions_parallel.md)
-    helper function for consistent API interactions
+  - Added `sync_validation_submissions()` for bidirectional validation
+    status updates with rate limiting
+  - Implemented `process_submissions_parallel()` helper function for
+    consistent API interactions
   - **Rate limiting** (0.1-0.2s delays) prevents overwhelming
     KoboToolbox API
   - **Manual approval respect**: Human review decisions are never
@@ -739,8 +744,7 @@ code would mislabel real catch.
   - Maintained robust error handling with granular validation stages
 - **Code Quality**:
   - Added new exported functions: `summarize_data()`,
-    [`sync_validation_submissions()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/sync_validation_submissions.md),
-    [`process_submissions_parallel()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/process_submissions_parallel.md)
+    `sync_validation_submissions()`, `process_submissions_parallel()`
   - Enhanced function documentation with proper importFrom declarations
   - Improved variable scoping and data pipeline clarity
   - Better separation of concerns between preprocessing and validation
@@ -803,9 +807,7 @@ code would mislabel real catch.
   KoBoToolbox integration.
   - Integrated KoBoToolbox validation status API for manual approval
     workflow
-  - Added
-    [`get_validation_status()`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/reference/get_validation_status.md)
-    to query submission approval status
+  - Added `get_validation_status()` to query submission approval status
   - Implemented parallel processing for validation status queries across
     multiple submissions
   - Manual approvals in KoBoToolbox now bypass automatic validation

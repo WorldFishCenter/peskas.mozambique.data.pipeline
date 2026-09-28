@@ -1,6 +1,7 @@
-# peskas.mozambique.data.pipeline: What the Package Does (One Line, Title Case)
+# peskas.mozambique.data.pipeline: Mozambique Small-Scale Fisheries Data Pipeline
 
-What the package does (one paragraph).
+This package implements the data and modelling pipelines underpinning
+the Peskas system in Mozambique.
 
 ## See also
 
@@ -10,5 +11,9 @@ Useful links:
 
 ## Author
 
-**Maintainer**: First Last <first.last@example.com>
-([ORCID](https://orcid.org/YOUR-ORCID-ID))
+**Maintainer**: Lorenzo Longobardi <l.longobardi@cgiar.org>
+([ORCID](https://orcid.org/0000-0003-3126-7341))
+
+Other contributors:
+
+- WorldFish \[copyright holder\]
