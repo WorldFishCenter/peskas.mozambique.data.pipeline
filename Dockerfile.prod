@@ -41,7 +41,9 @@ RUN test -n "$COASTS_REF" && \
 # Install local package
 COPY . /home
 WORKDIR /home
-RUN Rscript -e 'remotes::install_local(dependencies = TRUE)'
+# upgrade = "never": otherwise the peskas.coasts entry in Remotes (no ref)
+# reinstalls coasts from main over the release tag installed above.
+RUN Rscript -e 'remotes::install_local(dependencies = TRUE, upgrade = "never")'
 
 # Pinned because rfishbase 5.0.3+ reads FishBase 26.06, where Caesionidae and
 # Scaridae are empty. Must stay last: install_local(dependencies = TRUE) undoes
