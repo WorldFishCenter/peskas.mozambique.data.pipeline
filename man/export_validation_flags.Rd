@@ -22,17 +22,16 @@ parameters and survey-specific settings}
 \item{all_flags}{Data frame containing all validation flags with columns:
 \code{submission_id}, \code{submitted_by}, \code{submission_date}, \code{alert_flag}}
 
-\item{validation_statuses}{Data frame from \code{get_validation_status()} with columns:
-\code{submission_id}, \code{validation_status}, \code{validated_by}, \code{validation_date}}
+\item{validation_statuses}{Reviewers' decisions from \code{coasts::review_decisions()},
+with columns \code{submission_id}, \code{validation_status}, \code{validated_at}, \code{validated_by}}
 }
 \value{
 Invisible NULL. The function pushes data to MongoDB as a side effect.
 }
 \description{
-Exports validation flags directly to MongoDB without updating KoboToolbox validation
-statuses. This function replaces the workflow of \code{sync_validation_submissions()} to
-avoid slow API updates to KoboToolbox. Instead, it uses KoboToolbox validation status
-queries only to identify manually edited validations by human reviewers.
+Exports validation flags to MongoDB, keeping the decisions reviewers made in
+the Peskas Management Platform or in KoboToolbox (read beforehand with
+\code{coasts::review_decisions()}).
 }
 \details{
 The function performs the following steps:
@@ -44,20 +43,11 @@ The function performs the following steps:
 \item Pushes results directly to MongoDB collections
 }
 
-\strong{Key Differences from sync_validation_submissions():}
-\itemize{
-\item Does NOT update validation statuses in KoboToolbox (avoids slow API calls)
-\item Uses \code{validation_statuses} parameter obtained via \code{get_validation_status()}
-\item Stores final validation state only in MongoDB
-\item Respects manual human approvals by preserving their validation status
-\item System-generated validations are updated based on current flags
-}
-
 \strong{Validation Status Logic:}
 \itemize{
 \item If submission has flags AND validated_by is system username: set to "not_approved"
 \item If submission has no flags AND validated_by is system username: set to "approved"
-\item If validated_by is NOT system username: preserve existing status (manual approval)
+\item If validated_by is NOT system username: preserve existing status (a reviewer's approval or rejection)
 }
 }
 \note{
@@ -95,8 +85,6 @@ export_validation_flags(
 \seealso{
 \itemize{
 \item \code{\link[=validate_surveys_adnap]{validate_surveys_adnap()}} for the main validation workflow
-\item \code{\link[=get_validation_status]{get_validation_status()}} for fetching KoboToolbox validation status
-\item \code{\link[=sync_validation_submissions]{sync_validation_submissions()}} for the deprecated approach that updates KoboToolbox
 \item \code{\link[coasts:mdb_collection_push]{coasts::mdb_collection_push()}} for MongoDB operations
 }
 }

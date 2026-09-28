@@ -29,7 +29,7 @@ Ecosystem context (other repos, data flow, cross-repo contracts): see PESKAS.md,
 ## Rules
 - Add a validation flag as the next free number (14, 15, ...) in both `validate_surveys_lurio()` and `validate_surveys_adnap()` where it applies. Existing numbers are read by peskas-validation.
 - A change to catch weight or flags usually belongs in both chains; check the sibling function and say if you left one alone on purpose.
-- Call the coasts version of Airtable and KoBo validation-status helpers. R/airtable.R, `fetch_asset()` / `form_id_pattern()` in R/preprocessing-surveys.R, and `get_validation_status()` / `update_validation_status()` in R/validation-functions.R are local copies of coasts functions; flag them when you touch them rather than extending them.
+- Call the coasts version of Airtable and KoBo validation-status helpers. R/airtable.R and `fetch_asset()` / `form_id_pattern()` in R/preprocessing-surveys.R are local copies of coasts functions; flag them when you touch them rather than extending them.
 - Keep the taxon remap and the `FLY` override unless the task is to change them; both protect published catch.
 
 ## Gotchas

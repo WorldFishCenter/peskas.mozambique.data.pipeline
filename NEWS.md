@@ -1,3 +1,9 @@
+# peskas.mozambique.data.pipeline 2.11.1
+
+## Reviewers' decisions are kept between runs
+
+* **FIXED** Surveys a reviewer approves in the Peskas Management Platform stay in the data (16 Lurio surveys on 2026-09-28), those a reviewer rejects leave it, and reviewers' decisions are no longer undone by the next run.
+
 # peskas.mozambique.data.pipeline 2.11.0
 
 ## Records say which organization collected them

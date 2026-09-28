@@ -4,9 +4,9 @@
 \name{peskas.mozambique.data.pipeline-package}
 \alias{peskas.mozambique.data.pipeline}
 \alias{peskas.mozambique.data.pipeline-package}
-\title{peskas.mozambique.data.pipeline: What the Package Does (One Line, Title Case)}
+\title{peskas.mozambique.data.pipeline: Mozambique Small-Scale Fisheries Data Pipeline}
 \description{
-What the package does (one paragraph).
+This package implements the data and modelling pipelines underpinning the Peskas system in Mozambique.
 }
 \seealso{
 Useful links:
@@ -16,7 +16,12 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
+\strong{Maintainer}: Lorenzo Longobardi \email{l.longobardi@cgiar.org} (\href{https://orcid.org/0000-0003-3126-7341}{ORCID})
+
+Other contributors:
+\itemize{
+  \item WorldFish [copyright holder]
+}
 
 }
 \keyword{internal}
