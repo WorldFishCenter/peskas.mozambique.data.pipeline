@@ -5,8 +5,8 @@ chains (ADNAP and Lurio) plus PDS GPS trips, validated and exported to
 GCS, Mongo and the Peskas API. PDS ingestion, portal summaries and
 portal export are `coasts::` functions called from the workflow with
 `package = "peskas.mozambique.data.pipeline"`. Ecosystem context (other
-repos, data flow, cross-repo contracts): see PESKAS.md, loaded via
-CLAUDE.local.md.
+repos, data flow, cross-repo contracts): loaded by the `peskas` Claude
+Code plugin (repo `peskas-context`).
 
 ## Commands
 
