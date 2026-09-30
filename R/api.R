@@ -84,7 +84,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
     dplyr::ungroup() |>
     dplyr::mutate(
       n_catch = as.integer(.data$n_catch),
-      survey_organization = "ADNAP",
+      survey_organization = "DINAPA",
       n_fishers = .data$no_men_fishers +
         .data$no_women_fishers +
         .data$no_child_fishers
@@ -249,7 +249,7 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
     dplyr::ungroup() |>
     dplyr::mutate(
       n_catch = as.integer(.data$n_catch),
-      survey_organization = "ADNAP",
+      survey_organization = "DINAPA",
       n_fishers = .data$no_men_fishers +
         .data$no_women_fishers +
         .data$no_child_fishers

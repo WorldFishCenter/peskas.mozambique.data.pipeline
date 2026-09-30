@@ -1,3 +1,9 @@
+# peskas.mozambique.data.pipeline 2.12.1
+
+## Records name DINAPA as the collecting organization
+
+* **CHANGED** Mozambique's landing records now name DINAPA (National Directorate of Fisheries and Aquaculture), which replaced ADNAP, as the organization that collected them.
+
 # peskas.mozambique.data.pipeline 2.12.0
 
 ## Boats are placed by where they land

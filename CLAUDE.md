@@ -1,6 +1,6 @@
 # peskas.mozambique.data.pipeline
 
-R package for the Peskas Mozambique pipeline: two KoBo landing-survey chains (ADNAP and Lurio) plus PDS GPS trips, validated and exported to GCS, Mongo and the Peskas API. PDS ingestion, portal summaries and portal export are `coasts::` functions called from the workflow with `package = "peskas.mozambique.data.pipeline"`. The fleet estimate places each tracker by where its trips land (`pds.fleet_location: landing`, from `coasts::describe_pds_tracks` in the PDS job), not by the Airtable `gaul 2` link.
+R package for the Peskas Mozambique pipeline: two KoBo landing-survey chains (ADNAP, now DINAPA, and Lurio) plus PDS GPS trips, validated and exported to GCS, Mongo and the Peskas API. PDS ingestion, portal summaries and portal export are `coasts::` functions called from the workflow with `package = "peskas.mozambique.data.pipeline"`. The fleet estimate places each tracker by where its trips land (`pds.fleet_location: landing`, from `coasts::describe_pds_tracks` in the PDS job), not by the Airtable `gaul 2` link.
 Ecosystem context (other repos, data flow, cross-repo contracts): loaded by the `peskas` Claude Code plugin (repo `peskas-context`).
 
 ## Commands
@@ -11,6 +11,7 @@ Ecosystem context (other repos, data flow, cross-repo contracts): loaded by the 
 - Pipeline steps and their order: `.github/workflows/data-pipeline.yaml`.
 
 ## Architecture
+- The `adnap` chain is DINAPA's survey (National Directorate of Fisheries and Aquaculture, which replaced ADNAP). Identifiers keep `adnap`; what is published says DINAPA (`survey_organization = "DINAPA"`), with no website or logo yet.
 - Two independent chains, one function per step, suffixed `_lurio` / `_adnap`: `ingest_landings_*` (R/ingestion.R), `preprocess_landings_*` (R/preprocessing-surveys.R), `validate_surveys_*` (R/validation.R).
 - **Only ADNAP feeds downstream products**: `merge_trips()` (joins PDS trips to validated ADNAP landings), `export_api_raw()` / `export_api_validated()` (R/api.R), and through them `coasts::summarize_data()` and `coasts::export_portal()` (Mongo `portal-*`). Lurio ends in `export_lurio_landings()`, which writes its own summaries to the `mozambique-*` pipeline database.
 - `export_landings()` (R/export.R) is not called by the workflow.
