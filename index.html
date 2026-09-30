@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.12.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.12.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,10 +64,10 @@
 <h2 id="what-it-produces">What it produces<a class="anchor" aria-label="anchor" href="#what-it-produces"></a>
 </h2>
 <ul>
-<li>Downloads the landing surveys of two programmes, ADNAP and Lurio, and the GPS tracks of boats that carry a tracker.</li>
+<li>Downloads the landing surveys of two programmes, DINAPA and Lurio, and the GPS tracks of boats that carry a tracker.</li>
 <li>Estimates the weight of each catch from the fish lengths recorded, or from the number of buckets landed when no length is recorded.</li>
 <li>Flags records that look wrong, such as a fish longer than its species allows or a price per kilo far out of range, and sends the flags to the Peskas Management Platform for survey teams to review.</li>
-<li>Publishes ADNAP landing records, before and after the checks, to the Peskas Fishery Data API.</li>
+<li>Publishes DINAPA landing records, before and after the checks, to the Peskas Fishery Data API.</li>
 <li>Builds the monthly, district, species and gear summaries shown on Peskas Mozambique.</li>
 <li>Writes separate summaries of Lurio landings to the pipeline’s own database.</li>
 </ul>
@@ -78,9 +78,9 @@
 <p>Two survey programmes record landings in Mozambique, each with its own survey form:</p>
 <ul>
 <li>
-<strong>ADNAP</strong> (Administração Nacional da Pesca), Mozambique’s national fisheries administration. Only ADNAP data reaches Peskas Mozambique and the Peskas Fishery Data API. Where an ADNAP boat carries a GPS tracker, its landings are linked to its tracked trips.</li>
+<strong>DINAPA</strong> (National Directorate of Fisheries and Aquaculture), Mozambique’s national fisheries authority, formerly ADNAP. Only DINAPA data reaches Peskas Mozambique and the Peskas Fishery Data API. Where a DINAPA boat carries a GPS tracker, its landings are linked to its tracked trips.</li>
 <li>
-<strong>Lurio</strong>. Lurio landings go through the same checks as ADNAP’s but end in their own export. They do not appear on Peskas Mozambique or in the Peskas Fishery Data API.</li>
+<strong>Lurio</strong>. Lurio landings go through the same checks as DINAPA’s but end in their own export. They do not appear on Peskas Mozambique or in the Peskas Fishery Data API.</li>
 </ul>
 <p>Other sources: GPS trackers from Pelagic Data Systems; reference lists of species, gear, boats and landing sites; and length-weight formulas from FishBase and SeaLifeBase.</p>
 <p>The data updates every two days. Known limits:</p>
@@ -105,7 +105,7 @@
 <div class="section level2">
 <h2 id="who-runs-it">Who runs it<a class="anchor" aria-label="anchor" href="#who-runs-it"></a>
 </h2>
-<p><a href="https://worldfishcenter.org/" class="external-link">WorldFish</a> develops and runs this pipeline. <a href="https://adnap.gov.mz/" class="external-link">ADNAP</a> collects the landing surveys that feed Peskas Mozambique.</p>
+<p><a href="https://worldfishcenter.org/" class="external-link">WorldFish</a> develops and runs this pipeline. DINAPA collects the landing surveys that feed Peskas Mozambique.</p>
 <p>For questions, write to <a href="mailto:peskas.platform@gmail.com" class="email">peskas.platform@gmail.com</a>.</p>
 </div>
 <div class="section level2">

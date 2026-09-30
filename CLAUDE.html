@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.12.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.12.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,7 @@
 
 <div id="peskasmozambiquedatapipeline" class="section level1">
 
-<p>R package for the Peskas Mozambique pipeline: two KoBo landing-survey chains (ADNAP and Lurio) plus PDS GPS trips, validated and exported to GCS, Mongo and the Peskas API. PDS ingestion, portal summaries and portal export are <code>coasts::</code> functions called from the workflow with <code>package = "peskas.mozambique.data.pipeline"</code>. The fleet estimate places each tracker by where its trips land (<code>pds.fleet_location: landing</code>, from <code><a href="https://rdrr.io/pkg/coasts/man/describe_pds_tracks.html" class="external-link">coasts::describe_pds_tracks</a></code> in the PDS job), not by the Airtable <code>gaul 2</code> link. Ecosystem context (other repos, data flow, cross-repo contracts): loaded by the <code>peskas</code> Claude Code plugin (repo <code>peskas-context</code>).</p>
+<p>R package for the Peskas Mozambique pipeline: two KoBo landing-survey chains (ADNAP, now DINAPA, and Lurio) plus PDS GPS trips, validated and exported to GCS, Mongo and the Peskas API. PDS ingestion, portal summaries and portal export are <code>coasts::</code> functions called from the workflow with <code>package = "peskas.mozambique.data.pipeline"</code>. The fleet estimate places each tracker by where its trips land (<code>pds.fleet_location: landing</code>, from <code><a href="https://rdrr.io/pkg/coasts/man/describe_pds_tracks.html" class="external-link">coasts::describe_pds_tracks</a></code> in the PDS job), not by the Airtable <code>gaul 2</code> link. Ecosystem context (other repos, data flow, cross-repo contracts): loaded by the <code>peskas</code> Claude Code plugin (repo <code>peskas-context</code>).</p>
 <div class="section level2">
 <h2 id="commands">Commands<a class="anchor" aria-label="anchor" href="#commands"></a></h2>
 <ul><li>Load: <code>Rscript -e 'devtools::load_all()'</code>
@@ -47,7 +47,8 @@
 </ul></div>
 <div class="section level2">
 <h2 id="architecture">Architecture<a class="anchor" aria-label="anchor" href="#architecture"></a></h2>
-<ul><li>Two independent chains, one function per step, suffixed <code>_lurio</code> / <code>_adnap</code>: <code>ingest_landings_*</code> (R/ingestion.R), <code>preprocess_landings_*</code> (R/preprocessing-surveys.R), <code>validate_surveys_*</code> (R/validation.R).</li>
+<ul><li>The <code>adnap</code> chain is DINAPA’s survey (National Directorate of Fisheries and Aquaculture, which replaced ADNAP). Identifiers keep <code>adnap</code>; what is published says DINAPA (<code>survey_organization = "DINAPA"</code>), with no website or logo yet.</li>
+<li>Two independent chains, one function per step, suffixed <code>_lurio</code> / <code>_adnap</code>: <code>ingest_landings_*</code> (R/ingestion.R), <code>preprocess_landings_*</code> (R/preprocessing-surveys.R), <code>validate_surveys_*</code> (R/validation.R).</li>
 <li>
 <strong>Only ADNAP feeds downstream products</strong>: <code><a href="reference/merge_trips.html">merge_trips()</a></code> (joins PDS trips to validated ADNAP landings), <code><a href="reference/export_api_raw.html">export_api_raw()</a></code> / <code><a href="reference/export_api_validated.html">export_api_validated()</a></code> (R/api.R), and through them <code><a href="https://rdrr.io/pkg/coasts/man/summarize_data.html" class="external-link">coasts::summarize_data()</a></code> and <code><a href="https://rdrr.io/pkg/coasts/man/export_portal.html" class="external-link">coasts::export_portal()</a></code> (Mongo <code>portal-*</code>). Lurio ends in <code><a href="reference/export_lurio_landings.html">export_lurio_landings()</a></code>, which writes its own summaries to the <code>mozambique-*</code> pipeline database.</li>
 <li>

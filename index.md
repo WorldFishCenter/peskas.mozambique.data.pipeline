@@ -17,14 +17,14 @@ days.
 
 ## What it produces
 
-- Downloads the landing surveys of two programmes, ADNAP and Lurio, and
+- Downloads the landing surveys of two programmes, DINAPA and Lurio, and
   the GPS tracks of boats that carry a tracker.
 - Estimates the weight of each catch from the fish lengths recorded, or
   from the number of buckets landed when no length is recorded.
 - Flags records that look wrong, such as a fish longer than its species
   allows or a price per kilo far out of range, and sends the flags to
   the Peskas Management Platform for survey teams to review.
-- Publishes ADNAP landing records, before and after the checks, to the
+- Publishes DINAPA landing records, before and after the checks, to the
   Peskas Fishery Data API.
 - Builds the monthly, district, species and gear summaries shown on
   Peskas Mozambique.
@@ -36,11 +36,12 @@ days.
 Two survey programmes record landings in Mozambique, each with its own
 survey form:
 
-- **ADNAP** (Administração Nacional da Pesca), Mozambique’s national
-  fisheries administration. Only ADNAP data reaches Peskas Mozambique
-  and the Peskas Fishery Data API. Where an ADNAP boat carries a GPS
-  tracker, its landings are linked to its tracked trips.
-- **Lurio**. Lurio landings go through the same checks as ADNAP’s but
+- **DINAPA** (National Directorate of Fisheries and Aquaculture),
+  Mozambique’s national fisheries authority, formerly ADNAP. Only DINAPA
+  data reaches Peskas Mozambique and the Peskas Fishery Data API. Where
+  a DINAPA boat carries a GPS tracker, its landings are linked to its
+  tracked trips.
+- **Lurio**. Lurio landings go through the same checks as DINAPA’s but
   end in their own export. They do not appear on Peskas Mozambique or in
   the Peskas Fishery Data API.
 
@@ -72,8 +73,8 @@ Key terms:
 ## Who runs it
 
 [WorldFish](https://worldfishcenter.org/) develops and runs this
-pipeline. [ADNAP](https://adnap.gov.mz/) collects the landing surveys
-that feed Peskas Mozambique.
+pipeline. DINAPA collects the landing surveys that feed Peskas
+Mozambique.
 
 For questions, write to <peskas.platform@gmail.com>.
 
