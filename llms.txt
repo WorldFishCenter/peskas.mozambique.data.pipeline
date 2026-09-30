@@ -52,7 +52,9 @@ The data updates every two days. Known limits:
 
 - Catch weights are estimates, not scale readings.
 - A record with any flag is left out of the validated data until it is
-  corrected or approved by hand in KoboToolbox.
+  corrected, or until a reviewer approves it in the Peskas Management
+  Platform or in KoboToolbox. A record a reviewer rejects is left out
+  too.
 - Prices are in local currency (Mozambican meticais).
 - GPS tracks cover only boats that carry a tracker.
 
@@ -164,9 +166,9 @@ top of
 On a push to `main`, `release.yaml` turns that block into a GitHub
 release.
 
-**Tests**: no automated tests yet (`tests/testthat/` is empty). Check a
-change by running the function against the `default` profile, or by
-pushing a branch other than `main`.
+**Tests**: no automated tests yet. Check a change by running the
+function against the `default` profile, or by pushing a branch other
+than `main`.
 
 **AI-assisted work**: see
 [`CLAUDE.md`](https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/CLAUDE.md).

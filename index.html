@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.11.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.12.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,7 @@
 <p>The data updates every two days. Known limits:</p>
 <ul>
 <li>Catch weights are estimates, not scale readings.</li>
-<li>A record with any flag is left out of the validated data until it is corrected or approved by hand in KoboToolbox.</li>
+<li>A record with any flag is left out of the validated data until it is corrected, or until a reviewer approves it in the Peskas Management Platform or in KoboToolbox. A record a reviewer rejects is left out too.</li>
 <li>Prices are in local currency (Mozambican meticais).</li>
 <li>GPS tracks cover only boats that carry a tracker.</li>
 </ul>
@@ -156,7 +156,7 @@
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>└── ingest<span class="sc">-</span>preprocess<span class="sc">-</span>pds ─► merge<span class="sc">-</span>trips<span class="sc">-</span><span class="fu">adnap</span> (also needs validate<span class="sc">-</span>adnap)</span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>                         └─► summarize<span class="sc">-</span>model<span class="sc">-</span>data</span></code></pre></div>
 <p><strong>Releases</strong>: bump <code>Version:</code> in <code>DESCRIPTION</code> and add a block at the top of <a href="NEWS.html"><code>NEWS.md</code></a>. On a push to <code>main</code>, <code>release.yaml</code> turns that block into a GitHub release.</p>
-<p><strong>Tests</strong>: no automated tests yet (<code>tests/testthat/</code> is empty). Check a change by running the function against the <code>default</code> profile, or by pushing a branch other than <code>main</code>.</p>
+<p><strong>Tests</strong>: no automated tests yet. Check a change by running the function against the <code>default</code> profile, or by pushing a branch other than <code>main</code>.</p>
 <p><strong>AI-assisted work</strong>: see <a href="CLAUDE.html"><code>CLAUDE.md</code></a>.</p>
 </div>
 <div class="section level2">
