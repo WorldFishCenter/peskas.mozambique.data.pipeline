@@ -264,12 +264,18 @@ default:
     select_by: community
     customers:
       - "<PDS device.directCustomer.name>"
+    # Place each tracker by where its trips land rather than by a district
+    # linked by hand. See `?coasts::generate_fleet_analysis`.
+    fleet_location: landing
     pds_trips:
       file_prefix: pds-trips
       version: latest
     pds_tracks:
       file_prefix: pds-tracks
       version: latest
+      # Where each trip's track starts and ends, from `coasts::describe_pds_tracks()`.
+      descriptors:
+        file_prefix: pds-tracks-descriptors
 
   # ===========================================================================
   # API — REST API endpoints for trip data

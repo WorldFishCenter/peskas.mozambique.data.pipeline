@@ -57,13 +57,14 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
   validation_statuses <- survey_review_decisions(conf, "lurio")
 
   # Validation thresholds
-  max_bucket_weight_kg <- 50 # Maximum weight per bucket
-  max_n_buckets <- 300 # Maximum number of buckets
-  max_n_individuals <- 200 # Maximum individuals per record
-  price_kg_max <- 2500 # 30 EUR converted to MZN (81420 TZS * 0.023 MZN/TZS)
-  cpue_max <- 30 # Max CPUE kg/fisher/day
-  rpue_max <- 2500 # 30 EUR converted to MZN
-  max_length_cm <- 500
+  limits <- conf$validation$lurio
+  max_bucket_weight_kg <- limits$max_bucket_weight_kg
+  max_n_buckets <- limits$max_n_buckets
+  max_n_individuals <- limits$max_n_individuals
+  price_kg_max <- limits$price_kg_max
+  cpue_max <- limits$cpue_max
+  rpue_max <- limits$rpue_max
+  max_length_cm <- limits$max_length_cm
 
   # Prepare catch data for validation - adapt to Mozambique structure
 
@@ -497,14 +498,15 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
 
   validation_statuses <- survey_review_decisions(conf, "adnap")
 
-  max_bucket_weight_kg <- 50
-  max_n_buckets <- 250
-  max_n_individuals <- 500
-  price_kg_max <- 2500 # Mozambican metical -> 30 eur
-  cpue_max <- 30
-  rpue_max <- 2500
+  limits <- conf$validation$adnap
+  max_bucket_weight_kg <- limits$max_bucket_weight_kg
+  max_n_buckets <- limits$max_n_buckets
+  max_n_individuals <- limits$max_n_individuals
+  price_kg_max <- limits$price_kg_max
+  cpue_max <- limits$cpue_max
+  rpue_max <- limits$rpue_max
   # Absolute backstop for alert 4; see the note in validate_surveys_lurio().
-  max_length_cm <- 500
+  max_length_cm <- limits$max_length_cm
 
   catch_df <-
     preprocessed_surveys |>

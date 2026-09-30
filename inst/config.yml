@@ -106,13 +106,19 @@ default:
     select_by: community
     customers:
       - "WorldFish - Mozambique"
-      - "Syberintel - distributor"
+      - "Totalenergies Mozambique TEPMA1 (formerly Syberintel)"
+    # Place each tracker by where its trips land rather than by a district
+    # linked by hand. See `?coasts::generate_fleet_analysis`.
+    fleet_location: landing
     pds_trips:
       file_prefix: pds-trips
       version: latest
     pds_tracks:
       file_prefix: pds-tracks
       version: latest
+      # Where each trip's track starts and ends, from `coasts::describe_pds_tracks()`.
+      descriptors:
+        file_prefix: pds-tracks-descriptors
 
   api:
     trips:
@@ -163,11 +169,25 @@ default:
       taxa_enriched:
         file_prefix: taxa-fishbase-enriched
 
+  # Validation thresholds per survey, read by validate_surveys_lurio() and
+  # validate_surveys_adnap(). Prices are in MZN; 2500 is about 30 EUR.
   validation:
-    k_nboats: 3
-    k_nfishers: 3
-    k_catch: 2.5
-    k_pricekg: 5
+    lurio:
+      max_bucket_weight_kg: 50
+      max_n_buckets: 300
+      max_n_individuals: 200
+      price_kg_max: 2500
+      cpue_max: 30
+      rpue_max: 2500
+      max_length_cm: 500
+    adnap:
+      max_bucket_weight_kg: 50
+      max_n_buckets: 250
+      max_n_individuals: 500
+      price_kg_max: 2500
+      cpue_max: 30
+      rpue_max: 2500
+      max_length_cm: 500
 
 production:
   storage:

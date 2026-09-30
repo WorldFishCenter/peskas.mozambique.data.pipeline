@@ -1,3 +1,11 @@
+# peskas.mozambique.data.pipeline 2.12.0
+
+## Boats are placed by where they land
+
+* **NEW** Fleet activity estimates place each tracked boat in the district where its trips land, read from its GPS track, so new and moved trackers count without being linked to a district by hand.
+* **NEW** Fishing trips longer than two days now count in the fleet activity estimates.
+* **FIXED** TotalEnergies trackers (formerly Syberintel) are included again after the customer was renamed.
+
 # peskas.mozambique.data.pipeline 2.11.1
 
 ## Reviewers' decisions are kept between runs

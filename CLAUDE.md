@@ -1,13 +1,13 @@
 # peskas.mozambique.data.pipeline
 
-R package for the Peskas Mozambique pipeline: two KoBo landing-survey chains (ADNAP and Lurio) plus PDS GPS trips, validated and exported to GCS, Mongo and the Peskas API. PDS ingestion, portal summaries and portal export are `coasts::` functions called from the workflow with `package = "peskas.mozambique.data.pipeline"`.
+R package for the Peskas Mozambique pipeline: two KoBo landing-survey chains (ADNAP and Lurio) plus PDS GPS trips, validated and exported to GCS, Mongo and the Peskas API. PDS ingestion, portal summaries and portal export are `coasts::` functions called from the workflow with `package = "peskas.mozambique.data.pipeline"`. The fleet estimate places each tracker by where its trips land (`pds.fleet_location: landing`, from `coasts::describe_pds_tracks` in the PDS job), not by the Airtable `gaul 2` link.
 Ecosystem context (other repos, data flow, cross-repo contracts): loaded by the `peskas` Claude Code plugin (repo `peskas-context`).
 
 ## Commands
 - Load: `Rscript -e 'devtools::load_all()'`
 - Docs: `Rscript -e 'devtools::document()'`
 - Check: `Rscript -e 'devtools::check()'`
-- `tests/testthat/` is empty, so `devtools::test()` proves nothing. Verify changes by running the function against the `default` (dev) profile, or by pushing a non-main branch.
+- There are no automated tests (the repo tracks no `tests/` directory), so `devtools::test()` proves nothing. Verify changes by running the function against the `default` (dev) profile, or by pushing a non-main branch.
 - Pipeline steps and their order: `.github/workflows/data-pipeline.yaml`.
 
 ## Architecture
@@ -22,8 +22,8 @@ Ecosystem context (other repos, data flow, cross-repo contracts): loaded by the 
 - Validation flags are inline `dplyr::case_when()` blocks inside each `validate_surveys_*()`:
   - Stage 1, per catch/trip: flags 1-7 and 12-13, into `alert_flag`.
   - Stage 2, composite: flags 8-11 (price per kg, CPUE, RPUE, zero fishers), computed only for submissions with no stage-1 flag.
-  - Thresholds are hard-coded at the top of each `validate_surveys_*()` (e.g. `price_kg_max`, `max_length_cm`). `conf$validation$k_*` in config is read by no code.
-  - Any flagged submission is dropped from the validated file; the flags are pushed by `export_validation_flags()` to Mongo `validation-*` as `surveys_flags-<asset_id>` / `enumerators_stats-<asset_id>`.
+  - Thresholds live in `inst/config.yml` under `validation.lurio` and `validation.adnap` (e.g. `price_kg_max`, `max_length_cm`), read at the top of each `validate_surveys_*()`. Tune them there, not in code.
+  - A flagged submission is dropped from the validated file unless a reviewer approved it, and one a reviewer rejected is dropped even without a flag (decisions from `survey_review_decisions()`, which wraps `coasts::review_decisions()`); the flags are pushed by `export_validation_flags()` to Mongo `validation-*` as `surveys_flags-<asset_id>` / `enumerators_stats-<asset_id>`.
 - Config keys: `conf$ingestion$<chain>` (KoBo), `conf$surveys$<chain>$<stage>$file_prefix` (GCS prefixes).
 
 ## Rules
