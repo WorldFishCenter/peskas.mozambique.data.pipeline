@@ -1,6 +1,6 @@
 # peskas.mozambique.data.pipeline
 
-R package for the Peskas Mozambique pipeline: two KoBo landing-survey chains (ADNAP, now DINAPA, and Lurio) plus PDS GPS trips, validated and exported to GCS, Mongo and the Peskas API. PDS ingestion, portal summaries and portal export are `coasts::` functions called from the workflow with `package = "peskas.mozambique.data.pipeline"`. The fleet estimate places each tracker by where its trips land (`pds.fleet_location: landing`, from `coasts::describe_pds_tracks` in the PDS job), not by the Airtable `gaul 2` link.
+R package for the Peskas Mozambique pipeline: two KoBo landing-survey chains (ADNAP, now DINAPA, and Lurio) plus PDS GPS trips, validated and exported to GCS, Mongo and the Peskas API. PDS ingestion, portal summaries and portal export are `coasts::` functions called from the workflow with `package = "peskas.mozambique.data.pipeline"`. The fleet estimate places each tracker by where its trips land (`pds.fleet_location: landing`, from `coasts::describe_pds_tracks` in the PDS job), not by the Airtable `gaul 2` link. With `fao.surveys` set to the ADNAP validated file, it also raises catch and revenue with the FAO ARTFISH method (coasts >= 4.19.0).
 Ecosystem context (other repos, data flow, cross-repo contracts): loaded by the `peskas` Claude Code plugin (repo `peskas-context`).
 
 ## Commands
