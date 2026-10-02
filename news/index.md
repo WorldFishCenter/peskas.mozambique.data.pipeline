@@ -1,5 +1,16 @@
 # Changelog
 
+## peskas.mozambique.data.pipeline 2.13.0
+
+### A second estimate of total catch and revenue, by FAO’s ARTFISH method
+
+- **NEW** Monthly total catch and revenue are also estimated with the
+  FAO ARTFISH method for each district, split by gear or boat type,
+  beside the GPS tracker method’s estimate so the two can be compared.
+- **FIXED** Estimated catch and revenue are no longer shown for a
+  district and month with fewer than ten surveyed trips, where a single
+  trip stood for the whole fleet.
+
 ## peskas.mozambique.data.pipeline 2.12.1
 
 ### Records name DINAPA as the collecting organization

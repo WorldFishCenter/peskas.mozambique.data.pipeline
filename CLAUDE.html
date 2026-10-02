@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.12.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.13.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,7 @@
 
 <div id="peskasmozambiquedatapipeline" class="section level1">
 
-<p>R package for the Peskas Mozambique pipeline: two KoBo landing-survey chains (ADNAP, now DINAPA, and Lurio) plus PDS GPS trips, validated and exported to GCS, Mongo and the Peskas API. PDS ingestion, portal summaries and portal export are <code>coasts::</code> functions called from the workflow with <code>package = "peskas.mozambique.data.pipeline"</code>. The fleet estimate places each tracker by where its trips land (<code>pds.fleet_location: landing</code>, from <code><a href="https://rdrr.io/pkg/coasts/man/describe_pds_tracks.html" class="external-link">coasts::describe_pds_tracks</a></code> in the PDS job), not by the Airtable <code>gaul 2</code> link. Ecosystem context (other repos, data flow, cross-repo contracts): loaded by the <code>peskas</code> Claude Code plugin (repo <code>peskas-context</code>).</p>
+<p>R package for the Peskas Mozambique pipeline: two KoBo landing-survey chains (ADNAP, now DINAPA, and Lurio) plus PDS GPS trips, validated and exported to GCS, Mongo and the Peskas API. PDS ingestion, portal summaries and portal export are <code>coasts::</code> functions called from the workflow with <code>package = "peskas.mozambique.data.pipeline"</code>. The fleet estimate places each tracker by where its trips land (<code>pds.fleet_location: landing</code>, from <code><a href="https://rdrr.io/pkg/coasts/man/describe_pds_tracks.html" class="external-link">coasts::describe_pds_tracks</a></code> in the PDS job), not by the Airtable <code>gaul 2</code> link. With <code>fao.surveys</code> set to the ADNAP validated file, it also raises catch and revenue with the FAO ARTFISH method (coasts &gt;= 4.19.0). Ecosystem context (other repos, data flow, cross-repo contracts): loaded by the <code>peskas</code> Claude Code plugin (repo <code>peskas-context</code>).</p>
 <div class="section level2">
 <h2 id="commands">Commands<a class="anchor" aria-label="anchor" href="#commands"></a></h2>
 <ul><li>Load: <code>Rscript -e 'devtools::load_all()'</code>
