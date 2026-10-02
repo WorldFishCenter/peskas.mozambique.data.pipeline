@@ -120,6 +120,9 @@ default:
       descriptors:
         file_prefix: pds-tracks-descriptors
 
+  fao:
+    # Validated survey file carrying the "days fished last week" answer.
+    surveys: wf-adnap-surveys-validated
   api:
     trips:
       raw:
