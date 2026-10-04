@@ -3,7 +3,8 @@ name: Peskas Mozambique Data Pipeline
   push:
   schedule:
     - cron: 0 0 */2 * *
-
+  workflow_dispatch: 
+    
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
