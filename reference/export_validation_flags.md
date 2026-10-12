@@ -33,7 +33,9 @@ export_validation_flags(
 - all_flags:
 
   Data frame containing all validation flags with columns:
-  `submission_id`, `submitted_by`, `submission_date`, `alert_flag`
+  `submission_id`, `submitted_by`, `submission_date`, `alert_flag`,
+  `alert_catches` (where each catch alert was raised; see
+  `catch_alert_locations()`)
 
 - validation_statuses:
 

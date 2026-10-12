@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,6 +30,20 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.14.0" id="peskasmozambiquedatapipeline-2140">peskas.mozambique.data.pipeline 2.14.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-2140"></a></h2>
+<div class="section level3">
+<h3 id="alerts-point-to-the-catch-that-raised-them-2-14-0">Alerts point to the catch that raised them<a class="anchor" aria-label="anchor" href="#alerts-point-to-the-catch-that-raised-them-2-14-0"></a></h3>
+<ul><li>
+<strong>NEW</strong> An alert raised by one catch, such as a length outside the species’ range, records which catch it is about (numbered as in the form), its species and the value recorded. The Management Platform shows them, so a reviewer goes straight to the catch instead of checking each one.</li>
+<li>
+<strong>FIXED</strong> A submission lists each alert code once. A trip-level alert, such as trip duration (12), used to repeat once per species recorded (“12, 12”), and each repeat counted as one more flagged submission in the enumerator statistics.</li>
+<li>
+<strong>FIXED</strong> A trip with no crew entered is flagged (11) even when it has another alert too, and on Lurio even when it caught nothing. The alert used to be checked only on submissions with no other alert.</li>
+<li>
+<strong>FIXED</strong> DINAPA submissions that record a species with no weight, buckets or individuals are flagged again (2). The alert was dropped by mistake in March 2026, and 12 such submissions had been published.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.13.0" id="peskasmozambiquedatapipeline-2130">peskas.mozambique.data.pipeline 2.13.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-2130"></a></h2>
 <div class="section level3">

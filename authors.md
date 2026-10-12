@@ -10,13 +10,13 @@
 ## Citation
 
 Longobardi L (2026). *peskas.mozambique.data.pipeline: Mozambique
-Small-Scale Fisheries Data Pipeline*. R package version 2.13.0,
+Small-Scale Fisheries Data Pipeline*. R package version 2.14.0,
 <https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/>.
 
     @Manual{,
       title = {peskas.mozambique.data.pipeline: Mozambique Small-Scale Fisheries Data Pipeline},
       author = {Lorenzo Longobardi},
       year = {2026},
-      note = {R package version 2.13.0},
+      note = {R package version 2.14.0},
       url = {https://worldfishcenter.github.io/peskas.mozambique.data.pipeline/},
     }

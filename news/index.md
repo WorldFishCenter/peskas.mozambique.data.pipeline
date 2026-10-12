@@ -1,5 +1,25 @@
 # Changelog
 
+## peskas.mozambique.data.pipeline 2.14.0
+
+### Alerts point to the catch that raised them
+
+- **NEW** An alert raised by one catch, such as a length outside the
+  species’ range, records which catch it is about (numbered as in the
+  form), its species and the value recorded. The Management Platform
+  shows them, so a reviewer goes straight to the catch instead of
+  checking each one.
+- **FIXED** A submission lists each alert code once. A trip-level alert,
+  such as trip duration (12), used to repeat once per species recorded
+  (“12, 12”), and each repeat counted as one more flagged submission in
+  the enumerator statistics.
+- **FIXED** A trip with no crew entered is flagged (11) even when it has
+  another alert too, and on Lurio even when it caught nothing. The alert
+  used to be checked only on submissions with no other alert.
+- **FIXED** DINAPA submissions that record a species with no weight,
+  buckets or individuals are flagged again (2). The alert was dropped by
+  mistake in March 2026, and 12 such submissions had been published.
+
 ## peskas.mozambique.data.pipeline 2.13.0
 
 ### A second estimate of total catch and revenue, by FAO’s ARTFISH method
