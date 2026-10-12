@@ -20,7 +20,9 @@ parameters and survey-specific settings}
 \code{conf$ingestion$kobo-{asset_id}}. Default is "adnap".}
 
 \item{all_flags}{Data frame containing all validation flags with columns:
-\code{submission_id}, \code{submitted_by}, \code{submission_date}, \code{alert_flag}}
+\code{submission_id}, \code{submitted_by}, \code{submission_date}, \code{alert_flag},
+\code{alert_catches} (where each catch alert was raised; see
+\code{catch_alert_locations()})}
 
 \item{validation_statuses}{Reviewers' decisions from \code{coasts::review_decisions()},
 with columns \code{submission_id}, \code{validation_status}, \code{validated_at}, \code{validated_by}}

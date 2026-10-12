@@ -91,7 +91,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
     )
 
   # Apply basic validation flags to catch data
-  catch_flags <-
+  catch_checks <-
     catch_df |>
     dplyr::mutate(
       # Flag 1: Form incomplete - catch outcome is "1" but catch_taxon missing
@@ -142,7 +142,10 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
           .data$individuals > max_n_individuals ~ "7",
         TRUE ~ NA_character_
       ),
-    ) |>
+    )
+
+  catch_flags <-
+    catch_checks |>
     dplyr::select(
       "submission_id",
       "submission_date",
@@ -158,6 +161,17 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
       ),
       alert_date = dplyr::case_when(
         .data$submission_date < .data$landing_date ~ "13",
+        TRUE ~ NA_character_
+      ),
+      # A surveyed trip with nobody on it, whatever it caught; see
+      # validate_surveys_adnap(). Checked here, not with the composite
+      # indicators, so it shows even when another alert stops those.
+      # Records from aggregators (survey_activity = 2) never have a crew;
+      # this alert is what keeps those with a catch out of the validated
+      # data, as it did before.
+      alert_fishers = dplyr::case_when(
+        .data$n_fishers == 0 &
+          (.data$survey_activity == "1" | .data$catch_outcome == "1") ~ "11",
         TRUE ~ NA_character_
       )
     ) |>
@@ -187,6 +201,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
         .data$alert_catch_info_incomplete,
         .data$alert_date,
         .data$alert_duration,
+        .data$alert_fishers,
         sep = ","
       ) |>
         stringr::str_remove_all("NA,") |>
@@ -340,10 +355,6 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
       alert_rpue = dplyr::case_when(
         !.data$rpue == Inf & .data$rpue > rpue_max ~ "10",
         TRUE ~ NA_character_
-      ),
-      alert_fishers = dplyr::case_when(
-        .data$n_fishers == 0 & .data$catch_outcome == "1" ~ "11",
-        TRUE ~ NA_character_
       )
     ) |>
     dplyr::mutate(
@@ -351,7 +362,6 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
         .data$alert_price_kg,
         .data$alert_cpue,
         .data$alert_rpue,
-        .data$alert_fishers,
         sep = ","
       ) |>
         stringr::str_remove_all("NA,") |>
@@ -385,6 +395,12 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
     ) |>
     # Remove the now redundant alert_flag_composite column
     dplyr::select(-"alert_flag_composite") |>
+    dplyr::mutate(alert_flag = unique_alert_codes(.data$alert_flag)) |>
+    # Lurio numbers its catches from 0.
+    dplyr::left_join(
+      catch_alert_locations(catch_checks, preprocessed_surveys, first_catch = 0),
+      by = "submission_id"
+    ) |>
     dplyr::left_join(
       surveys_basic_validated |>
         dplyr::select(
@@ -535,7 +551,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
   # dplyr::select(-c("no_men_fishers", "no_women_fishers", "no_child_fishers")) |>
   # dplyr::relocate("n_fishers", .after = "has_boat")
 
-  catch_flags <-
+  catch_checks <-
     catch_df |>
     dplyr::mutate(
       alert_form_incomplete = dplyr::case_when(
@@ -574,7 +590,10 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
         !is.na(.data$individuals) & .data$individuals > max_n_individuals ~ "7",
         TRUE ~ NA_character_
       )
-    ) |>
+    )
+
+  catch_flags <-
+    catch_checks |>
     dplyr::select(
       "submission_id",
       "n_catch",
@@ -591,6 +610,21 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
       ),
       alert_date = dplyr::case_when(
         .data$submission_date < .data$landing_date ~ "13",
+        TRUE ~ NA_character_
+      ),
+      # A trip with nobody on it did not happen: a zero here is the
+      # enumerator's untouched default, not a count. These submissions record
+      # survey_activity = 1, a fishing_start, a fishing_end and a habitat, so
+      # the trip is real and the crew was simply never entered. The catch
+      # outcome used to narrow this, which let the same defect through on
+      # no-catch trips and published n_fishers = 0 against a schema whose
+      # minimum is 1, with every per-fisher metric dividing into Inf.
+      # Checked here, not with the composite indicators, so it shows even
+      # when another alert stops those.
+      alert_fishers = dplyr::case_when(
+        .data$survey_activity == "1" &
+          .data$no_men_fishers + .data$no_women_fishers +
+            .data$no_child_fishers == 0 ~ "11",
         TRUE ~ NA_character_
       )
     ) |>
@@ -616,8 +650,10 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
         .data$alert_n_buckets,
         .data$alert_n_individuals,
         .data$alert_form_incomplete,
+        .data$alert_catch_info_incomplete,
         .data$alert_date,
         .data$alert_duration,
+        .data$alert_fishers,
         sep = ","
       ) |>
         stringr::str_remove_all("NA,") |>
@@ -765,17 +801,6 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
       alert_rpue = dplyr::case_when(
         !.data$rpue == Inf & .data$rpue > rpue_max ~ "10",
         TRUE ~ NA_character_
-      ),
-      # A trip with nobody on it did not happen: a zero here is the
-      # enumerator's untouched default, not a count. These submissions record
-      # survey_activity = 1, a fishing_start, a fishing_end and a habitat, so
-      # the trip is real and the crew was simply never entered. The catch
-      # outcome used to narrow this, which let the same defect through on
-      # no-catch trips and published n_fishers = 0 against a schema whose
-      # minimum is 1, with every per-fisher metric dividing into Inf.
-      alert_fishers = dplyr::case_when(
-        .data$n_fishers == 0 ~ "11",
-        TRUE ~ NA_character_
       )
     ) |>
     dplyr::mutate(
@@ -783,7 +808,6 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
         .data$alert_price_kg,
         .data$alert_cpue,
         .data$alert_rpue,
-        .data$alert_fishers,
         sep = ","
       ) |>
         stringr::str_remove_all("NA,") |>
@@ -817,6 +841,11 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
     ) |>
     # Remove the now redundant alert_flag_composite column
     dplyr::select(-"alert_flag_composite") |>
+    dplyr::mutate(alert_flag = unique_alert_codes(.data$alert_flag)) |>
+    dplyr::left_join(
+      catch_alert_locations(catch_checks, preprocessed_surveys, first_catch = 1),
+      by = "submission_id"
+    ) |>
     dplyr::left_join(
       surveys_basic_validated |>
         dplyr::select("submission_id", "submitted_by") |>
@@ -882,6 +911,57 @@ survey_review_decisions <- function(conf, survey = c("adnap", "lurio")) {
   )
 }
 
+# Each alert code once per submission. Checks run on every catch row, so a
+# trip-level alert repeats once per species ("12, 12") unless removed here.
+unique_alert_codes <- function(alert_flag) {
+  codes <- lapply(strsplit(alert_flag, ",\\s*"), unique)
+  out <- vapply(codes, paste, character(1), collapse = ", ")
+  out[is.na(alert_flag)] <- NA_character_
+  out
+}
+
+# Where each catch alert was raised, so a reviewer can go straight to it: the
+# catch's number in the form (1 for the first species entered), its species
+# and the value recorded. `first_catch` is the n_catch the form's first catch
+# has in `checks`. One nested table per submission, for the
+# `alert_catches` field of the flags collection.
+catch_alert_locations <- function(checks, surveys, first_catch) {
+  species <-
+    surveys |>
+    dplyr::select("submission_id", "n_catch", species = "scientific_name") |>
+    dplyr::distinct()
+
+  checks |>
+    dplyr::filter(!is.na(.data$n_catch)) |>
+    tidyr::pivot_longer(
+      dplyr::starts_with("alert_"),
+      values_to = "code",
+      values_drop_na = TRUE
+    ) |>
+    dplyr::left_join(species, by = c("submission_id", "n_catch")) |>
+    dplyr::mutate(
+      catch_number = as.integer(.data$n_catch) - as.integer(first_catch) + 1L,
+      value = dplyr::case_when(
+        .data$code %in% c("3", "4") ~ paste(.data$length, "cm"),
+        .data$code == "5" ~ paste(.data$weight_bucket, "kg"),
+        .data$code == "6" ~ as.character(.data$n_buckets),
+        .data$code == "7" ~ as.character(.data$individuals),
+        TRUE ~ NA_character_
+      )
+    ) |>
+    dplyr::group_by(.data$submission_id, .data$catch_number, .data$code) |>
+    dplyr::summarise(
+      species = dplyr::first(.data$species),
+      # A catch spans one row per length class, so a check can fire on several.
+      value = dplyr::na_if(
+        paste(unique(stats::na.omit(.data$value)), collapse = ", "),
+        ""
+      ),
+      .groups = "drop"
+    ) |>
+    tidyr::nest(alert_catches = -"submission_id")
+}
+
 review_ids <- function(decisions, status = c("approved", "not_approved")) {
   status <- match.arg(status)
   decisions$submission_id[
@@ -919,7 +999,9 @@ review_ids <- function(decisions, status = c("approved", "not_approved")) {
 #'   "adnap" or "lurio". Determines which configuration to use from
 #'   `conf$ingestion$kobo-{asset_id}`. Default is "adnap".
 #' @param all_flags Data frame containing all validation flags with columns:
-#'   `submission_id`, `submitted_by`, `submission_date`, `alert_flag`
+#'   `submission_id`, `submitted_by`, `submission_date`, `alert_flag`,
+#'   `alert_catches` (where each catch alert was raised; see
+#'   `catch_alert_locations()`)
 #' @param validation_statuses Reviewers' decisions from `coasts::review_decisions()`,
 #'   with columns `submission_id`, `validation_status`, `validated_at`, `validated_by`
 #'
@@ -1001,12 +1083,18 @@ export_validation_flags <- function(
         TRUE ~ .data$validation_status
       ),
     ) |>
-    dplyr::filter(!is.na(.data$submitted_by))
+    dplyr::filter(!is.na(.data$submitted_by)) |>
+    # Stored as [] when no catch was flagged; a missing one would be {}.
+    dplyr::mutate(
+      alert_catches = lapply(.data$alert_catches, function(x) {
+        if (is.null(x)) list() else x
+      })
+    )
 
   validation_flags_long <- validation_flags_with_kobo_status |>
     dplyr::mutate(alert_flag = as.character(.data$alert_flag)) %>%
     tidyr::separate_rows("alert_flag", sep = ",\\s*") |>
-    dplyr::select(-c(dplyr::starts_with("valid")))
+    dplyr::select(-c(dplyr::starts_with("valid"), "alert_catches"))
 
   asset_id <- conf$ingestion[[config_key]]$asset_id
 
