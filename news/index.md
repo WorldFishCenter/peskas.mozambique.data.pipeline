@@ -1,5 +1,30 @@
 # Changelog
 
+## peskas.mozambique.data.pipeline 2.14.2
+
+### The export says so when a catch has a name but no species code
+
+- **NEW**
+
+The fix below was found by an audit, not by the pipeline, because
+nothing noticed that a catch had gone out with a species name and no
+code. Both exports now warn when that happens, so the next divergence
+between the two species-code columns shows up in the run log instead of
+in a quarterly check.
+
+## peskas.mozambique.data.pipeline 2.14.1
+
+### A catch kept its species name but lost its species code
+
+- **FIXED**
+
+The validated landings carry two columns for the same thing, a leftover
+from reshaping and the code the Airtable mapping puts in its place. The
+API export read the leftover. They agree on all but one of 2,413 rows,
+so the published data looked right until a landing of 76 kg of king
+mackerel went out with its name and no code. The export now reads the
+same column as the raw export and as Kenya and Zanzibar.
+
 ## peskas.mozambique.data.pipeline 2.14.0
 
 ### Alerts point to the catch that raised them

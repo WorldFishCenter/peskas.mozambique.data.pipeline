@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.14.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.14.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,6 +30,22 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.14.2" id="peskasmozambiquedatapipeline-2142">peskas.mozambique.data.pipeline 2.14.2<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-2142"></a></h2>
+<div class="section level3">
+<h3 id="the-export-says-so-when-a-catch-has-a-name-but-no-species-code-2-14-2">The export says so when a catch has a name but no species code<a class="anchor" aria-label="anchor" href="#the-export-says-so-when-a-catch-has-a-name-but-no-species-code-2-14-2"></a></h3>
+<ul><li><strong>NEW</strong></li>
+</ul><p>The fix below was found by an audit, not by the pipeline, because nothing noticed that a catch had gone out with a species name and no code. Both exports now warn when that happens, so the next divergence between the two species-code columns shows up in the run log instead of in a quarterly check.</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.14.1" id="peskasmozambiquedatapipeline-2141">peskas.mozambique.data.pipeline 2.14.1<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-2141"></a></h2>
+<div class="section level3">
+<h3 id="a-catch-kept-its-species-name-but-lost-its-species-code-2-14-1">A catch kept its species name but lost its species code<a class="anchor" aria-label="anchor" href="#a-catch-kept-its-species-name-but-lost-its-species-code-2-14-1"></a></h3>
+<ul><li><strong>FIXED</strong></li>
+</ul><p>The validated landings carry two columns for the same thing, a leftover from reshaping and the code the Airtable mapping puts in its place. The API export read the leftover. They agree on all but one of 2,413 rows, so the published data looked right until a landing of 76 kg of king mackerel went out with its name and no code. The export now reads the same column as the raw export and as Kenya and Zanzibar.</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.14.0" id="peskasmozambiquedatapipeline-2140">peskas.mozambique.data.pipeline 2.14.0<a class="anchor" aria-label="anchor" href="#peskasmozambiquedatapipeline-2140"></a></h2>
 <div class="section level3">
