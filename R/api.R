@@ -132,6 +132,15 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
     "Processed {nrow(api_raw)} records from {length(unique(api_raw$trip_id))} unique trips"
   )
 
+  # A catch with a species name but no ASFIS code has lost a value the row
+  # still holds. Warn rather than stop: the file is still usable.
+  nameless <- sum(is.na(api_raw$catch_taxon) & !is.na(api_raw$scientific_name))
+  if (nameless > 0) {
+    logger::log_warn(
+      "{nameless} row(s) carry a scientific_name with no catch_taxon"
+    )
+  }
+
   # Write locally with just the filename
   filename <- conf$api$trips$raw$file_prefix |>
     add_version(extension = "parquet")
@@ -271,7 +280,7 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
       catch_habitat = "habitat",
       "catch_outcome",
       "n_catch",
-      "catch_taxon",
+      catch_taxon = "alpha3_code",
       "scientific_name",
       length_cm = "length",
       "catch_kg",
@@ -296,6 +305,15 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
   logger::log_info(
     "Processed {nrow(api_validated)} records from {length(unique(api_validated$trip_id))} unique trips"
   )
+
+  # A catch with a species name but no ASFIS code has lost a value the row
+  # still holds. Warn rather than stop: the file is still usable.
+  nameless <- sum(is.na(api_validated$catch_taxon) & !is.na(api_validated$scientific_name))
+  if (nameless > 0) {
+    logger::log_warn(
+      "{nameless} row(s) carry a scientific_name with no catch_taxon"
+    )
+  }
 
   # Write locally with just the filename
   filename <- conf$api$trips$validated$file_prefix |>
