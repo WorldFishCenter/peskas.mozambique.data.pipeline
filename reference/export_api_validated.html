@@ -11,7 +11,7 @@ validated version of trip data."><meta property="og:image" content="https://worl
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.14.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.14.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,13 +78,13 @@ The exported dataset includes the following fields:</p><ul><li><p><code>trip_id<
 <li><p><code>gear</code>: Standardized gear type</p></li>
 <li><p><code>vessel_type</code>: Standardized vessel type</p></li>
 <li><p><code>catch_habitat</code>: Habitat where catch occurred</p></li>
-<li><p><code>catch_outcome</code>: Outcome of catch (landed, sold, etc.)</p></li>
+<li><p><code>catch_outcome</code>: Whether the trip caught anything (1 or 0)</p></li>
 <li><p><code>n_catch</code>: Number of individual catch items</p></li>
 <li><p><code>catch_taxon</code>: Species or taxonomic group</p></li>
 <li><p><code>scientific_name</code>: Scientific name</p></li>
 <li><p><code>length_cm</code>: Length measurement in centimeters</p></li>
 <li><p><code>catch_kg</code>: Weight in kilograms</p></li>
-<li><p><code>catch_price</code>: Price in local currency</p></li>
+<li><p><code>catch_price</code>: Always <code>NA</code> — the form prices the landing, not the item</p></li>
 </ul><p><strong>Cloud Storage Location</strong>:
 Files are uploaded to the path specified in <code>conf$api$trips$validated$cloud_path</code>
 (e.g., <code>mozambique/validated/</code>) with versioned filenames following the pattern:

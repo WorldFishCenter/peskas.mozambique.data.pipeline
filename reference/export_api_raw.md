@@ -69,7 +69,7 @@ and is part of a two-stage API export pipeline:
 
 - `catch_habitat`: Habitat where catch occurred
 
-- `catch_outcome`: Outcome of catch (landed, sold, etc.)
+- `catch_outcome`: Whether the trip caught anything (1 or 0)
 
 - `n_catch`: Number of individual catch items
 
@@ -81,7 +81,7 @@ and is part of a two-stage API export pipeline:
 
 - `catch_kg`: Weight in kilograms
 
-- `catch_price`: Price in local currency
+- `catch_price`: Always `NA` — the form prices the landing, not the item
 
 **Cloud Storage Location**: Files are uploaded to the path specified in
 `conf$api$trips$raw$cloud_path` (e.g., `mozambique/raw/`) with versioned
