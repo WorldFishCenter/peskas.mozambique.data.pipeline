@@ -29,13 +29,13 @@
 #' - `gear`: Standardized gear type
 #' - `vessel_type`: Standardized vessel type
 #' - `catch_habitat`: Habitat where catch occurred
-#' - `catch_outcome`: Outcome of catch (landed, sold, etc.)
+#' - `catch_outcome`: Whether the trip caught anything (1 or 0)
 #' - `n_catch`: Number of individual catch items
 #' - `catch_taxon`: Species or taxonomic group
 #' - `scientific_name`: Scientific name
 #' - `length_cm`: Length measurement in centimeters
 #' - `catch_kg`: Weight in kilograms
-#' - `catch_price`: Price in local currency
+#' - `catch_price`: Always `NA` — the form prices the landing, not the item
 #'
 #' **Cloud Storage Location**:
 #' Files are uploaded to the path specified in `conf$api$trips$raw$cloud_path`
@@ -84,6 +84,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
     dplyr::ungroup() |>
     dplyr::mutate(
       n_catch = as.integer(.data$n_catch),
+      catch_outcome = as.integer(.data$catch_outcome),
       survey_organization = "DINAPA",
       n_fishers = .data$no_men_fishers +
         .data$no_women_fishers +
@@ -203,13 +204,13 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
 #' - `gear`: Standardized gear type
 #' - `vessel_type`: Standardized vessel type
 #' - `catch_habitat`: Habitat where catch occurred
-#' - `catch_outcome`: Outcome of catch (landed, sold, etc.)
+#' - `catch_outcome`: Whether the trip caught anything (1 or 0)
 #' - `n_catch`: Number of individual catch items
 #' - `catch_taxon`: Species or taxonomic group
 #' - `scientific_name`: Scientific name
 #' - `length_cm`: Length measurement in centimeters
 #' - `catch_kg`: Weight in kilograms
-#' - `catch_price`: Price in local currency
+#' - `catch_price`: Always `NA` — the form prices the landing, not the item
 #'
 #' **Cloud Storage Location**:
 #' Files are uploaded to the path specified in `conf$api$trips$validated$cloud_path`
@@ -258,6 +259,7 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
     dplyr::ungroup() |>
     dplyr::mutate(
       n_catch = as.integer(.data$n_catch),
+      catch_outcome = as.integer(.data$catch_outcome),
       survey_organization = "DINAPA",
       n_fishers = .data$no_men_fishers +
         .data$no_women_fishers +

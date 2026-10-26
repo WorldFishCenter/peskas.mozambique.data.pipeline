@@ -47,13 +47,13 @@ The exported dataset includes the following fields:
 \item \code{gear}: Standardized gear type
 \item \code{vessel_type}: Standardized vessel type
 \item \code{catch_habitat}: Habitat where catch occurred
-\item \code{catch_outcome}: Outcome of catch (landed, sold, etc.)
+\item \code{catch_outcome}: Whether the trip caught anything (1 or 0)
 \item \code{n_catch}: Number of individual catch items
 \item \code{catch_taxon}: Species or taxonomic group
 \item \code{scientific_name}: Scientific name
 \item \code{length_cm}: Length measurement in centimeters
 \item \code{catch_kg}: Weight in kilograms
-\item \code{catch_price}: Price in local currency
+\item \code{catch_price}: Always \code{NA} — the form prices the landing, not the item
 }
 
 \strong{Cloud Storage Location}:

@@ -1,3 +1,9 @@
+# peskas.mozambique.data.pipeline 2.14.3
+
+## Catch outcome goes out as a number
+
+* **FIXED** Whether a trip caught anything is published as a number, as the API describes it, instead of text.
+
 # peskas.mozambique.data.pipeline 2.14.2
 
 ## The export says so when a catch has a name but no species code
