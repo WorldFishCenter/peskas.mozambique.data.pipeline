@@ -50,13 +50,16 @@ The validation process follows a two-stage approach:
 
 7.  **Individual count**: Number of individuals exceeds 200 per record
 
-**Stage 2: Composite Economic Indicators (Flags 8-10)**
+**Stage 2: Composite Economic Indicators (Flags 8-10 and 14)**
 
 1.  **Price per kg**: Exceeds 2500 MZN/kg (~30 EUR/kg)
 
 2.  **CPUE**: Catch per unit effort exceeds 30 kg/fisher/hour
 
 3.  **RPUE**: Revenue per unit effort exceeds 2500 MZN/fisher/hour
+
+Flag 14: price per kg below 10 MZN/kg (~0.15 USD/kg), on trips with
+revenue.
 
 **KoBoToolbox Integration**: The function queries KoBoToolbox validation
 status for each submission. Submissions marked as

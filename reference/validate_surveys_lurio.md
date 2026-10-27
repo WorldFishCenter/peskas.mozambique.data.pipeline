@@ -46,7 +46,7 @@ The validation process follows a two-stage approach:
 
 7.  **Individual count**: Number of individuals exceeds 200 per record
 
-**Stage 2: Composite Economic Indicators (Flags 8-10)**
+**Stage 2: Composite Economic Indicators (Flags 8-10 and 14)**
 
 1.  **Price per kg**: Exceeds 1875 MZN/kg (~30 EUR/kg, following
     Zanzibar thresholds)
@@ -54,6 +54,9 @@ The validation process follows a two-stage approach:
 2.  **CPUE**: Catch per unit effort exceeds 30 kg/fisher/day
 
 3.  **RPUE**: Revenue per unit effort exceeds 1875 MZN/fisher/day
+
+Flag 14: price per kg below 10 MZN/kg (~0.15 USD/kg), on trips with
+revenue landed from 2023.
 
 Submissions with any validation flags are excluded from the final
 validated dataset but the flags are preserved for data quality

@@ -13,7 +13,7 @@ bypass automatic validation flags."><meta property="og:image" content="https://w
 
     <a class="navbar-brand me-2" href="../index.html">peskas.mozambique.data.pipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.14.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.15.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,10 +72,11 @@ bypass automatic validation flags.</p>
 <li><p><strong>Bucket weight</strong>: Weight per bucket exceeds 50kg</p></li>
 <li><p><strong>Bucket count</strong>: Number of buckets exceeds 300</p></li>
 <li><p><strong>Individual count</strong>: Number of individuals exceeds 200 per record</p></li>
-</ol><p><strong>Stage 2: Composite Economic Indicators (Flags 8-10)</strong></p><ol><li><p><strong>Price per kg</strong>: Exceeds 2500 MZN/kg (~30 EUR/kg)</p></li>
+</ol><p><strong>Stage 2: Composite Economic Indicators (Flags 8-10 and 14)</strong></p><ol><li><p><strong>Price per kg</strong>: Exceeds 2500 MZN/kg (~30 EUR/kg)</p></li>
 <li><p><strong>CPUE</strong>: Catch per unit effort exceeds 30 kg/fisher/hour</p></li>
 <li><p><strong>RPUE</strong>: Revenue per unit effort exceeds 2500 MZN/fisher/hour</p></li>
-</ol><p><strong>KoBoToolbox Integration</strong>:
+</ol><p>Flag 14: price per kg below 10 MZN/kg (~0.15 USD/kg), on trips with revenue.</p>
+<p><strong>KoBoToolbox Integration</strong>:
 The function queries KoBoToolbox validation status for each submission.
 Submissions marked as "validation_status_approved" in KoBoToolbox have all
 flags cleared and are included in the validated dataset regardless of automatic checks.</p>
