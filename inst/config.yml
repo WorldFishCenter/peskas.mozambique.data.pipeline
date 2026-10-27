@@ -180,6 +180,7 @@ default:
       max_n_buckets: 300
       max_n_individuals: 200
       price_kg_max: 2500
+      price_kg_min: 10
       cpue_max: 30
       rpue_max: 2500
       max_length_cm: 500
@@ -188,6 +189,7 @@ default:
       max_n_buckets: 250
       max_n_individuals: 500
       price_kg_max: 2500
+      price_kg_min: 10
       cpue_max: 30
       rpue_max: 2500
       max_length_cm: 500

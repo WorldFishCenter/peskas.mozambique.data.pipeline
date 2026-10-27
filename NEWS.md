@@ -1,3 +1,10 @@
+# peskas.mozambique.data.pipeline 2.15.0
+
+## A price too low to be real is flagged, and a missing weight no longer skips the price checks
+
+* **NEW** Alert 14 flags a trip sold for less than 10 MZN per kg (about 0.15 USD), the low end of alert 8, in both surveys. Only a price too high was checked, so revenue typed in thousands (3 MZN for 500 kg) went out as validated. On the data of 27 October 2026 it flags 36 DINAPA submissions and 751 Lurio ones. In Lurio it checks trips landed from 2023 on, as the export does: about 5,300 Palma records from 2013 to 2020 hold what looks like a price per kg as revenue, which needs a fix at the source, not a review.
+* **FIXED** A trip with one catch without a weight had no total weight, so alerts 8 to 10 never ran on it. They now run on the catches that have one: alert 8 on 1 DINAPA and 20 Lurio trips, alert 9 on 8 Lurio trips. A trip with no weight at all is still not checked.
+
 # peskas.mozambique.data.pipeline 2.14.3
 
 ## Catch outcome goes out as a number

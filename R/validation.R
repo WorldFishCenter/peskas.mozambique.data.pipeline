@@ -22,12 +22,14 @@
 #'   \item \strong{Individual count}: Number of individuals exceeds 200 per record
 #' }
 #'
-#' \strong{Stage 2: Composite Economic Indicators (Flags 8-10)}
+#' \strong{Stage 2: Composite Economic Indicators (Flags 8-10 and 14)}
 #' \enumerate{
 #'   \item \strong{Price per kg}: Exceeds 1875 MZN/kg (~30 EUR/kg, following Zanzibar thresholds)
 #'   \item \strong{CPUE}: Catch per unit effort exceeds 30 kg/fisher/day
 #'   \item \strong{RPUE}: Revenue per unit effort exceeds 1875 MZN/fisher/day
 #' }
+#' Flag 14: price per kg below 10 MZN/kg (~0.15 USD/kg), on trips with revenue
+#' landed from 2023.
 #'
 #' Submissions with any validation flags are excluded from the final validated dataset
 #' but the flags are preserved for data quality monitoring.
@@ -62,6 +64,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
   max_n_buckets <- limits$max_n_buckets
   max_n_individuals <- limits$max_n_individuals
   price_kg_max <- limits$price_kg_max
+  price_kg_min <- limits$price_kg_min
   cpue_max <- limits$cpue_max
   rpue_max <- limits$rpue_max
   max_length_cm <- limits$max_length_cm
@@ -328,12 +331,13 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
         ),
         ~ dplyr::first(.x)
       ),
-      catch_kg = sum(.data$catch_kg)
+      catch_kg = dplyr::na_if(sum(.data$catch_kg, na.rm = TRUE), 0)
     ) |>
     dplyr::transmute(
       submission_id = .data$submission_id,
       catch_outcome = .data$catch_outcome,
       n_fishers = .data$n_fishers,
+      landing_date = .data$landing_date,
       price_kg = .data$catch_price / .data$catch_kg,
       price_kg_USD = .data$price_kg * 0.016,
       cpue = .data$catch_kg / .data$n_fishers / .data$trip_duration,
@@ -346,6 +350,9 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
     dplyr::mutate(
       alert_price_kg = dplyr::case_when(
         .data$price_kg > price_kg_max ~ "8",
+        .data$landing_date >= "2023-01-01" &
+          .data$price_kg > 0 &
+          .data$price_kg < price_kg_min ~ "14",
         TRUE ~ NA_character_
       ),
       alert_cpue = dplyr::case_when(
@@ -466,12 +473,13 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
 #'   \item \strong{Individual count}: Number of individuals exceeds 200 per record
 #' }
 #'
-#' \strong{Stage 2: Composite Economic Indicators (Flags 8-10)}
+#' \strong{Stage 2: Composite Economic Indicators (Flags 8-10 and 14)}
 #' \enumerate{
 #'   \item \strong{Price per kg}: Exceeds 2500 MZN/kg (~30 EUR/kg)
 #'   \item \strong{CPUE}: Catch per unit effort exceeds 30 kg/fisher/hour
 #'   \item \strong{RPUE}: Revenue per unit effort exceeds 2500 MZN/fisher/hour
 #' }
+#' Flag 14: price per kg below 10 MZN/kg (~0.15 USD/kg), on trips with revenue.
 #'
 #' \strong{KoBoToolbox Integration}:
 #' The function queries KoBoToolbox validation status for each submission.
@@ -519,6 +527,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
   max_n_buckets <- limits$max_n_buckets
   max_n_individuals <- limits$max_n_individuals
   price_kg_max <- limits$price_kg_max
+  price_kg_min <- limits$price_kg_min
   cpue_max <- limits$cpue_max
   rpue_max <- limits$rpue_max
   # Absolute backstop for alert 4; see the note in validate_surveys_lurio().
@@ -774,7 +783,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
         ),
         ~ dplyr::first(.x)
       ),
-      catch_kg = sum(.data$catch_kg)
+      catch_kg = dplyr::na_if(sum(.data$catch_kg, na.rm = TRUE), 0)
     ) |>
     dplyr::transmute(
       submission_id = .data$submission_id,
@@ -792,6 +801,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
     dplyr::mutate(
       alert_price_kg = dplyr::case_when(
         .data$price_kg > price_kg_max ~ "8",
+        .data$price_kg > 0 & .data$price_kg < price_kg_min ~ "14",
         TRUE ~ NA_character_
       ),
       alert_cpue = dplyr::case_when(
