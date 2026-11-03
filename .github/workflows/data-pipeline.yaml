@@ -232,6 +232,11 @@ jobs:
         run: echo "R_CONFIG_ACTIVE=production" >> $GITHUB_ENV
       - name: Call export_portal()
         run: Rscript -e 'coasts::export_portal(log_threshold = logger::INFO, package = "peskas.mozambique.data.pipeline")'
+      - name: Check the portal against the data dictionary
+        if: endsWith(github.ref, '/main')
+        run: |
+          Rscript -e 'for (f in c("prod_check.R", "portal.odcs.json")) download.file(paste0("https://raw.githubusercontent.com/WorldFishCenter/peskas-context/main/dictionary/", f), f, quiet = TRUE)'
+          Rscript prod_check.R peskas.mozambique.data.pipeline
 
   export-lurio-data:
     name: Export Lurio data
