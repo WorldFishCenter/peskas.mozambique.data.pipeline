@@ -1,6 +1,6 @@
 Package: peskas.mozambique.data.pipeline
 Title: Mozambique Small-Scale Fisheries Data Pipeline
-Version: 2.15.0
+Version: 2.16.0
 Authors@R: c(
     person("Lorenzo", "Longobardi", , "l.longobardi@cgiar.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-3126-7341")),
@@ -36,7 +36,7 @@ Imports:
     tidyr,
     tidyselect,
     univOutl,
-    coasts (>= 4.19.0)
+    coasts (>= 4.25.1)
 Remotes:
     github::WorldFishCenter/peskas.coasts,
     github::WorldFishCenter/ssf-ai-toolkit/Rplug@plug-R

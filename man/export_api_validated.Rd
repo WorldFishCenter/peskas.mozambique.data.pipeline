@@ -51,6 +51,7 @@ The exported dataset includes the following fields:
 \item \code{catch_taxon}: Species or taxonomic group
 \item \code{scientific_name}: Scientific name
 \item \code{length_cm}: Length measurement in centimeters
+\item \code{n_fish}: Number of fish behind \code{length_cm} (\code{NA} without a length)
 \item \code{catch_kg}: Weight in kilograms
 \item \code{catch_price}: Always \code{NA} — the form prices the landing, not the item
 }

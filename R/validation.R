@@ -270,8 +270,7 @@ validate_surveys_lurio <- function(log_threshold = logger::DEBUG) {
         "alert_flag",
         "submission_alerts",
         "min_length",
-        "max_length_75",
-        "n"
+        "max_length_75"
       )
     ) |>
     # if catch outcome is 0 catch kg must be set to 0
@@ -726,7 +725,7 @@ validate_surveys_adnap <- function(log_threshold = logger::DEBUG) {
     preprocessed_surveys |>
     dplyr::left_join(catch_df_validated) |>
     dplyr::select(
-      -c("alert_flag", "submission_alerts", "min_length", "max_length_75", "n")
+      -c("alert_flag", "submission_alerts", "min_length", "max_length_75")
     ) |>
     # if catch outcome is 0 catch kg must be set to 0
     dplyr::mutate(

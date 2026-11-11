@@ -34,6 +34,7 @@
 #' - `catch_taxon`: Species or taxonomic group
 #' - `scientific_name`: Scientific name
 #' - `length_cm`: Length measurement in centimeters
+#' - `n_fish`: Number of fish behind `length_cm` (`NA` without a length)
 #' - `catch_kg`: Weight in kilograms
 #' - `catch_price`: Always `NA` — the form prices the landing, not the item
 #'
@@ -84,6 +85,11 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
     dplyr::ungroup() |>
     dplyr::mutate(
       n_catch = as.integer(.data$n_catch),
+      n_fish = dplyr::if_else(
+        is.na(.data$length),
+        NA_integer_,
+        as.integer(.data$individuals)
+      ),
       catch_outcome = as.integer(.data$catch_outcome),
       survey_organization = "DINAPA",
       n_fishers = .data$no_men_fishers +
@@ -110,6 +116,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
       catch_taxon = "alpha3_code",
       "scientific_name",
       length_cm = "length",
+      "n_fish",
       "catch_kg",
       tot_catch_price = "catch_price"
     ) |>
@@ -209,6 +216,7 @@ export_api_raw <- function(log_threshold = logger::DEBUG) {
 #' - `catch_taxon`: Species or taxonomic group
 #' - `scientific_name`: Scientific name
 #' - `length_cm`: Length measurement in centimeters
+#' - `n_fish`: Number of fish behind `length_cm` (`NA` without a length)
 #' - `catch_kg`: Weight in kilograms
 #' - `catch_price`: Always `NA` — the form prices the landing, not the item
 #'
@@ -259,6 +267,11 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
     dplyr::ungroup() |>
     dplyr::mutate(
       n_catch = as.integer(.data$n_catch),
+      n_fish = dplyr::if_else(
+        is.na(.data$length),
+        NA_integer_,
+        as.integer(.data$individuals)
+      ),
       catch_outcome = as.integer(.data$catch_outcome),
       survey_organization = "DINAPA",
       n_fishers = .data$no_men_fishers +
@@ -285,6 +298,7 @@ export_api_validated <- function(log_threshold = logger::DEBUG) {
       catch_taxon = "alpha3_code",
       "scientific_name",
       length_cm = "length",
+      "n_fish",
       "catch_kg",
       tot_catch_price = "catch_price"
     ) |>

@@ -1,3 +1,10 @@
+# peskas.mozambique.data.pipeline 2.16.0
+
+## Number of fish behind each length
+
+* **NEW** Each length in the API's landings carries the number of fish behind it.
+* **CHANGED** Alerts 3 and 4 (fish too short or too long for their species) use the same rule as every Peskas country, on total length. Rays now have only the 500 cm limit, octopus, squid and shrimp keep their own limits, and FishBase's lengths for octopus, crabs and lobsters no longer flag normal catches.
+
 # peskas.mozambique.data.pipeline 2.15.0
 
 ## A price too low to be real is flagged, and a missing weight no longer skips the price checks
