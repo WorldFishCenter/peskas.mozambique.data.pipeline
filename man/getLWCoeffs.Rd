@@ -2,14 +2,15 @@
 % Please edit documentation in R/model-taxa.R
 \name{getLWCoeffs}
 \alias{getLWCoeffs}
-\title{Get Length-Weight Coefficients and Morphological Data for Species}
+\title{Get Length-Weight Coefficients and Length Limits for Species}
 \usage{
 getLWCoeffs(
   taxa_list = NULL,
   asfis_list = NULL,
   fb_version = "latest",
   slb_version = "latest",
-  fao_areas = 51
+  fao_areas = 51,
+  taxa_lengths = NULL
 )
 }
 \arguments{
@@ -25,6 +26,9 @@ getLWCoeffs(
 \item{fao_areas}{FAO major fishing areas to keep species from. Zanzibar,
 Kenya and Mozambique are all area 51 (Western Indian Ocean); set it from
 \code{metadata:fishbase:fao_areas} in config when porting to another country.}
+
+\item{taxa_lengths}{The hub table of species lengths written by
+\code{\link[coasts:enrich_taxa]{coasts::enrich_taxa()}}.}
 }
 \value{
 A list with two elements:
@@ -36,29 +40,25 @@ A list with two elements:
 \item lw_a - Geometric mean of parameter 'a' across studies
 \item lw_b - Arithmetic mean of parameter 'b' across studies
 }
-\item ml - A data frame with morphological data:
-\itemize{
-\item catch_taxon - FAO 3-alpha code
-\item n - Number of measurements
-\item max_length_75 - 75th percentile of maximum length
-\item max_weightkg_75 - 75th percentile of maximum weight in kg
-}
+\item ml - The length limits, one row per \code{catch_taxon}: \code{min_length} and
+\code{max_length_75} in cm, from \code{\link[coasts:get_length_limits]{coasts::get_length_limits()}} for fish and
+hand-set for the shellfish the shared rule leaves out.
 }
 }
 \description{
-Retrieves and summarizes length-weight relationship coefficients and morphological data
-by handling both FishBase and SeaLifeBase data in a single workflow.
+Retrieves and summarizes length-weight relationship coefficients from FishBase
+and SeaLifeBase, and the length limits alerts 3 and 4 check against.
 }
 \examples{
 \dontrun{
-# Get coefficients and morphological data
-results <- getLWCoeffs(taxa_list, asfis_list)
+# Get coefficients and length limits
+results <- getLWCoeffs(taxa_list, asfis_list, taxa_lengths = taxa_lengths)
 
 # Access length-weight coefficients
 lw_coeffs <- results$lw
 
-# Access morphological data
-morph_data <- results$ml
+# Access length limits
+length_limits <- results$ml
 }
 }
 \keyword{mining}

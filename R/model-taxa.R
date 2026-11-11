@@ -120,36 +120,11 @@ calculate_catch_adnap <- function(catch_data = NULL, lwcoeffs = NULL) {
     )
 }
 
-#' Median ratio of common length to maximum length in FishBase
-#'
-#' Measured over the 3,748 species in release 25.04 that carry both fields:
-#' median 0.625, IQR 0.50-0.72, 5-95% 0.341-0.857. Used by [getLWCoeffs()] to
-#' estimate a common length for the 90% of species FishBase leaves without one.
-#'
-#' @return A single numeric.
-#' @keywords internal
-#' @noRd
-common_length_ratio <- function() 0.625
-
-#' Minimum of a vector, NA rather than Inf when everything is missing
-#'
-#' `min(x, na.rm = TRUE)` returns `Inf` for an all-NA vector, which then
-#' propagates as `NaN` through any arithmetic and compares as `NA` against
-#' everything -- turning "no data" into "no problem found".
-#'
-#' @param x A numeric vector.
-#' @return The minimum, or `NA_real_` if `x` is entirely missing.
-#' @keywords internal
-#' @noRd
-safe_min <- function(x) {
-  if (all(is.na(x))) NA_real_ else min(x, na.rm = TRUE)
-}
-
-#' Get Length-Weight Coefficients and Morphological Data for Species
+#' Get Length-Weight Coefficients and Length Limits for Species
 #'
 #' @description
-#' Retrieves and summarizes length-weight relationship coefficients and morphological data
-#' by handling both FishBase and SeaLifeBase data in a single workflow.
+#' Retrieves and summarizes length-weight relationship coefficients from FishBase
+#' and SeaLifeBase, and the length limits alerts 3 and 4 check against.
 #'
 #' @param taxa_list Character vector of FAO 3-alpha codes
 #' @param asfis_list ASFIS list data frame
@@ -159,6 +134,8 @@ safe_min <- function(x) {
 #' @param fao_areas FAO major fishing areas to keep species from. Zanzibar,
 #'   Kenya and Mozambique are all area 51 (Western Indian Ocean); set it from
 #'   `metadata:fishbase:fao_areas` in config when porting to another country.
+#' @param taxa_lengths The hub table of species lengths written by
+#'   [coasts::enrich_taxa()].
 #' @return A list with two elements:
 #'   \itemize{
 #'     \item lw - A data frame with length-weight coefficients:
@@ -168,24 +145,20 @@ safe_min <- function(x) {
 #'         \item lw_a - Geometric mean of parameter 'a' across studies
 #'         \item lw_b - Arithmetic mean of parameter 'b' across studies
 #'       }
-#'     \item ml - A data frame with morphological data:
-#'       \itemize{
-#'         \item catch_taxon - FAO 3-alpha code
-#'         \item n - Number of measurements
-#'         \item max_length_75 - 75th percentile of maximum length
-#'         \item max_weightkg_75 - 75th percentile of maximum weight in kg
-#'       }
+#'     \item ml - The length limits, one row per `catch_taxon`: `min_length` and
+#'       `max_length_75` in cm, from [coasts::get_length_limits()] for fish and
+#'       hand-set for the shellfish the shared rule leaves out.
 #'   }
 #' @examples
 #' \dontrun{
-#' # Get coefficients and morphological data
-#' results <- getLWCoeffs(taxa_list, asfis_list)
+#' # Get coefficients and length limits
+#' results <- getLWCoeffs(taxa_list, asfis_list, taxa_lengths = taxa_lengths)
 #'
 #' # Access length-weight coefficients
 #' lw_coeffs <- results$lw
 #'
-#' # Access morphological data
-#' morph_data <- results$ml
+#' # Access length limits
+#' length_limits <- results$ml
 #' }
 #' @keywords mining preprocessing
 #' @export
@@ -195,7 +168,8 @@ getLWCoeffs <- function(
   asfis_list = NULL,
   fb_version = "latest",
   slb_version = "latest",
-  fao_areas = 51
+  fao_areas = 51,
+  taxa_lengths = NULL
 ) {
   logger::log_info(
     "Reading FishBase {fb_version} / SeaLifeBase {slb_version} for ",
@@ -233,14 +207,13 @@ getLWCoeffs <- function(
   # 5. Get length-weight parameters
   lw_data <- get_length_weight_batch(
     species_areas_filtered,
-    include_morphology = TRUE,
     fb_version = fb_version,
     slb_version = slb_version
   )
 
   # 6. Format output
   lw <-
-    lw_data$length_weight %>%
+    lw_data %>%
     dplyr::filter(!(.data$a3_code == "PEZ" & .data$type != "TL")) %>%
     dplyr::filter(
       !(.data$a3_code %in% c("OCZ", "OQC") & !.data$type == "ML")
@@ -260,46 +233,22 @@ getLWCoeffs <- function(
       "lw_b"
     )
 
+  # The shared rule covers fish only; these shellfish keep hand-set limits.
   ml <-
-    lw_data$morphology %>%
-    # FishBase populates CommonLength for only 10% of species, against 91% for
-    # Length. Estimate the gaps from Length -- see common_length_ratio().
-    dplyr::mutate(
-      common_length = dplyr::coalesce(
-        .data$CommonLength,
-        common_length_ratio() * .data$Length
-      )
-    ) %>%
-    dplyr::group_by(.data$a3_code) %>%
+    coasts::get_length_limits(taxa_lengths) |>
+    dplyr::group_by(catch_taxon = .data$alpha3_code) |>
     dplyr::summarise(
-      n = dplyr::n(),
-      # min() on an all-NA group gives Inf, which became NaN below and silently
-      # disabled the length alerts. NA keeps the absence visible.
-      min_length = safe_min(.data$common_length),
-      max_length_75 = stats::quantile(.data$Length, 0.95, na.rm = TRUE), #(make it more permissive)
-      max_weightkg_75 = stats::quantile(.data$Weight, 0.75, na.rm = TRUE) /
-        1000,
+      min_length = min(.data$min_length),
+      max_length_75 = max(.data$max_length),
       .groups = "drop"
-    ) %>%
-    dplyr::mutate(
-      max_length_75 = dplyr::case_when(
-        .data$a3_code == "IAX" ~ 100,
-        TRUE ~ .data$max_length_75
-      ),
-      min_length = .data$min_length - 0.75 * .data$min_length, #(make it more permissive, we don't know the exact value from fishbase)
-      min_length = dplyr::case_when(
-        .data$a3_code %in% c("OCZ", "OQC", "IAX") ~ 15,
-        .data$a3_code == "PEZ" ~ 5,
-        .data$a3_code == "COZ" ~ 2,
-        TRUE ~ .data$min_length
-      )
     ) |>
-    dplyr::select(
-      catch_taxon = "a3_code",
-      "n",
-      "min_length",
-      "max_length_75",
-      "max_weightkg_75"
+    dplyr::rows_upsert(
+      dplyr::tibble(
+        catch_taxon = c("OCZ", "OQC", "IAX", "PEZ", "COZ"),
+        min_length = c(15, 15, 15, 5, 2),
+        max_length_75 = c(NA, NA, 100, NA, NA)
+      ),
+      by = "catch_taxon"
     )
 
   return(list(lw = lw, ml = ml))
@@ -978,20 +927,18 @@ get_species_areas_batch <- function(
 }
 
 
-#' Get Length-Weight and Morphological Parameters for Species (Batch Version)
+#' Get Length-Weight Parameters for Species (Batch Version)
 #'
 #' @description
-#' Retrieves length-weight relationship parameters and optional morphological data
+#' Retrieves length-weight relationship parameters
 #' for multiple species efficiently by processing them in batches. Handles both
 #' fish and non-fish species appropriately.
 #'
 #' @param species_areas_filtered Data frame with filtered species
-#' @param include_morphology Logical, whether to include morphological data (Length,
-#'   CommonLength, Weight). Default is FALSE.
 #' @param fb_version FishBase release to read, e.g. `"25.04"`. Pinned in
 #'   `inst/config.yml` under `metadata:fishbase`; `"latest"` is unsafe.
 #' @param slb_version SeaLifeBase release to read, e.g. `"24.07"`.
-#' @return If include_morphology is FALSE (default), a data frame with columns:
+#' @return A data frame with columns:
 #'   \itemize{
 #'     \item a3_code: FAO 3-alpha code
 #'     \item species: Scientific name
@@ -1002,21 +949,6 @@ get_species_areas_batch <- function(
 #'     \item b: Length-weight parameter b
 #'   }
 #'
-#'   If include_morphology is TRUE, a list with two elements:
-#'   \itemize{
-#'     \item length_weight: Data frame as described above
-#'     \item morphology: Data frame with columns:
-#'       \itemize{
-#'         \item a3_code: FAO 3-alpha code
-#'         \item species: Scientific name
-#'         \item area_code: FAO area code
-#'         \item database: Source database
-#'         \item Length: Maximum recorded length
-#'         \item CommonLength: Common length
-#'         \item Weight: Maximum weight
-#'       }
-#'   }
-#'
 #' @note
 #' - For FishBase species, only total length (TL) measurements are used
 #' - Questionable estimates (EsQ = "yes") are excluded
@@ -1024,18 +956,12 @@ get_species_areas_batch <- function(
 #' \dontrun{
 #' # Get just length-weight parameters
 #' lw_data <- get_length_weight_batch(species_areas_filtered)
-#'
-#' # Get both length-weight and morphological data
-#' results <- get_length_weight_batch(species_areas_filtered, include_morphology = TRUE)
-#' lw_data <- results$length_weight
-#' morph_data <- results$morphology
 #' }
 #' @keywords mining preprocessing
 #' @export
 #'
 get_length_weight_batch <- function(
   species_areas_filtered,
-  include_morphology = FALSE,
   fb_version = "latest",
   slb_version = "latest"
 ) {
@@ -1172,69 +1098,5 @@ get_length_weight_batch <- function(
     ) %>%
     dplyr::distinct()
 
-  # Get morphological information if requested
-  if (include_morphology) {
-    morph_fishbase <- if (length(fishbase_species) > 0) {
-      rfishbase::species(
-        fishbase_species,
-        fields = c("Species", "SpecCode", "Length", "CommonLength", "Weight"),
-        server = "fishbase",
-        version = fb_version
-      ) %>%
-        dplyr::mutate(database = "fishbase")
-    } else {
-      data.frame(
-        Species = character(0),
-        SpecCode = integer(0),
-        Length = numeric(0),
-        CommonLength = numeric(0),
-        Weight = numeric(0),
-        database = character(0)
-      )
-    }
-
-    morph_sealifebase <- if (length(sealifebase_species) > 0) {
-      rfishbase::species(
-        sealifebase_species,
-        fields = c("Species", "SpecCode", "Length", "CommonLength", "Weight"),
-        server = "sealifebase",
-        version = slb_version
-      ) %>%
-        dplyr::mutate(database = "sealifebase")
-    } else {
-      data.frame(
-        Species = character(0),
-        SpecCode = integer(0),
-        Length = numeric(0),
-        CommonLength = numeric(0),
-        Weight = numeric(0),
-        database = character(0)
-      )
-    }
-
-    morph_data <- dplyr::bind_rows(morph_fishbase, morph_sealifebase) %>%
-      dplyr::left_join(
-        species_areas_filtered,
-        by = c("Species" = "species", "database")
-      ) %>%
-      dplyr::select(
-        .data$a3_code,
-        species = "Species",
-        .data$area_code,
-        .data$database,
-        .data$Length,
-        .data$CommonLength,
-        .data$Weight
-      ) %>%
-      dplyr::distinct()
-
-    # Return a list with both datasets
-    return(list(
-      length_weight = lw_data,
-      morphology = morph_data
-    ))
-  }
-
-  # Return only length-weight data if morphology not requested
   return(lw_data)
 }

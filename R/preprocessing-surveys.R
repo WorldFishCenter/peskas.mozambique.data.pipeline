@@ -261,7 +261,12 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
     asfis_list = asfis,
     fb_version = conf$metadata$fishbase$fishbase_version %||% "latest",
     slb_version = conf$metadata$fishbase$sealifebase_version %||% "latest",
-    fao_areas = conf$metadata$fishbase$fao_areas %||% 51
+    fao_areas = conf$metadata$fishbase$fao_areas %||% 51,
+    taxa_lengths = coasts::download_parquet_from_cloud(
+      prefix = conf$metadata$fishbase$taxa_enriched$file_prefix,
+      provider = conf$storage$google$key,
+      options = conf$storage$google$options_coasts
+    )
   )
 
   # FLY now also resolves from FishBase, so replace rather than append -- two
@@ -285,8 +290,7 @@ preprocess_landings_lurio <- function(log_threshold = logger::DEBUG) {
 
   catch_df <-
     calculate_catch_lurio(catch_data = catch_info, lwcoeffs = lwcoeffs$lw) |>
-    dplyr::left_join(lwcoeffs$ml, by = "catch_taxon") |>
-    dplyr::select(-"max_weightkg_75")
+    dplyr::left_join(lwcoeffs$ml, by = "catch_taxon")
 
   market_info <-
     raw_dat %>%
@@ -1339,7 +1343,12 @@ process_version_data <- function(
     asfis_list = asfis,
     fb_version = conf$metadata$fishbase$fishbase_version %||% "latest",
     slb_version = conf$metadata$fishbase$sealifebase_version %||% "latest",
-    fao_areas = conf$metadata$fishbase$fao_areas %||% 51
+    fao_areas = conf$metadata$fishbase$fao_areas %||% 51,
+    taxa_lengths = coasts::download_parquet_from_cloud(
+      prefix = conf$metadata$fishbase$taxa_enriched$file_prefix,
+      provider = conf$storage$google$key,
+      options = conf$storage$google$options_coasts
+    )
   )
 
   # FLY now also resolves from FishBase, so replace rather than append -- two
@@ -1364,7 +1373,6 @@ process_version_data <- function(
   catch_df <-
     calculate_catch_adnap(catch_data = catch_info, lwcoeffs = lwcoeffs$lw) |>
     dplyr::left_join(lwcoeffs$ml, by = "catch_taxon") |>
-    dplyr::select(-"max_weightkg_75") |>
     dplyr::mutate(
       catch_kg = dplyr::if_else(
         .data$count_method == "3",
