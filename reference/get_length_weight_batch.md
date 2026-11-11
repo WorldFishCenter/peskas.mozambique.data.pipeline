@@ -1,15 +1,14 @@
-# Get Length-Weight and Morphological Parameters for Species (Batch Version)
+# Get Length-Weight Parameters for Species (Batch Version)
 
-Retrieves length-weight relationship parameters and optional
-morphological data for multiple species efficiently by processing them
-in batches. Handles both fish and non-fish species appropriately.
+Retrieves length-weight relationship parameters for multiple species
+efficiently by processing them in batches. Handles both fish and
+non-fish species appropriately.
 
 ## Usage
 
 ``` r
 get_length_weight_batch(
   species_areas_filtered,
-  include_morphology = FALSE,
   fb_version = "latest",
   slb_version = "latest"
 )
@@ -20,11 +19,6 @@ get_length_weight_batch(
 - species_areas_filtered:
 
   Data frame with filtered species
-
-- include_morphology:
-
-  Logical, whether to include morphological data (Length, CommonLength,
-  Weight). Default is FALSE.
 
 - fb_version:
 
@@ -37,7 +31,7 @@ get_length_weight_batch(
 
 ## Value
 
-If include_morphology is FALSE (default), a data frame with columns:
+A data frame with columns:
 
 - a3_code: FAO 3-alpha code
 
@@ -53,26 +47,6 @@ If include_morphology is FALSE (default), a data frame with columns:
 
 - b: Length-weight parameter b
 
-If include_morphology is TRUE, a list with two elements:
-
-- length_weight: Data frame as described above
-
-- morphology: Data frame with columns:
-
-  - a3_code: FAO 3-alpha code
-
-  - species: Scientific name
-
-  - area_code: FAO area code
-
-  - database: Source database
-
-  - Length: Maximum recorded length
-
-  - CommonLength: Common length
-
-  - Weight: Maximum weight
-
 ## Note
 
 - For FishBase species, only total length (TL) measurements are used
@@ -85,10 +59,5 @@ If include_morphology is TRUE, a list with two elements:
 if (FALSE) { # \dontrun{
 # Get just length-weight parameters
 lw_data <- get_length_weight_batch(species_areas_filtered)
-
-# Get both length-weight and morphological data
-results <- get_length_weight_batch(species_areas_filtered, include_morphology = TRUE)
-lw_data <- results$length_weight
-morph_data <- results$morphology
 } # }
 ```

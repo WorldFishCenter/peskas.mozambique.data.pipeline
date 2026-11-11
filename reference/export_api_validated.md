@@ -76,6 +76,8 @@ and is part of a two-stage API export pipeline:
 
 - `length_cm`: Length measurement in centimeters
 
+- `n_fish`: Number of fish behind `length_cm` (`NA` without a length)
+
 - `catch_kg`: Weight in kilograms
 
 - `catch_price`: Always `NA` — the form prices the landing, not the item

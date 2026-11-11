@@ -1,8 +1,8 @@
-# Get Length-Weight Coefficients and Morphological Data for Species
+# Get Length-Weight Coefficients and Length Limits for Species
 
-Retrieves and summarizes length-weight relationship coefficients and
-morphological data by handling both FishBase and SeaLifeBase data in a
-single workflow.
+Retrieves and summarizes length-weight relationship coefficients from
+FishBase and SeaLifeBase, and the length limits alerts 3 and 4 check
+against.
 
 ## Usage
 
@@ -12,7 +12,8 @@ getLWCoeffs(
   asfis_list = NULL,
   fb_version = "latest",
   slb_version = "latest",
-  fao_areas = 51
+  fao_areas = 51,
+  taxa_lengths = NULL
 )
 ```
 
@@ -42,6 +43,11 @@ getLWCoeffs(
   `metadata:fishbase:fao_areas` in config when porting to another
   country.
 
+- taxa_lengths:
+
+  The hub table of species lengths written by
+  [`coasts::enrich_taxa()`](https://rdrr.io/pkg/coasts/man/enrich_taxa.html).
+
 ## Value
 
 A list with two elements:
@@ -56,27 +62,22 @@ A list with two elements:
 
   - lw_b - Arithmetic mean of parameter 'b' across studies
 
-- ml - A data frame with morphological data:
-
-  - catch_taxon - FAO 3-alpha code
-
-  - n - Number of measurements
-
-  - max_length_75 - 75th percentile of maximum length
-
-  - max_weightkg_75 - 75th percentile of maximum weight in kg
+- ml - The length limits, one row per `catch_taxon`: `min_length` and
+  `max_length_75` in cm, from
+  [`coasts::get_length_limits()`](https://rdrr.io/pkg/coasts/man/get_length_limits.html)
+  for fish and hand-set for the shellfish the shared rule leaves out.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-# Get coefficients and morphological data
-results <- getLWCoeffs(taxa_list, asfis_list)
+# Get coefficients and length limits
+results <- getLWCoeffs(taxa_list, asfis_list, taxa_lengths = taxa_lengths)
 
 # Access length-weight coefficients
 lw_coeffs <- results$lw
 
-# Access morphological data
-morph_data <- results$ml
+# Access length limits
+length_limits <- results$ml
 } # }
 ```
