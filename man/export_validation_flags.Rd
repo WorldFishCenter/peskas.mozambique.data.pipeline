@@ -33,7 +33,8 @@ Invisible NULL. The function pushes data to MongoDB as a side effect.
 \description{
 Exports validation flags to MongoDB, keeping the decisions reviewers made in
 the Peskas Management Platform or in KoboToolbox (read beforehand with
-\code{coasts::review_decisions()}).
+\code{coasts::review_decisions()}, and again just before the push with
+\code{coasts::refresh_review_decisions()}).
 }
 \details{
 The function performs the following steps:
