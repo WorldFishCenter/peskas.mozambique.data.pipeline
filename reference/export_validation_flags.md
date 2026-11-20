@@ -3,7 +3,9 @@
 Exports validation flags to MongoDB, keeping the decisions reviewers
 made in the Peskas Management Platform or in KoboToolbox (read
 beforehand with
-[`coasts::review_decisions()`](https://rdrr.io/pkg/coasts/man/review_decisions.html)).
+[`coasts::review_decisions()`](https://rdrr.io/pkg/coasts/man/review_decisions.html),
+and again just before the push with
+[`coasts::refresh_review_decisions()`](https://rdrr.io/pkg/coasts/man/refresh_review_decisions.html)).
 
 ## Usage
 
